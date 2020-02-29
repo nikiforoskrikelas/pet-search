@@ -1,0 +1,4 @@
+#Sat Feb 29 13:39:55 GMT 2020
+base.0=G\:\\Android\\pet-search\\app\\build\\intermediates\\dex\\debug\\out\\classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
