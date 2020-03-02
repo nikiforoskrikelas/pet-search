@@ -4,33 +4,41 @@ ADDED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
-MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\aaffe2c7f23d715ca045db9d0a51d031\appcompat-v7-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f0b606c9fced75b8c2c36f0323cf799c\constraint-layout-1.1.3\AndroidManifest.xml:2:1-11:12
-MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\6e07dd593fd232c7452c3c20dd27a8e1\support-fragment-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\dd73b81ee8477d30c51950de1c7d4569\animated-vector-drawable-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4ac8bacc6bdc06da514981c2a3855a4a\support-core-ui-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d5d5e0afb6d849720ba2f95b3e39fcb5\support-core-utils-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f70c181cc5010e4998d82bc8bd89fbfc\support-vector-drawable-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:loader:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1b9d515d8d1965c403de8914ca55cb7e\loader-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:viewpager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92ce9c7365574accb4fbe105fd65c21\viewpager-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\27bfd3d5fa1a19402f7d4ba14fb093b2\coordinatorlayout-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\efc59ff1f1e99fe01414b630035d92d4\drawerlayout-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\6064ab6775e6301e62ccb69ace9dbdbd\slidingpanelayout-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:customview:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3c823cc0e07b899cd90d87fa2096c1f1\customview-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\a3a8c8cd8e894f6104aa84c89d48db43\swiperefreshlayout-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\65fb01e2ae4e35f2f343847d68c9b98d\asynclayoutinflater-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4e7b3bbed8e6e29e2ba6d4fc6e8eccff\support-compat-28.0.0\AndroidManifest.xml:17:1-24:12
-MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d107c5806233895e5be684de327d381f\versionedparcelable-28.0.0\AndroidManifest.xml:17:1-25:12
-MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\ad328008f0a36049c16e2e42bbe6ba36\cursoradapter-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0160f619c43aa1ecd28ae91ba8993552\runtime-1.1.1\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:documentfile:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1938455035f0a35aa3eefef3aa9fbbc4\documentfile-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1dc9df8e70a38f62679d702ec717a6a9\localbroadcastmanager-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:print:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4fd4a6ed80eb447e76c05986ef3fd6a1\print-28.0.0\AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\823f37c489bd02c4a4d0f6ca442a27d7\viewmodel-1.1.1\AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f33d666ad8cee70ee4e661f9bad8e372\livedata-1.1.1\AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\85526c118dcfe3eae0cf402e2cecc572\livedata-core-1.1.1\AndroidManifest.xml:17:1-22:12
-MERGED from [android.arch.core:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5853616defd81755613306a8befefe63\runtime-1.1.1\AndroidManifest.xml:17:1-22:12
-MERGED from [com.android.support:interpolator:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d622bc834304bbaef61946e6b6568c26\interpolator-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3fca11ee8a5af81e897352e405f8c9f0\appcompat-v7-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\58b7170ee3b7aaa16d3038f1be703913\constraint-layout-1.1.3\AndroidManifest.xml:2:1-11:12
+MERGED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:15:1-25:12
+MERGED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:17:1-29:12
+MERGED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:2:1-17:12
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\b0c8147c7976ca7df028937df8eaab7a\play-services-tasks-16.0.1\AndroidManifest.xml:2:1-9:12
+MERGED from [com.google.firebase:firebase-database-collection:16.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\feddf5527e029b71f8ea31067aaa939e\firebase-database-collection-16.0.0\AndroidManifest.xml:2:1-8:12
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:17:1-28:12
+MERGED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\be32b431b4d24a3287b566aa11092566\support-fragment-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0eb8291de5323c1486064cf4a8037fba\animated-vector-drawable-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\eba9e8e1851ef2b6607455c69a49de9d\support-core-ui-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4bd8e0693cad3f28347e60fbbc6ec6ac\support-core-utils-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\8fedcdece9b29577d63838b3c8c65d67\support-vector-drawable-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:loader:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d4fb78e1b2379a889d381de26ea6c677\loader-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:viewpager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1b7ad71ab59b85973bb984d5537742a4\viewpager-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\e91d9f8a997cf552491ee30f42cd1990\coordinatorlayout-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7d45728016fc2b6e81dbc09e03621054\drawerlayout-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\bf26bead5516284b410d5d65adcbc922\slidingpanelayout-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:customview:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5d13b7f63f4826fdf4b3a94b89f15df3\customview-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\e5b43c283c386f1b305cb4aae2b2cf67\swiperefreshlayout-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\775027e793a84d9e7857e85b640ba6b8\asynclayoutinflater-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:17:1-31:12
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\976475a846828c035308218b5ee63574\support-compat-28.0.0\AndroidManifest.xml:17:1-24:12
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92967fcccd1198914e431d2fd899be2\versionedparcelable-28.0.0\AndroidManifest.xml:17:1-25:12
+MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\bb79e3993cfb8717c1db965c1611024f\cursoradapter-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\ce0106a06b1bb49a21ee0a1157226be4\runtime-1.1.1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:documentfile:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\2c71ba8a68e926071219e43d1160f987\documentfile-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\362af9817a1c7664c5e8dffc2de6447e\localbroadcastmanager-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:print:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7bb4a7c0ebc8bb36be26079549cf4c1e\print-28.0.0\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\00530a783152ea70eda4f59171abe653\viewmodel-1.1.1\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\9c6c15998e3201f4f7020b7962c0d8ff\livedata-1.1.1\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f36db6d254f452bb76e593e708999847\livedata-core-1.1.1\AndroidManifest.xml:17:1-22:12
+MERGED from [android.arch.core:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5974e74a2ac421c944db62cca6c8ab21\runtime-1.1.1\AndroidManifest.xml:17:1-22:12
+MERGED from [com.android.support:interpolator:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0bfe170218895ab01b4226695f49e46f\interpolator-28.0.0\AndroidManifest.xml:17:1-22:12
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
@@ -50,14 +58,26 @@ INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:1-22:12
 		ADDED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:2:11-69
 application
 ADDED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:5:5-20:19
-MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f0b606c9fced75b8c2c36f0323cf799c\constraint-layout-1.1.3\AndroidManifest.xml:9:5-20
-MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f0b606c9fced75b8c2c36f0323cf799c\constraint-layout-1.1.3\AndroidManifest.xml:9:5-20
-MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4e7b3bbed8e6e29e2ba6d4fc6e8eccff\support-compat-28.0.0\AndroidManifest.xml:22:5-94
-MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4e7b3bbed8e6e29e2ba6d4fc6e8eccff\support-compat-28.0.0\AndroidManifest.xml:22:5-94
-MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d107c5806233895e5be684de327d381f\versionedparcelable-28.0.0\AndroidManifest.xml:22:5-23:19
-MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d107c5806233895e5be684de327d381f\versionedparcelable-28.0.0\AndroidManifest.xml:22:5-23:19
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\58b7170ee3b7aaa16d3038f1be703913\constraint-layout-1.1.3\AndroidManifest.xml:9:5-20
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\58b7170ee3b7aaa16d3038f1be703913\constraint-layout-1.1.3\AndroidManifest.xml:9:5-20
+MERGED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:22:5-27:19
+MERGED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:22:5-27:19
+MERGED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:9:5-15:19
+MERGED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:9:5-15:19
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\b0c8147c7976ca7df028937df8eaab7a\play-services-tasks-16.0.1\AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\b0c8147c7976ca7df028937df8eaab7a\play-services-tasks-16.0.1\AndroidManifest.xml:7:5-20
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:22:5-26:19
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:22:5-26:19
+MERGED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:25:5-29:19
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\976475a846828c035308218b5ee63574\support-compat-28.0.0\AndroidManifest.xml:22:5-94
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\976475a846828c035308218b5ee63574\support-compat-28.0.0\AndroidManifest.xml:22:5-94
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92967fcccd1198914e431d2fd899be2\versionedparcelable-28.0.0\AndroidManifest.xml:22:5-23:19
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92967fcccd1198914e431d2fd899be2\versionedparcelable-28.0.0\AndroidManifest.xml:22:5-23:19
 	android:appComponentFactory
-		ADDED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4e7b3bbed8e6e29e2ba6d4fc6e8eccff\support-compat-28.0.0\AndroidManifest.xml:22:18-91
+		ADDED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\976475a846828c035308218b5ee63574\support-compat-28.0.0\AndroidManifest.xml:22:18-91
 	android:supportsRtl
 		ADDED from G:\Android\pet-search\app\src\main\AndroidManifest.xml:11:9-35
 	android:label
@@ -90,62 +110,80 @@ uses-sdk
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
-MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\aaffe2c7f23d715ca045db9d0a51d031\appcompat-v7-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\aaffe2c7f23d715ca045db9d0a51d031\appcompat-v7-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f0b606c9fced75b8c2c36f0323cf799c\constraint-layout-1.1.3\AndroidManifest.xml:5:5-7:41
-MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f0b606c9fced75b8c2c36f0323cf799c\constraint-layout-1.1.3\AndroidManifest.xml:5:5-7:41
-MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\6e07dd593fd232c7452c3c20dd27a8e1\support-fragment-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\6e07dd593fd232c7452c3c20dd27a8e1\support-fragment-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\dd73b81ee8477d30c51950de1c7d4569\animated-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\dd73b81ee8477d30c51950de1c7d4569\animated-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4ac8bacc6bdc06da514981c2a3855a4a\support-core-ui-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4ac8bacc6bdc06da514981c2a3855a4a\support-core-ui-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d5d5e0afb6d849720ba2f95b3e39fcb5\support-core-utils-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d5d5e0afb6d849720ba2f95b3e39fcb5\support-core-utils-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f70c181cc5010e4998d82bc8bd89fbfc\support-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f70c181cc5010e4998d82bc8bd89fbfc\support-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:loader:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1b9d515d8d1965c403de8914ca55cb7e\loader-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:loader:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1b9d515d8d1965c403de8914ca55cb7e\loader-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:viewpager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92ce9c7365574accb4fbe105fd65c21\viewpager-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:viewpager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92ce9c7365574accb4fbe105fd65c21\viewpager-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\27bfd3d5fa1a19402f7d4ba14fb093b2\coordinatorlayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\27bfd3d5fa1a19402f7d4ba14fb093b2\coordinatorlayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\efc59ff1f1e99fe01414b630035d92d4\drawerlayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\efc59ff1f1e99fe01414b630035d92d4\drawerlayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\6064ab6775e6301e62ccb69ace9dbdbd\slidingpanelayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\6064ab6775e6301e62ccb69ace9dbdbd\slidingpanelayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:customview:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3c823cc0e07b899cd90d87fa2096c1f1\customview-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:customview:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3c823cc0e07b899cd90d87fa2096c1f1\customview-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\a3a8c8cd8e894f6104aa84c89d48db43\swiperefreshlayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\a3a8c8cd8e894f6104aa84c89d48db43\swiperefreshlayout-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\65fb01e2ae4e35f2f343847d68c9b98d\asynclayoutinflater-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\65fb01e2ae4e35f2f343847d68c9b98d\asynclayoutinflater-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4e7b3bbed8e6e29e2ba6d4fc6e8eccff\support-compat-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4e7b3bbed8e6e29e2ba6d4fc6e8eccff\support-compat-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d107c5806233895e5be684de327d381f\versionedparcelable-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d107c5806233895e5be684de327d381f\versionedparcelable-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\ad328008f0a36049c16e2e42bbe6ba36\cursoradapter-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\ad328008f0a36049c16e2e42bbe6ba36\cursoradapter-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0160f619c43aa1ecd28ae91ba8993552\runtime-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0160f619c43aa1ecd28ae91ba8993552\runtime-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:documentfile:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1938455035f0a35aa3eefef3aa9fbbc4\documentfile-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:documentfile:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1938455035f0a35aa3eefef3aa9fbbc4\documentfile-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1dc9df8e70a38f62679d702ec717a6a9\localbroadcastmanager-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1dc9df8e70a38f62679d702ec717a6a9\localbroadcastmanager-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:print:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4fd4a6ed80eb447e76c05986ef3fd6a1\print-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:print:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4fd4a6ed80eb447e76c05986ef3fd6a1\print-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\823f37c489bd02c4a4d0f6ca442a27d7\viewmodel-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\823f37c489bd02c4a4d0f6ca442a27d7\viewmodel-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f33d666ad8cee70ee4e661f9bad8e372\livedata-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f33d666ad8cee70ee4e661f9bad8e372\livedata-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\85526c118dcfe3eae0cf402e2cecc572\livedata-core-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\85526c118dcfe3eae0cf402e2cecc572\livedata-core-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.core:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5853616defd81755613306a8befefe63\runtime-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [android.arch.core:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5853616defd81755613306a8befefe63\runtime-1.1.1\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:interpolator:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d622bc834304bbaef61946e6b6568c26\interpolator-28.0.0\AndroidManifest.xml:20:5-44
-MERGED from [com.android.support:interpolator:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d622bc834304bbaef61946e6b6568c26\interpolator-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3fca11ee8a5af81e897352e405f8c9f0\appcompat-v7-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:appcompat-v7:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3fca11ee8a5af81e897352e405f8c9f0\appcompat-v7-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\58b7170ee3b7aaa16d3038f1be703913\constraint-layout-1.1.3\AndroidManifest.xml:5:5-7:41
+MERGED from [com.android.support.constraint:constraint-layout:1.1.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\58b7170ee3b7aaa16d3038f1be703913\constraint-layout-1.1.3\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:18:5-20:41
+MERGED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:5:5-7:41
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\b0c8147c7976ca7df028937df8eaab7a\play-services-tasks-16.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.android.gms:play-services-tasks:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\b0c8147c7976ca7df028937df8eaab7a\play-services-tasks-16.0.1\AndroidManifest.xml:5:5-44
+MERGED from [com.google.firebase:firebase-database-collection:16.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\feddf5527e029b71f8ea31067aaa939e\firebase-database-collection-16.0.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.firebase:firebase-database-collection:16.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\feddf5527e029b71f8ea31067aaa939e\firebase-database-collection-16.0.0\AndroidManifest.xml:6:5-44
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:20:5-44
+MERGED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:21:5-23:54
+MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\be32b431b4d24a3287b566aa11092566\support-fragment-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-fragment:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\be32b431b4d24a3287b566aa11092566\support-fragment-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0eb8291de5323c1486064cf4a8037fba\animated-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:animated-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0eb8291de5323c1486064cf4a8037fba\animated-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\eba9e8e1851ef2b6607455c69a49de9d\support-core-ui-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-ui:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\eba9e8e1851ef2b6607455c69a49de9d\support-core-ui-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4bd8e0693cad3f28347e60fbbc6ec6ac\support-core-utils-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-core-utils:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\4bd8e0693cad3f28347e60fbbc6ec6ac\support-core-utils-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\8fedcdece9b29577d63838b3c8c65d67\support-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-vector-drawable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\8fedcdece9b29577d63838b3c8c65d67\support-vector-drawable-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:loader:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d4fb78e1b2379a889d381de26ea6c677\loader-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:loader:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\d4fb78e1b2379a889d381de26ea6c677\loader-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:viewpager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1b7ad71ab59b85973bb984d5537742a4\viewpager-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:viewpager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1b7ad71ab59b85973bb984d5537742a4\viewpager-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\e91d9f8a997cf552491ee30f42cd1990\coordinatorlayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:coordinatorlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\e91d9f8a997cf552491ee30f42cd1990\coordinatorlayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7d45728016fc2b6e81dbc09e03621054\drawerlayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:drawerlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7d45728016fc2b6e81dbc09e03621054\drawerlayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\bf26bead5516284b410d5d65adcbc922\slidingpanelayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:slidingpanelayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\bf26bead5516284b410d5d65adcbc922\slidingpanelayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:customview:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5d13b7f63f4826fdf4b3a94b89f15df3\customview-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:customview:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5d13b7f63f4826fdf4b3a94b89f15df3\customview-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\e5b43c283c386f1b305cb4aae2b2cf67\swiperefreshlayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:swiperefreshlayout:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\e5b43c283c386f1b305cb4aae2b2cf67\swiperefreshlayout-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\775027e793a84d9e7857e85b640ba6b8\asynclayoutinflater-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:asynclayoutinflater:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\775027e793a84d9e7857e85b640ba6b8\asynclayoutinflater-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:21:5-23:63
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\976475a846828c035308218b5ee63574\support-compat-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:support-compat:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\976475a846828c035308218b5ee63574\support-compat-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92967fcccd1198914e431d2fd899be2\versionedparcelable-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:versionedparcelable:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f92967fcccd1198914e431d2fd899be2\versionedparcelable-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\bb79e3993cfb8717c1db965c1611024f\cursoradapter-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:cursoradapter:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\bb79e3993cfb8717c1db965c1611024f\cursoradapter-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\ce0106a06b1bb49a21ee0a1157226be4\runtime-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\ce0106a06b1bb49a21ee0a1157226be4\runtime-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:documentfile:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\2c71ba8a68e926071219e43d1160f987\documentfile-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:documentfile:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\2c71ba8a68e926071219e43d1160f987\documentfile-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\362af9817a1c7664c5e8dffc2de6447e\localbroadcastmanager-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:localbroadcastmanager:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\362af9817a1c7664c5e8dffc2de6447e\localbroadcastmanager-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:print:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7bb4a7c0ebc8bb36be26079549cf4c1e\print-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:print:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7bb4a7c0ebc8bb36be26079549cf4c1e\print-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\00530a783152ea70eda4f59171abe653\viewmodel-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:viewmodel:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\00530a783152ea70eda4f59171abe653\viewmodel-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\9c6c15998e3201f4f7020b7962c0d8ff\livedata-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\9c6c15998e3201f4f7020b7962c0d8ff\livedata-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f36db6d254f452bb76e593e708999847\livedata-core-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.lifecycle:livedata-core:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\f36db6d254f452bb76e593e708999847\livedata-core-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5974e74a2ac421c944db62cca6c8ab21\runtime-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [android.arch.core:runtime:1.1.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\5974e74a2ac421c944db62cca6c8ab21\runtime-1.1.1\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:interpolator:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0bfe170218895ab01b4226695f49e46f\interpolator-28.0.0\AndroidManifest.xml:20:5-44
+MERGED from [com.android.support:interpolator:28.0.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\0bfe170218895ab01b4226695f49e46f\interpolator-28.0.0\AndroidManifest.xml:20:5-44
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
 INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
+	tools:overrideLibrary
+		ADDED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:23:9-51
 	android:targetSdkVersion
 		INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
 		ADDED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
@@ -154,3 +192,43 @@ INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
 		INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
 		ADDED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
 		INJECTED from G:\Android\pet-search\app\src\main\AndroidManifest.xml
+uses-permission#android.permission.ACCESS_NETWORK_STATE
+ADDED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:22:5-79
+	android:name
+		ADDED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:22:22-76
+uses-permission#android.permission.INTERNET
+ADDED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:23:5-67
+	android:name
+		ADDED from [com.google.firebase:firebase-database:16.0.4] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\7e715ed1433342c77ef9a436f316f817\firebase-database-16.0.4\AndroidManifest.xml:23:22-64
+activity#com.google.android.gms.common.api.GoogleApiActivity
+ADDED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:23:9-26:75
+	android:exported
+		ADDED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:25:13-37
+	android:theme
+		ADDED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:26:13-72
+	android:name
+		ADDED from [com.google.android.gms:play-services-base:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\1df0ca3145ff116788e1eb28abe1d543\play-services-base-16.0.1\AndroidManifest.xml:24:13-79
+provider#com.google.firebase.provider.FirebaseInitProvider
+ADDED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:10:9-14:39
+	android:authorities
+		ADDED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:12:13-72
+	android:exported
+		ADDED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:13:13-37
+	android:initOrder
+		ADDED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:14:13-36
+	android:name
+		ADDED from [com.google.firebase:firebase-common:16.0.3] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\552ff6bee435dc580cff94360ef12b1a\firebase-common-16.0.3\AndroidManifest.xml:11:13-77
+meta-data#com.google.android.gms.version
+ADDED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:23:9-25:69
+	android:value
+		ADDED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:25:13-66
+	android:name
+		ADDED from [com.google.android.gms:play-services-basement:16.0.1] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\fdb5da0ed38cc04ccb72e4795eb89cf7\play-services-basement-16.0.1\AndroidManifest.xml:24:13-58
+meta-data#android.support.VERSION
+ADDED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:26:9-28:38
+MERGED from [com.android.support:support-media-compat:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\15e311807eaf50f5e66b2132ea7673b9\support-media-compat-26.1.0\AndroidManifest.xml:26:9-28:38
+	android:value
+		ADDED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:28:13-35
+	android:name
+		ADDED from [com.android.support:support-v4:26.1.0] C:\Users\Spectrum\.gradle\caches\transforms-2\files-2.1\3add587345b94788bd75b4b96bd3241e\support-v4-26.1.0\AndroidManifest.xml:27:13-51
