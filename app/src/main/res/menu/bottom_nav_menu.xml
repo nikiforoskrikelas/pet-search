@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_organize"
+        android:icon="@drawable/ic_nav_organize_24dp"
+        android:title="@string/nav_title_1"
+        />
+
+    <item
+        android:id="@+id/nav_search_parties"
+        android:icon="@drawable/ic_nav_search_parties__24dp"
+        android:title="@string/nav_title_2" />
+
+    <item
+        android:id="@+id/nav_map"
+        android:icon="@drawable/ic_nav_map_24dp"
+        android:title="@string/nav_title_3" />
+
+    <item
+        android:id="@+id/nav_notifications"
+        android:icon="@drawable/ic_nav_notifications_24dp"
+        android:title="@string/nav_title_4" />
+
+    <item
+        android:id="@+id/nav_me"
+        android:icon="@drawable/ic_nav_me_24dp"
+        android:title="@string/nav_title_5" />
+
+</menu>
