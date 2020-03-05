@@ -3,13 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nk00322.surrey.petsearch.MapFragment"
-    android:background="@android:color/holo_green_light">
+    tools:context="nk00322.surrey.petsearch.MapFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="MAP" />
+        android:background="@android:color/holo_green_light"
+        android:gravity="center"
+        android:text="MAP"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
 </FrameLayout>

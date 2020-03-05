@@ -3,14 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nk00322.surrey.petsearch.NotificationsFragment"
-    android:background="@android:color/holo_blue_bright">
+    tools:context="nk00322.surrey.petsearch.NotificationsFragment">
 
 
-<!-- TODO: Update blank fragment layout -->
+    <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="NOTIFICATIONS" />
+        android:background="@android:color/holo_blue_bright"
+        android:gravity="center"
+        android:text="NOTIFICATIONS"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
 </FrameLayout>

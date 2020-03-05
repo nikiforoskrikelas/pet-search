@@ -3,13 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nk00322.surrey.petsearch.SearchPartiesFragment"
-    android:background="@android:color/holo_orange_dark">
+    tools:context="nk00322.surrey.petsearch.SearchPartiesFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="SEARCH PARTIES" />
+        android:background="@android:color/holo_orange_dark"
+        android:gravity="center"
+        android:text="SEARCH PARTIES"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
 </FrameLayout>
