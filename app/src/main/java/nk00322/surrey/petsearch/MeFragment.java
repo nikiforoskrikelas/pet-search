@@ -13,10 +13,10 @@ import com.example.petsearch.R;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link Me#newInstance} factory method to
+ * Use the {@link MeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Me extends Fragment {
+public class MeFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -26,7 +26,7 @@ public class Me extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public Me() {
+    public MeFragment() {
         // Required empty public constructor
     }
 
@@ -36,11 +36,11 @@ public class Me extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment Me.
+     * @return A new instance of fragment MeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static Me newInstance(String param1, String param2) {
-        Me fragment = new Me();
+    public static MeFragment newInstance(String param1, String param2) {
+        MeFragment fragment = new MeFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);

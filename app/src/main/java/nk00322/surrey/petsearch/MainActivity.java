@@ -16,11 +16,11 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private static final String TAG = "MainActivity";
 
     BottomNavigationView bottomNavigationView;
-    Organize organizeFragment = new Organize();
-    SearchParties searchPartiesFragment = new SearchParties();
-    Map mapFragment = new Map();
-    Notifications notificationsFragment = new Notifications();
-    Me meFragment = new Me();
+    OrganizeFragment organizeFragment = new OrganizeFragment();
+    SearchPartiesFragment searchPartiesFragment = new SearchPartiesFragment();
+    MapFragment mapFragment = new MapFragment();
+    NotificationsFragment notificationsFragment = new NotificationsFragment();
+    MeFragment meFragment = new MeFragment();
 
 
     @Override

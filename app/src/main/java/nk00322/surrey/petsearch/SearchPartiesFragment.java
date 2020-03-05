@@ -14,9 +14,9 @@ import com.example.petsearch.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchParties extends Fragment {
+public class SearchPartiesFragment extends Fragment {
 
-    public SearchParties() {
+    public SearchPartiesFragment() {
         // Required empty public constructor
     }
 
