@@ -15,11 +15,21 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
-public class MeFragment extends Fragment {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class SignupFragment extends Fragment {
 
-
-    public MeFragment() {
+    public SignupFragment() {
         // Required empty public constructor
+    }
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_signup, container, false);
     }
 
     @Override
@@ -27,20 +37,12 @@ public class MeFragment extends Fragment {
 
         final NavController navController = Navigation.findNavController(view);
 
-        Button button = view.findViewById(R.id.signout);
+        Button button = view.findViewById(R.id.signup);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+                navController.navigate(R.id.action_signupFragment_to_mapFragment);
             }
         });
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_me, container, false);
     }
 }

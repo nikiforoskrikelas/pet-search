@@ -3,23 +3,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nk00322.surrey.petsearch.MeFragment">
-
+    tools:context="nk00322.surrey.petsearch.SignupFragment">
 
     <!-- TODO: Update blank fragment layout -->
+    <!-- TODO: MAYBE ADD ANOTHER FRAGMENT AFTER SIGNUP FOR USER TO FILL IN ACCOUNT DETAILS -->
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_red_light"
+        android:text="SIGNUP"
+        android:textColor="@android:color/white"
+        android:background="@android:color/black"
         android:gravity="center"
-        android:text="ME"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Out"
-        android:id="@+id/signout"
+        android:text="Sign Up"
+        android:id="@+id/signup"
         android:layout_gravity="center_horizontal|bottom"/>
 
 </FrameLayout>

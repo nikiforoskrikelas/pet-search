@@ -3,23 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nk00322.surrey.petsearch.MeFragment">
-
+    tools:context="nk00322.surrey.petsearch.SigninFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/holo_red_light"
+        android:text="SIGNIN"
+        android:background="@android:color/darker_gray"
         android:gravity="center"
-        android:text="ME"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Out"
-        android:id="@+id/signout"
+        android:text="Sign In"
+        android:id="@+id/signin"
         android:layout_gravity="center_horizontal|bottom"/>
 
 </FrameLayout>

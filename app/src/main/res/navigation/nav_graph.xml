@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/welcomeFragment">
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="nk00322.surrey.petsearch.WelcomeFragment"
+        android:label="fragment_welcome"
+        tools:layout="@layout/fragment_welcome">
+        <action
+            android:id="@+id/action_welcomeFragment_to_signupFragment"
+            app:destination="@id/signupFragment" />
+        <action
+            android:id="@+id/action_welcomeFragment_to_signinFragment"
+            app:destination="@id/signinFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signupFragment"
+        android:name="nk00322.surrey.petsearch.SignupFragment"
+        android:label="fragment_signup"
+        tools:layout="@layout/fragment_signup">
+        <action
+            android:id="@+id/action_signupFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/welcomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/signinFragment"
+        android:name="nk00322.surrey.petsearch.SigninFragment"
+        android:label="fragment_signin"
+        tools:layout="@layout/fragment_signin">
+        <action
+            android:id="@+id/action_signinFragment_to_mapFragment"
+            app:destination="@id/mapFragment"
+            app:popUpTo="@id/welcomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/meFragment"
+        android:name="nk00322.surrey.petsearch.MeFragment"
+        android:label="fragment_me"
+        tools:layout="@layout/fragment_me">
+        <action
+            android:id="@+id/action_meFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment"
+            app:popUpTo="@id/welcomeFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="nk00322.surrey.petsearch.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_mapFragment_to_notificationsFragment"
+            app:destination="@id/notificationsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/notificationsFragment"
+        android:name="nk00322.surrey.petsearch.NotificationsFragment"
+        android:label="fragment_notifications"
+        tools:layout="@layout/fragment_notifications">
+        <action
+            android:id="@+id/action_notificationsFragment_to_meFragment"
+            app:destination="@id/meFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/organizeFragment"
+        android:name="nk00322.surrey.petsearch.OrganizeFragment"
+        android:label="fragment_organize"
+        tools:layout="@layout/fragment_organize">
+        <action
+            android:id="@+id/action_organizeFragment_to_searchPartiesFragment"
+            app:destination="@id/searchPartiesFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/searchPartiesFragment"
+        android:name="nk00322.surrey.petsearch.SearchPartiesFragment"
+        android:label="fragment_search_parties"
+        tools:layout="@layout/fragment_search_parties">
+        <action
+            android:id="@+id/action_searchPartiesFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
+    </fragment>
+</navigation>
