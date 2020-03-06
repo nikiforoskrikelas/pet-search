@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "901476644957",
+    "firebase_url": "https://pet-search-e66f4.firebaseio.com",
+    "project_id": "pet-search-e66f4",
+    "storage_bucket": "pet-search-e66f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901476644957:android:c6351cacee9a90995935b4",
+        "android_client_info": {
+          "package_name": "nk00322.surrey.petsearch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "901476644957-tu1m7q6j6o0oo867f8dafb6ljlsdqnj4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "nk00322.surrey.petsearch",
+            "certificate_hash": "0e984044f665b4ff18328cbd739fdb81dad71ffc"
+          }
+        },
+        {
+          "client_id": "901476644957-qc2r8g34im7eqo76j6tk5giivs73ubbc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUPd6vJZ8Pyx0O2YD7AIVU52-BpWPY6tc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "901476644957-qc2r8g34im7eqo76j6tk5giivs73ubbc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
