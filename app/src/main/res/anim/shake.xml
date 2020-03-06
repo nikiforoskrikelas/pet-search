@@ -1,0 +1,4 @@
+<!--Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/-->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fromXDelta="0" android:toXDelta="10" android:duration="1000"
+    android:interpolator="@anim/cycle" />

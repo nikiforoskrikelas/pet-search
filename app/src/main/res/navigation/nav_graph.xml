@@ -12,10 +12,14 @@
         tools:layout="@layout/fragment_welcome">
         <action
             android:id="@+id/action_welcomeFragment_to_signupFragment"
-            app:destination="@id/signupFragment" />
+            app:destination="@id/signupFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
         <action
             android:id="@+id/action_welcomeFragment_to_signinFragment"
-            app:destination="@id/signinFragment" />
+            app:destination="@id/signinFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
     </fragment>
     <fragment
         android:id="@+id/signupFragment"
@@ -25,7 +29,14 @@
         <action
             android:id="@+id/action_signupFragment_to_mapFragment"
             app:destination="@id/mapFragment"
-            app:popUpTo="@id/welcomeFragment" />
+            app:popUpTo="@id/welcomeFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
+        <action
+            android:id="@+id/action_signupFragment_to_signinFragment"
+            app:destination="@id/signinFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
     </fragment>
     <fragment
         android:id="@+id/signinFragment"
@@ -35,7 +46,19 @@
         <action
             android:id="@+id/action_signinFragment_to_mapFragment"
             app:destination="@id/mapFragment"
-            app:popUpTo="@id/welcomeFragment" />
+            app:popUpTo="@id/welcomeFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
+        <action
+            android:id="@+id/action_signinFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
+        <action
+            android:id="@+id/action_signinFragment_to_signupFragment"
+            app:destination="@id/signupFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
     </fragment>
     <fragment
         android:id="@+id/meFragment"
@@ -82,5 +105,15 @@
         <action
             android:id="@+id/action_searchPartiesFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="nk00322.surrey.petsearch.ForgotPasswordFragment"
+        android:label="ForgotPasswordFragment" >
+        <action
+            android:id="@+id/action_forgotPasswordFragment_to_signinFragment"
+            app:destination="@id/signinFragment"
+            app:enterAnim="@anim/right_enter"
+            app:exitAnim="@anim/right_out"/>
     </fragment>
 </navigation>

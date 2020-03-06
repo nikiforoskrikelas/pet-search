@@ -6,4 +6,12 @@
     <color name="navGrey">#8090A5</color>
     <color name="background">#EFF2F7</color>
 
+    <color name="background_color">#009688</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="white_greyish">#EEEEEE</color>
+    <color name="grey">#BABABA</color>
+
+    <color name="button_selectorcolor">#9E9E9E</color>
+
 </resources>

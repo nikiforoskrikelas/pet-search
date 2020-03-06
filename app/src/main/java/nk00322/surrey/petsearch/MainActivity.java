@@ -38,7 +38,8 @@ public class MainActivity extends AppCompatActivity{
         navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
             @Override
             public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                if (destination.getId() == R.id.welcomeFragment || destination.getId() == R.id.signupFragment || destination.getId() == R.id.signinFragment) {
+                if (destination.getId() == R.id.welcomeFragment || destination.getId() == R.id.signupFragment
+                        || destination.getId() == R.id.signinFragment || destination.getId() == R.id.forgotPasswordFragment) {
                     bottomNavigationView.setVisibility(View.GONE);
                 } else {
                     bottomNavigationView.setVisibility(View.VISIBLE);
