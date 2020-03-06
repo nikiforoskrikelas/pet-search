@@ -6,19 +6,20 @@
     tools:context="nk00322.surrey.petsearch.SigninFragment">
 
     <!-- TODO: Update blank fragment layout -->
+    <Button
+        android:id="@+id/signin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:text="Sign In" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/background"
+        android:gravity="center_horizontal|top"
         android:text="SIGNIN"
-        android:background="@android:color/darker_gray"
-        android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"/>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sign In"
-        android:id="@+id/signin"
-        android:layout_gravity="center_horizontal|bottom"/>
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@android:color/black" />
 
 </FrameLayout>
