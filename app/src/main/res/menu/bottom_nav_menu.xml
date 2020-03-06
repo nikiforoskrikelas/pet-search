@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/organizeFragment"
+        android:icon="@drawable/ic_nav_organize_24dp"
+        android:title="@string/nav_title_1"
+        app:showAsAction="ifRoom"
+
+        />
+
+    <item
+        android:id="@+id/searchPartiesFragment"
+        android:icon="@drawable/ic_nav_search_parties__24dp"
+        android:title="@string/nav_title_2"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/mapFragment"
+        android:icon="@drawable/ic_nav_map_24dp"
+        android:title="@string/nav_title_3"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/notificationsFragment"
+        android:icon="@drawable/ic_nav_notifications_24dp"
+        android:title="@string/nav_title_4"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/meFragment"
+        android:icon="@drawable/ic_nav_me_24dp"
+        android:title="@string/nav_title_5"
+        app:showAsAction="ifRoom" />
+
+</menu>
