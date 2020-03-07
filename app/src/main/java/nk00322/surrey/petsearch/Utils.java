@@ -4,10 +4,10 @@ import java.util.regex.Pattern;
 
 //Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/
 public class Utils {
+    public final static String API_KEY = "AIzaSyBoVHKsY1l_2v73jyL75-czkFNI_mpxmVY";
 
-    public static boolean isEmailValid(String email)
-    {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\."+
+    public static boolean isEmailValid(String email) {
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\." +
                 "[a-zA-Z0-9_+&*-]+)*@" +
                 "(?:[a-zA-Z0-9-]+\\.)+[a-z" +
                 "A-Z]{2,7}$";

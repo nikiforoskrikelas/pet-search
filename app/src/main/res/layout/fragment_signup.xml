@@ -137,6 +137,8 @@
         android:textColor="@color/white"
         android:textColorHint="@color/grey"
         android:textSize="16sp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -255,39 +257,5 @@
         app:layout_constraintStart_toStartOf="@+id/signUpBtn"
         app:layout_constraintTop_toBottomOf="@+id/signUpBtn" />
 
-    <!--    <CheckBox-->
-    <!--        android:id="@+id/terms_conditions"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginTop="7dp"-->
-    <!--        android:text="@string/terms_conditions"-->
-    <!--        android:textColor="@color/white"-->
-    <!--        android:textSize="14sp"-->
-    <!--        android:buttonTint="@color/white"/>-->
-
-<!--        <Button-->
-<!--            android:id="@+id/signUpBtn"-->
-<!--            android:layout_width="fill_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="15dp"-->
-<!--            android:padding="3dp"-->
-<!--            android:text="@string/signUp"-->
-<!--            android:textColor="@color/white"-->
-<!--            android:textSize="17sp"-->
-<!--            android:textStyle="bold" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/already_user"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="center_horizontal"-->
-<!--            android:layout_marginTop="5dp"-->
-<!--            android:gravity="center"-->
-<!--            android:padding="10dp"-->
-<!--            android:text="@string/already_user"-->
-<!--            android:textColor="@color/white_greyish"-->
-<!--            android:textSize="15sp" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-<!--</LinearLayout>-->
