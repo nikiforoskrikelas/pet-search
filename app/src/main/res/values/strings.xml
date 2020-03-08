@@ -21,16 +21,19 @@
     <string name="closebutton">Close Button for Activity</string>
     <string name="newUser">Not a Member yet? Sign Up here.</string>
     <string name="fullName">Full Name</string>
-    <string name="mobileNumber">Mobile Number</string>
+    <string name="phoneNumber">Mobile Number</string>
     <string name="location">Location</string>
     <string name="confirmPassword">Confirm Password</string>
-    <string name="terms_conditions">By clicking SignUp you agree all the Terms and Conditions.</string>
+    <string name="terms_conditions">By clicking Sign Up you agree to all of the Terms and Conditions.</string>
     <string name="signUp">SIGN UP</string>
     <string name="already_user">Already have Account? Sign in here.</string>
-    <string name="registered_email">Please enter your Registered Email below:</string>
+    <string name="registered_email">Please enter your registered Email below:</string>
     <string name="submit">SUBMIT</string>
     <string name="back">BACK</string>
     <string name="welcome">WELCOME</string>
     <string name="keep_me_signed_in">Keep me Signed In</string>
+    <string name="password_message">Passwords must contain at least 8 characters, 1 capital, 1 lowercase and 1 number</string>
+    <string name="password_reset">PASSWORD RESET</string>
+
 
 </resources>

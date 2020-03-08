@@ -1,4 +1,4 @@
-package nk00322.surrey.petsearch;
+package nk00322.surrey.petsearch.fragments;
 
 import android.os.Bundle;
 

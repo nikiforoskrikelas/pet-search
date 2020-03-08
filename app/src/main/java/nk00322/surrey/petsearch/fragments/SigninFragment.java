@@ -1,10 +1,7 @@
-package nk00322.surrey.petsearch;
+package nk00322.surrey.petsearch.fragments;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.text.InputType;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,31 +11,56 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.petsearch.R;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import com.mobsandgeeks.saripaar.ValidationError;
+import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.NotEmpty;
+import com.mobsandgeeks.saripaar.annotation.Pattern;
+
+import java.util.List;
+import java.util.Objects;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import nk00322.surrey.petsearch.CustomToast;
 
-import static nk00322.surrey.petsearch.Utils.isEmailValid;
+import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
+import static nk00322.surrey.petsearch.utils.ValidationUtils.areAllFieldsCompleted;
+import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
+import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayoutValidator;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * Fragment responsible for user sign in
+ * Uses Saripaar annotation based field validation
  */
-public class SigninFragment extends Fragment implements View.OnClickListener {
+public class SigninFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener {
 
     private static Animation shakeAnimation;
     private View view;
-    private EditText email, password;
+
+    @NotEmpty(sequence = 1)
+    @Pattern(regex = EMAIL_REGEX, message = "Invalid email", sequence = 2)
+    private TextInputEditText email;
+
+    @NotEmpty
+    private TextInputEditText password;
+
+
     private Button signinButton;
     private TextView forgotPassword, signUp;
-    private CheckBox showHidePassword, keepMeSignedIn;
     private ConstraintLayout signinLayout;
+    private CheckBox keepMeSignedIn;
+    private ImageView closeActivityImage;
+    private Validator validator;
 
     public SigninFragment() {
         // Required empty public constructor
@@ -49,6 +71,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_signin, container, false);
         initViews();
+        validator = setupTextInputLayoutValidator(validator, this, view);
         setListeners();
 
         // Inflate the layout for this fragment
@@ -62,9 +85,9 @@ public class SigninFragment extends Fragment implements View.OnClickListener {
         signinButton = view.findViewById(R.id.signinBtn);
         forgotPassword = view.findViewById(R.id.forgot_password);
         signUp = view.findViewById(R.id.createAccount);
-        showHidePassword = view.findViewById(R.id.show_hide_password);
         keepMeSignedIn = view.findViewById(R.id.keep_me_signed_in);
         signinLayout = view.findViewById(R.id.signin_layout);
+        closeActivityImage = view.findViewById(R.id.close_activity);
 
         // Load ShakeAnimation
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
@@ -72,39 +95,22 @@ public class SigninFragment extends Fragment implements View.OnClickListener {
         // Setting text selector over textviews
         ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector);
         forgotPassword.setTextColor(textSelector);
-        showHidePassword.setTextColor(textSelector);
         keepMeSignedIn.setTextColor(textSelector);
         signUp.setTextColor(textSelector);
+
+        if (getArguments() != null)
+            email.setText(SigninFragmentArgs.fromBundle(getArguments()).getRegisteredEmail());
+
 
     }
 
     // Set Listeners
     private void setListeners() {
+        closeActivityImage.setOnClickListener(this);
         signinButton.setOnClickListener(this);
         forgotPassword.setOnClickListener(this);
         signUp.setOnClickListener(this);
-
-        // Set check listener over checkbox for showing and hiding password
-        showHidePassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton button, boolean isChecked) {
-                String getPassword = password.getText().toString();
-                // If it is checked then show password else hide
-                if(!getPassword.equals("") && getPassword.length() > 0) {
-                    if (isChecked) {
-                        // change checkbox text
-                        showHidePassword.setText(R.string.hide_pwd);// change
-                        password.setInputType(InputType.TYPE_CLASS_TEXT);
-                        password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());// show password
-                    } else {
-                        // change checkbox text
-                        showHidePassword.setText(R.string.show_pwd);
-                        password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                        password.setTransformationMethod(PasswordTransformationMethod.getInstance());// hide password
-                    }
-                }
-            }
-        });
+        validator.setValidationListener(this);
 
         // Set check listener over checkbox for keeping the user signed in
         keepMeSignedIn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -127,46 +133,53 @@ public class SigninFragment extends Fragment implements View.OnClickListener {
         final NavController navController = Navigation.findNavController(view);
 
         switch (v.getId()) {
+            case R.id.close_activity:
+                navController.navigate(R.id.action_signinFragment_to_welcomeFragment);
+                break;
             case R.id.signinBtn:
                 //Validate fields before logging in
-                checkValidation(navController);
+                if (!areAllFieldsCompleted(email, password)) {
+                    signinLayout.startAnimation(shakeAnimation);
+                    new CustomToast().Show_Toast(Objects.requireNonNull(getActivity()), view, "All fields are required.");
+                    break;
+                }
+                clearTextInputEditTextErrors(email, password);
+                validator.validate();
                 break;
             case R.id.forgot_password:
-                // Replace forgot password fragment with animation
+                // Navigate to forgot password fragment
                 navController.navigate(R.id.action_signinFragment_to_forgotPasswordFragment);
                 break;
             case R.id.createAccount:
-                // Replace signup frgament with animation
+                // Navigate to signup fragment
                 navController.navigate(R.id.action_signinFragment_to_signupFragment);
                 break;
         }
 
     }
 
-    // Check Validation before signin
-    private void checkValidation(NavController navController) {
-        // Get email id and password
-        String getEmail = email.getText().toString();
-        String getPassword = password.getText().toString();
+    @Override
+    public void onValidationSucceeded() {
+        // Else TODO SIGNIN
+        final NavController navController = Navigation.findNavController(view);
+        Toast.makeText(getActivity(), "Do Sign In.", Toast.LENGTH_SHORT).show();
+        navController.navigate(R.id.action_signinFragment_to_mapFragment);
+    }
 
+    @Override
+    public void onValidationFailed(List<ValidationError> errors) {
+        for (ValidationError error : errors) {
+            View view = error.getView();
+            String message = error.getCollatedErrorMessage(getContext());
 
-        // Check for both field is empty or not
-        if (getEmail.equals("") || getEmail.length() == 0 || getPassword.equals("") || getPassword.length() == 0) {
-            signinLayout.startAnimation(shakeAnimation);
-            new CustomToast().Show_Toast(getActivity(), view, "Enter both credentials.");
-
-        }//todo more password validation
-        // Check if email id is valid or not
-        else if (!isEmailValid(getEmail)){
-            email.startAnimation(shakeAnimation);
-            new CustomToast().Show_Toast(getActivity(), view, "Your Email is Invalid.");
+            // Display error messages
+            if (view instanceof TextInputEditText) {
+                // this will get TextInputEditText parent which is TextInputLayout
+                ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
+            } else {
+                new CustomToast().Show_Toast(Objects.requireNonNull(getActivity()), view, message);
+            }
         }
-        // Else TODO LOGIN
-        else {
-            Toast.makeText(getActivity(), "Do Login.", Toast.LENGTH_SHORT).show();
-            navController.navigate(R.id.action_signinFragment_to_mapFragment);
-        }
-
     }
 
 }

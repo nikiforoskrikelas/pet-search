@@ -2,10 +2,62 @@
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorPrimary">@color/quantum_teal900</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnSecondary">@color/quantum_teal100</item>
+        <item name="colorSurface">#FFFBFA</item>
+        <item name="colorOnSurface">@color/quantum_teal100</item>
+        <item name="colorError">@color/quantum_vanillaredA400</item>
+        <item name="colorOnError">#FFFBFA</item>
+        <item name="colorControlActivated">@color/quantum_teal100</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">8dp</item>
+    </style>
+
+    <style name="TextInputLayoutOutlineStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/text_input_box_stroke_selector</item>
+        <item name="android:textSize">16sp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="hintTextColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="hintTextAppearance">@style/TextAppearance.App.HintText</item>
+        <item name="android:singleLine">true</item>
+        <item name="boxBackgroundMode">outline</item>
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="startIconTint">@color/white_greyish</item>
+        <item name="helperTextTextColor">@color/white</item>
+    </style>
+
+    <style name="Widget.App.TextField.Text" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>
+        <item name="hintTextColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="hintTextAppearance">@style/TextAppearance.App.HintText</item>
+    </style>
+
+
+    <style name="TextAppearance.App.HintText" parent="TextAppearance.MaterialComponents.Subtitle2">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.App.TextInputLayout.FilledBox" parent="ShapeAppearance.App.SmallComponent">
+        <item name="cornerSizeBottomLeft">@dimen/mtrl_textinput_box_corner_radius_small</item>
+        <item name="cornerSizeBottomRight">@dimen/mtrl_textinput_box_corner_radius_small</item>
+    </style>
+
+    <style name="AppTheme.Button" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="error_appearance" parent="@android:style/TextAppearance">
+        <item name="android:textColor">@color/blue_700</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
 </resources>
