@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.example.petsearch.R;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,10 +32,14 @@ public class MeFragment extends Fragment {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
 
                 navController.navigate(R.id.action_meFragment_to_welcomeFragment);
             }
         });
+
+        //TODO: passwords reset, delete and edit account
+        //https://firebase.google.com/docs/auth/web/manage-users
     }
 
     @Override

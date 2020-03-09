@@ -20,6 +20,9 @@
             app:destination="@id/signinFragment"
             app:enterAnim="@anim/right_enter"
             app:exitAnim="@anim/right_out"/>
+        <action
+            android:id="@+id/action_welcomeFragment_to_mapFragment"
+            app:destination="@id/mapFragment" />
     </fragment>
     <fragment
         android:id="@+id/signupFragment"

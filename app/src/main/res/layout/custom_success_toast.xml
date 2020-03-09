@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/toast_root"
+    android:id="@+id/success_toast_root"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="#ffffff">
 
 <!--    Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/-->
     <TextView
-        android:id="@+id/toast_error"
+        android:id="@+id/toast_success"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:drawableStart="@drawable/ic_error_outline_red_24dp"
+        android:drawableStart="@drawable/ic_check_success_green_24dp"
         android:drawablePadding="10dp"
         android:gravity="center_vertical"
         android:padding="2dp"
-        android:textColor="#c0392b"
+        android:textColor="#17C000"
         android:textSize="15sp" />
-
 </RelativeLayout>

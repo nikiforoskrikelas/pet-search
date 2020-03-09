@@ -17,23 +17,33 @@ import android.widget.Toast;
 
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Checked;
 import com.mobsandgeeks.saripaar.annotation.ConfirmPassword;
-import com.mobsandgeeks.saripaar.annotation.Email;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -41,7 +51,6 @@ import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
 
 import static android.app.Activity.RESULT_OK;
-import static android.content.ContentValues.TAG;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
@@ -56,7 +65,7 @@ import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayou
  * Uses Saripaar annotation based field validation
  */
 public class SignupFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener {
-
+    private static String TAG = "SignupFragment";
     private static Animation shakeAnimation;
     private View view;
 
@@ -75,7 +84,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     @NotEmpty
     private TextInputEditText location;
 
-    @Password(min = 8, scheme = Password.Scheme.ALPHA_NUMERIC_MIXED_CASE_SYMBOLS, message = PASSWORD_FORMAT_ERROR)
+    @Password(min = 8, scheme = Password.Scheme.ALPHA_NUMERIC_MIXED_CASE, message = PASSWORD_FORMAT_ERROR)
     private TextInputEditText password;
 
     @ConfirmPassword
@@ -91,6 +100,8 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private Validator validator;
     private ImageView closeActivityImage;
 
+    private FirebaseAuth mAuth;
+
     public SignupFragment() {
         // Required empty public constructor
     }
@@ -102,8 +113,20 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
         initViews();
         validator = setupTextInputLayoutValidator(validator, this, view);
         setListeners();
+        mAuth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "User already signed in", ToastType.INFO, false);
+            Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_mapFragment);
+        }
     }
 
     // Initialize all views
@@ -120,6 +143,16 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
         terms_conditions = view.findViewById(R.id.terms_conditions);
         signupLayout = view.findViewById(R.id.signup_layout);
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
+
+        //TODO REMOVE - ONLY FOR TESTING
+        int rand = new Random().nextInt(10000);
+        fullName.setText("Test user");
+        email.setText("test"+rand+"@test.com");
+        mobileNumber.setText("555555555");
+        location.setText("TEST LOCATION");
+        password.setText("1234qwerQWER");
+        confirmPassword.setText("1234qwerQWER");
+        //TODO REMOVE - ONLY FOR TESTING
 
         ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector);
 
@@ -149,13 +182,12 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 location.setText(place.getName());
                 //TODO store ID and or name or other data required to user
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                new CustomToast().Show_Toast(Objects.requireNonNull(getActivity()), view, "Error with Google Maps");
+                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error with Google Maps", ToastType.ERROR, false);
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i("ERROR AUTOCOMPLETE", status.getStatusMessage());
             }
         }
     }
-
 
     @Override
     public void onClick(View v) {
@@ -171,7 +203,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             case R.id.signUpBtn:
                 if (!areAllFieldsCompleted(fullName, email, mobileNumber, location, password, confirmPassword)) {
                     signupLayout.startAnimation(shakeAnimation);
-                    new CustomToast().Show_Toast(Objects.requireNonNull(getActivity()), view, "All fields are required.");
+                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "All fields are required.", ToastType.ERROR, false);
                     break;
                 }
                 clearTextInputEditTextErrors(fullName, email, mobileNumber, location, password, confirmPassword);
@@ -188,11 +220,57 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
 
     @Override
     public void onValidationSucceeded() {
-        // Else TODO SIGNUP
-        final NavController navController = Navigation.findNavController(view);
-        Toast.makeText(getActivity(), "Do SignUp.", Toast.LENGTH_SHORT).show();
-        navController.navigate(R.id.action_signupFragment_to_mapFragment);
+        createAccount(email.getText().toString(), password.getText().toString());
     }
+
+    private void createAccount(final String email, String password) {
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            final NavController navController = Navigation.findNavController(view);
+
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    // Sign in success, update UI with the signed-in user's information
+                    Log.d(TAG, "createUserWithEmail:success");
+
+                    createUser();
+                    //the Firebase method instantly logs in the user after sign up
+                    FirebaseAuth.getInstance().signOut();
+
+                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Account created successfully", ToastType.SUCCESS, false);
+                    SignupFragmentDirections.ActionSignupFragmentToSigninFragment action =
+                            SignupFragmentDirections.actionSignupFragmentToSigninFragment();
+                    action.setRegisteredEmail(email);
+                    navController.navigate(action);
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            final NavController navController = Navigation.findNavController(view);
+
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                String message = "";
+                if (e instanceof FirebaseAuthUserCollisionException) {
+                    message = "Email already in use by another account.";
+                } else {
+                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, e.getMessage(), ToastType.ERROR, false);
+                    navController.navigate(R.id.action_signupFragment_to_welcomeFragment);
+                }
+                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+            }
+        });
+    }
+
+    private void createUser() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {
+            user.sendEmailVerification();
+        }else{
+            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while creating account", ToastType.ERROR, false);
+            Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_welcomeFragment);
+        }
+    }
+
 
     @Override
     public void onValidationFailed(List<ValidationError> errors) {
@@ -205,9 +283,8 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 // this will get TextInputEditText parent which is TextInputLayout
                 ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
             } else {
-                new CustomToast().Show_Toast(Objects.requireNonNull(getActivity()), view, message);
+                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
             }
         }
     }
-
 }
