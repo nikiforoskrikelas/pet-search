@@ -1,22 +1,21 @@
-package nk00322.surrey.petsearch;
+package nk00322.surrey.petsearch.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.petsearch.R;
 
+import androidx.fragment.app.Fragment;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchPartiesFragment extends Fragment {
+public class NotificationsFragment extends Fragment {
 
-    public SearchPartiesFragment() {
+    public NotificationsFragment() {
         // Required empty public constructor
     }
 
@@ -25,6 +24,6 @@ public class SearchPartiesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search_parties, container, false);
+        return inflater.inflate(R.layout.fragment_notifications, container, false);
     }
 }

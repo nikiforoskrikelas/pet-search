@@ -1,0 +1,4 @@
+<!--Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/-->
+
+<cycleInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:cycles="4" />

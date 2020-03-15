@@ -1,9 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#009688</color>
     <color name="navGrey">#8090A5</color>
     <color name="background">#EFF2F7</color>
+
+    <color name="background_color">#009688</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="white_greyish">#EEEEEE</color>
+    <color name="grey">#BABABA</color>
+
+    <color name="button_selectorcolor">#9E9E9E</color>
+
+
+<!--Material design Teal Color Palette-->
+    <color name="teal_50">#E0F2F1</color>
+    <color name="teal_100">#B2DFDB</color>
+    <color name="teal_200">#80CBC4</color>
+    <color name="teal_300">#4DB6AC</color>
+    <color name="teal_400">#26A69A</color>
+    <color name="teal_500">#009688</color>
+    <color name="teal_600">#00897B</color>
+    <color name="teal_700">#00796B</color>
+    <color name="teal_800">#00695C</color>
+    <color name="teal_900">#004D40</color>
+    <color name="teal_A100">#A7FFEB</color>
+    <color name="teal_A200">#64FFDA</color>
+    <color name="teal_A400">#1DE9B6</color>
+    <color name="teal_A700">#00BFA5</color>
+
+<!--    Complementary-->
+    <color name="red_700">#740000</color>
+    <color name="red_100">#dfb2b6</color>
+
+    <!--Analogous-->
+    <color name="green_100">#b2dfc5</color>
+    <color name="green_700">#007736</color>
+    <color name="blue_100">#b2ccdf</color>
+    <color name="blue_700">#004d96</color>
 
 </resources>

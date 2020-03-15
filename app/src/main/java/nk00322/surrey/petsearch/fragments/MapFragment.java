@@ -1,4 +1,4 @@
-package nk00322.surrey.petsearch;
+package nk00322.surrey.petsearch.fragments;
 
 import android.os.Bundle;
 
@@ -14,9 +14,9 @@ import com.example.petsearch.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class OrganizeFragment extends Fragment {
+public class MapFragment extends Fragment {
 
-    public OrganizeFragment() {
+    public MapFragment() {
         // Required empty public constructor
     }
 
@@ -25,6 +25,6 @@ public class OrganizeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_organize, container, false);
+        return inflater.inflate(R.layout.fragment_map, container, false);
     }
 }

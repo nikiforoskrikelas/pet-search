@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!--Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/-->
+
+    <translate
+        android:duration="300"
+        android:fromXDelta="0"
+        android:toXDelta="100%p" />
+
+</set>
