@@ -2,6 +2,7 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +14,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.Status;
@@ -27,10 +27,10 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.ServerValue;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Checked;
@@ -39,6 +39,8 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -49,8 +51,11 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
+import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.getNow;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
@@ -101,7 +106,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private ImageView closeActivityImage;
 
     private FirebaseAuth mAuth;
-
+    private String locationId;
     public SignupFragment() {
         // Required empty public constructor
     }
@@ -150,6 +155,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
         email.setText("test"+rand+"@test.com");
         mobileNumber.setText("555555555");
         location.setText("TEST LOCATION");
+        locationId = "00000TEST00000";
         password.setText("1234qwerQWER");
         confirmPassword.setText("1234qwerQWER");
         //TODO REMOVE - ONLY FOR TESTING
@@ -180,6 +186,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
                 location.setText(place.getName());
+                locationId = place.getId();
                 //TODO store ID and or name or other data required to user
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error with Google Maps", ToastType.ERROR, false);
@@ -220,28 +227,19 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
 
     @Override
     public void onValidationSucceeded() {
-        createAccount(email.getText().toString(), password.getText().toString());
+        createAccount();
     }
 
-    private void createAccount(final String email, String password) {
+    private void createAccount() {
+        final String email = this.email.getText().toString();
+        String password = this.password.getText().toString();
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            final NavController navController = Navigation.findNavController(view);
-
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "createUserWithEmail:success");
-
                     createUser();
-                    //the Firebase method instantly logs in the user after sign up
-                    FirebaseAuth.getInstance().signOut();
-
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Account created successfully", ToastType.SUCCESS, false);
-                    SignupFragmentDirections.ActionSignupFragmentToSigninFragment action =
-                            SignupFragmentDirections.actionSignupFragmentToSigninFragment();
-                    action.setRegisteredEmail(email);
-                    navController.navigate(action);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -262,9 +260,39 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     }
 
     private void createUser() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            user.sendEmailVerification();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(fullName.getText().toString())
+                    .setPhotoUri(Uri.parse("https://picsum.photos/200")) // default picture
+                    .build();
+            firebaseUser.updateProfile(profileUpdates);
+            firebaseUser.sendEmailVerification();
+
+            User user = new User(mobileNumber.getText().toString(), locationId, getNow());
+
+            getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                NavController navController = Navigation.findNavController(view);
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        //the Firebase method instantly logs in the user after sign up
+                        FirebaseAuth.getInstance().signOut();
+                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Account created successfully", ToastType.SUCCESS, false);
+                        SignupFragmentDirections.ActionSignupFragmentToSigninFragment action =
+                                SignupFragmentDirections.actionSignupFragmentToSigninFragment();
+                        action.setRegisteredEmail(email.getText().toString());
+                        navController.navigate(action);
+                    }else{
+                        FirebaseAuth.getInstance().signOut();
+                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while creating account", ToastType.ERROR, false);
+                        navController.navigate(R.id.action_signupFragment_to_welcomeFragment);
+
+                    }
+
+                }
+            });
+
         }else{
             new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while creating account", ToastType.ERROR, false);
             Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_welcomeFragment);
