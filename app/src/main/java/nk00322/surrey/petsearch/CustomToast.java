@@ -12,7 +12,6 @@ import android.widget.Toast;
 import com.example.petsearch.R;
 
 import androidx.annotation.NonNull;
-import nk00322.surrey.petsearch.fragments.ToastType;
 
 
 //Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/

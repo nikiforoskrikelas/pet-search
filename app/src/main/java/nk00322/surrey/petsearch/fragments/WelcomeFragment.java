@@ -16,9 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
-
-import static nk00322.surrey.petsearch.utils.ValidationUtils.areAllFieldsCompleted;
-import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
+import nk00322.surrey.petsearch.ToastType;
 
 
 /**

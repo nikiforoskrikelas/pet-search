@@ -32,6 +32,9 @@
     <string name="password_message">Passwords must contain at least 8 characters, 1 capital, 1 lowercase and 1 number</string>
     <string name="password_reset">PASSWORD RESET</string>
     <string name="resend_verification">Resend email verification?</string>
+    <string name="tab_parties">Parties</string>
+    <string name="tab_events">Events</string>
+    <string name="tab_account">Account</string>
 
 
 </resources>
