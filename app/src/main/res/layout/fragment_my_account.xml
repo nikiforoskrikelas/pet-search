@@ -1,17 +1,397 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/edit_scrollview">
 
-    <Button
-        android:id="@+id/signout"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginBottom="100dp"
-        android:text="Sign Out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:id="@+id/edit_constraint_layout">
+
+
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:background="@color/background_color"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/back_to_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="24dp"
+            android:contentDescription="@string/closebutton"
+            android:padding="5dp"
+            android:visibility="invisible"
+            android:src="@drawable/ic_arrow_back_white_24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="130dp"
+            android:layout_height="130dp"
+            android:layout_marginTop="68dp"
+            android:src="@drawable/profile"
+            app:civ_border_color="@color/background"
+            app:civ_border_width="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:tag="text"
+            android:id="@+id/full_name_text"
+            style="@android:style/TextAppearance.Material.Title"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:textColor="@color/quantum_grey800"
+            app:layout_constraintEnd_toEndOf="@+id/profile_image"
+            app:layout_constraintStart_toStartOf="@+id/profile_image"
+            app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+
+        <TextView
+            android:id="@+id/email_text"
+            style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_email_grey_24dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:tag="text"
+            android:textColor="@color/quantum_grey800"
+            app:layout_constraintEnd_toEndOf="@+id/full_name_text"
+            app:layout_constraintStart_toStartOf="@+id/full_name_text"
+            app:layout_constraintTop_toBottomOf="@+id/full_name_text" />
+
+        <ProgressBar
+            android:id="@+id/loading_location"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:indeterminate="true"
+            app:layout_constraintEnd_toEndOf="@+id/email_text"
+            app:layout_constraintStart_toStartOf="@+id/email_text"
+            app:layout_constraintTop_toBottomOf="@+id/email_text" />
+
+        <TextView
+            android:tag="text"
+            android:id="@+id/location_text"
+            style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text=""
+            android:textColor="@color/quantum_grey800"
+            android:drawableStart="@drawable/ic_location_grey_24dp"
+            android:drawablePadding="5dp"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/email_text"
+            app:layout_constraintStart_toStartOf="@+id/email_text"
+            app:layout_constraintTop_toBottomOf="@+id/email_text" />
+        <ProgressBar
+            android:id="@+id/loading_phone"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:indeterminate="true"
+            app:layout_constraintEnd_toEndOf="@+id/location_text"
+            app:layout_constraintStart_toStartOf="@+id/location_text"
+            app:layout_constraintTop_toBottomOf="@+id/location_text" />
+
+        <TextView
+            android:id="@+id/phone_text"
+            style="@android:style/TextAppearance.Material.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/white"
+            android:drawablePadding="5dp"
+            android:drawableStart="@drawable/ic_phone_grey_24dp"
+            android:gravity="center"
+            android:padding="5dp"
+            android:tag="text"
+            android:textColor="@color/quantum_grey800"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/location_text"
+            app:layout_constraintStart_toStartOf="@+id/location_text"
+            app:layout_constraintTop_toBottomOf="@+id/location_text" />
+
+        <View
+            android:id="@+id/options_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/phone_text"
+            app:layout_constraintBottom_toBottomOf="@+id/delete_account" />
+
+        <TextView
+            android:id="@+id/edit_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white_greyish"
+            android:drawableEnd="@drawable/ic_arrow_right_grey_24dp"
+            android:drawablePadding="12dp"
+            android:drawableStart="@drawable/ic_edit_grey_24dp"
+            android:padding="12dp"
+            android:tag="textView"
+            android:text="Edit Profile"
+            android:textColor="@color/quantum_grey800"
+            android:textSize="18sp"
+            app:layout_constraintBottom_toTopOf="@+id/sign_out"
+            app:layout_constraintEnd_toEndOf="@+id/options_view"
+            app:layout_constraintStart_toStartOf="@+id/options_view"
+            app:layout_constraintTop_toTopOf="@+id/options_view" />
+
+        <View style="@style/Divider.Horizontal"
+            android:tag="divider"
+            app:layout_constraintEnd_toEndOf="@+id/options_view"
+            app:layout_constraintStart_toStartOf="@+id/options_view"
+            app:layout_constraintTop_toBottomOf="@+id/edit_profile"/>
+
+        <TextView
+            android:tag="textView"
+            android:id="@+id/sign_out"
+            style="@style/ActionTextView"
+            android:drawableStart="@drawable/ic_log_out_24dp"
+            android:text="Sign Out"
+            app:layout_constraintEnd_toEndOf="@+id/options_view"
+            app:layout_constraintStart_toStartOf="@+id/options_view"
+            app:layout_constraintTop_toBottomOf="@+id/edit_profile"
+            app:layout_constraintBottom_toTopOf="@+id/delete_account"/>
+
+        <View style="@style/Divider.Horizontal"
+            android:tag="divider"
+            app:layout_constraintEnd_toEndOf="@+id/options_view"
+            app:layout_constraintStart_toStartOf="@+id/options_view"
+            app:layout_constraintTop_toBottomOf="@+id/sign_out"/>
+
+        <TextView
+            android:tag="textView"
+            android:id="@+id/delete_account"
+            style="@style/ActionTextView"
+            android:drawableStart="@drawable/ic_delete_grey_24dp"
+            android:text="Delete Account"
+            app:layout_constraintEnd_toEndOf="@+id/options_view"
+            app:layout_constraintStart_toStartOf="@+id/options_view"
+            app:layout_constraintTop_toBottomOf="@+id/sign_out"
+            app:layout_constraintBottom_toBottomOf="@+id/options_view"/>
+
+        <View style="@style/Divider.Horizontal"
+            android:tag="divider"
+            app:layout_constraintEnd_toEndOf="@+id/options_view"
+            app:layout_constraintStart_toStartOf="@+id/options_view"
+            app:layout_constraintTop_toBottomOf="@+id/delete_account"
+            app:layout_constraintBottom_toBottomOf="@+id/options_view"/>
+
+<!--        Edit Profile-->
+
+        <ImageView
+            android:id="@+id/add_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="110dp"
+            android:layout_marginTop="0dp"
+            android:contentDescription="Add Photo"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@+id/profile_image"
+            app:layout_constraintEnd_toEndOf="@+id/profile_image"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintVertical_bias="0.4"
+            app:layout_constraintStart_toStartOf="@+id/profile_image"
+            app:layout_constraintTop_toTopOf="@+id/profile_image"
+            app:srcCompat="@drawable/ic_add_a_photo_grey_24dp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:tag="textInputLayout"
+            android:id="@+id/edit_full_name_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="150dp"
+            android:visibility="invisible"
+            android:hint="@string/fullName"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:startIconDrawable="@drawable/ic_person_white_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_full_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:textColor="@color/white" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:tag="textInputLayout"
+            android:id="@+id/edit_email_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:hint="@string/email"
+            android:visibility="invisible"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_full_name_layout"
+            app:startIconDrawable="@drawable/ic_email_white_24dp"
+            >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="textEmailAddress"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:tag="textInputLayout"
+            android:id="@+id/edit_mobile_number_Layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:hint="@string/phoneNumber"
+            android:visibility="invisible"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_email_layout"
+            app:startIconDrawable="@drawable/ic_phone_white_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_mobile_number"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="phone"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:tag="textInputLayout"
+            android:id="@+id/edit_location_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/location"
+            android:visibility="invisible"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_mobile_number_Layout"
+            app:startIconDrawable="@drawable/ic_location_white_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="text"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:tag="textInputLayout"
+            android:id="@+id/edit_password_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:hint="@string/newPassword"
+            app:errorEnabled="true"
+            android:visibility="invisible"
+            app:startIconDrawable="@drawable/ic_password_key_white_24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_location_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="textPassword"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:tag="textInputLayout"
+            android:id="@+id/edit_confirm_password_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="0dp"
+            android:hint="@string/confirmNewPassword"
+            android:visibility="invisible"
+            app:errorEnabled="true"
+            app:startIconDrawable="@drawable/ic_password_confirm_white_24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/edit_password_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_confirm_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="textPassword"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:theme="@style/AppTheme.Button"
+            android:id="@+id/save_changes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:padding="3dp"
+            android:text="@string/save_changes"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:visibility="invisible"
+            app:layout_constraintEnd_toEndOf="@+id/edit_confirm_password_layout"
+            app:layout_constraintStart_toStartOf="@+id/edit_confirm_password_layout"
+            app:layout_constraintTop_toBottomOf="@+id/edit_confirm_password_layout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

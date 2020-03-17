@@ -2,9 +2,13 @@ package nk00322.surrey.petsearch.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 
@@ -13,18 +17,19 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 
-import static nk00322.surrey.petsearch.utils.GeneralUtils.API_KEY;
-
 public class LocationUtils {
-
     public final static int AUTOCOMPLETE_REQUEST_CODE = 1;
-
+    public final static String API_KEY = "AIzaSyBoVHKsY1l_2v73jyL75-czkFNI_mpxmVY";
+    private static final String TAG = "FirebaseUtils";
+    private static Place place = null;
 
     /**
      * Launches intent for location autocomplete
      */
     public static Intent getLocationAutoCompleteIntent(@NonNull Context context) {
-        Places.initialize(context, API_KEY);
+        if (!Places.isInitialized()) {
+            Places.initialize(context, API_KEY);
+        }
         // Create a new Places client instance
 
         // Set the fields to specify which types of place data to return after the user has made a selection.
@@ -32,5 +37,13 @@ public class LocationUtils {
 
         // Start the autocomplete intent.
         return new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(context);
+    }
+
+
+    public static Place getPlaceById(String placeId, Context context) {
+
+
+        return place;
+
     }
 }

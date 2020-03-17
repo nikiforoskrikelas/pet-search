@@ -35,6 +35,9 @@
     <string name="tab_parties">Parties</string>
     <string name="tab_events">Events</string>
     <string name="tab_account">Account</string>
+    <string name="newPassword">New password</string>
+    <string name="confirmNewPassword">Confirm New Password</string>
+    <string name="save_changes">Save Changes</string>
 
 
 </resources>

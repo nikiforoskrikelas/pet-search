@@ -13,7 +13,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/white">
+        android:background="@color/background_color"
+        app:tabSelectedTextColor="@color/white">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/tab_parties"
