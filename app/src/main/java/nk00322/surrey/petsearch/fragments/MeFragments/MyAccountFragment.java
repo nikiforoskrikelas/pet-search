@@ -1,6 +1,8 @@
 package nk00322.surrey.petsearch.fragments.MeFragments;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -16,10 +18,15 @@ import android.widget.TextView;
 
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -27,6 +34,7 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +48,7 @@ import com.mobsandgeeks.saripaar.annotation.Pattern;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -52,13 +61,17 @@ import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.User;
 
+import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.getNow;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getViewsByTag;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.slideView;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.textViewSlideIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.textViewSlideOut;
 import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
+import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
+import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayoutValidator;
@@ -78,6 +91,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private NestedScrollView scrollView;
     private View topView;
     private Validator validator;
+    private String locationId;
 
     @NotEmpty
     private TextInputEditText fullName, location;
@@ -99,7 +113,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private FirebaseUser currentUser;
     private DatabaseReference usersReference;
     private ConstraintLayout constraintLayout;
-
+    private String userDateCreated = "";
     public MyAccountFragment() {
         // Required empty public constructor
     }
@@ -115,7 +129,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         return view;
 
     }
-
 
     private void initViews() {
         currentUser = mAuth.getCurrentUser();
@@ -162,11 +175,9 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         deleteAccount.setTextColor(textSelector);
 
 
-
         //TODO: passwords reset, delete and edit account
         //https://firebase.google.com/docs/auth/web/manage-users
     }
-
 
     private void setListeners() {
         editProfile.setOnClickListener(this);
@@ -176,6 +187,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         addPhoto.setOnClickListener(this);
         saveChanges.setOnClickListener(this);
         validator.setValidationListener(this);
+        location.setOnClickListener(this);
         usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
@@ -184,34 +196,39 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 User user = dataSnapshot.getValue(User.class);
                 userMobileNumber = user.getMobileNumber();
                 userLocationId = user.getLocationId();
+                userDateCreated = user.getDateCreated();
+                if (userLocationId != null) {
+
+                    Places.initialize(getContext(), API_KEY);
+
+                    // Specify the fields to return.
+                    List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+
+                    FetchPlaceRequest request = FetchPlaceRequest.newInstance(userLocationId, placeFields);
+                    PlacesClient placesClient = Places.createClient(getContext());
+                    Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                        locationText.setText(response.getPlace().getName());
+                        Log.i(TAG, "Place found");
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            Log.e(TAG, "Place not found: " + exception.getMessage());
+                            locationText.setText("N/A");
+                        }
+                    });
+                    Thread thread = new Thread(fetchUserInfo);
+                    thread.start();
 
 
-                Places.initialize(getContext(), API_KEY);
+                } else {
+                    locationText.setText("N/A");
+                    Log.i(TAG, "No location stored in user");
+                }
 
-                // Specify the fields to return.
-                List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
-
-                FetchPlaceRequest request = FetchPlaceRequest.newInstance(userLocationId, placeFields);
-                PlacesClient placesClient = Places.createClient(getContext());
-
-                placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                    locationText.setText(response.getPlace().getName());
-                    view.findViewById(R.id.loading_location).setVisibility(View.GONE);
-                    locationText.setVisibility(View.VISIBLE);
-                    editProfile.setFocusable(true);
-                    editProfile.setClickable(true);
-                    editProfile.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
-                    Log.i(TAG, "Place found");
-                }).addOnFailureListener((exception) -> {
-                    if (exception instanceof ApiException) {
-                        ApiException apiException = (ApiException) exception;
-                        int statusCode = apiException.getStatusCode();
-                        // Handle error with given status code.
-                        Log.e(TAG, "Place not found: " + exception.getMessage());
-                    }
-                });
-
-
+                view.findViewById(R.id.loading_location).setVisibility(View.GONE);
+                locationText.setVisibility(View.VISIBLE);
+                editProfile.setFocusable(true);
+                editProfile.setClickable(true);
+                editProfile.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
                 phoneText.setText(userMobileNumber);
                 view.findViewById(R.id.loading_phone).setVisibility(View.GONE);
                 phoneText.setVisibility(View.VISIBLE);
@@ -229,13 +246,14 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public void onClick(View view) {
-        final NavController navController = Navigation.findNavController(view);
-
         switch (view.getId()) {
             case R.id.edit_profile: //TODO SLIDE OUT ALL 3 OPTIONS & TOP SECTIONWITH ANIMATION AND SHOW EDIT PROFILE
-                if (!isEmpty(locationText.getText().toString()) && !isEmpty(phoneText.getText().toString())){
+                if (!isEmpty(locationText.getText().toString()) && !isEmpty(phoneText.getText().toString())) {
                     userEditProfile();
                 }
+                break;
+            case R.id.edit_location:
+                startActivityForResult(getLocationAutoCompleteIntent(Objects.requireNonNull(getContext()).getApplicationContext()), AUTOCOMPLETE_REQUEST_CODE);
                 break;
             case R.id.back_to_profile:
                 cancelEditProfile();
@@ -257,6 +275,24 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         }
     }
 
+    /**
+     * Responsible for retrieving result from autocomplete location
+     */
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+                location.setText(place.getName());
+                locationId = place.getId();
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error with Google Maps", ToastType.ERROR, false);
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("ERROR AUTOCOMPLETE", status.getStatusMessage());
+            }
+        }
+    }
 
     private void userEditProfile() {
         setupEditProfileAnimations();
@@ -301,9 +337,22 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             if (view instanceof TextInputLayout) {
                 view.startAnimation(slideInUp);
                 view.setVisibility(View.VISIBLE);
+                ((TextInputLayout) view).getEditText().setClickable(true);
+                ((TextInputLayout) view).getEditText().setFocusable(true);
+                ((TextInputLayout) view).getEditText().setFocusableInTouchMode(true);
+                ((TextInputLayout) view).getEditText().setCursorVisible(true);
+
+                if (((TextInputLayout) view).getEditText().getTag() != null &&
+                        ((TextInputLayout) view).getEditText().getTag().equals("locationInput")) {
+//                    view.setClickable(true);
+                    ((TextInputLayout) view).getEditText().setFocusable(false);
+                    ((TextInputLayout) view).getEditText().setFocusableInTouchMode(false);
+                    ((TextInputLayout) view).getEditText().setCursorVisible(false);
+                }
             }
         }
 
+        editProfile.bringToFront();
         saveChanges.setVisibility(View.VISIBLE);
         saveChanges.startAnimation(slideInUp);
         scrollView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.background_color));
@@ -347,7 +396,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             if (view instanceof TextInputLayout) {
                 view.startAnimation(slideOutUp);
                 view.setVisibility(View.GONE);
+                ((TextInputLayout) view).getEditText().setClickable(false);
+                ((TextInputLayout) view).getEditText().setFocusable(false);
+                ((TextInputLayout) view).getEditText().setFocusableInTouchMode(false);
+                ((TextInputLayout) view).getEditText().setCursorVisible(false);
             }
+
         }
         saveChanges.setVisibility(View.GONE);
         saveChanges.startAnimation(slideOutUp);
@@ -359,10 +413,112 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void submitProfileChanges() {
-        if (isEmpty(newPassword.getText().toString()) && TextUtils.isEmpty(confirmNewPassword.getText().toString())){
-            //TODO ADD INFO TO PROFILE
+        if (isEmpty(newPassword.getText().toString()) && TextUtils.isEmpty(confirmNewPassword.getText().toString())) {
+            if (fullName.getText().toString().equals(fullNameText.getText()) &&
+                    email.getText().toString().equals(emailText.getText()) &&
+                    mobileNumber.getText().toString().equals(phoneText.getText()) &&
+                    location.getText().toString().equals(locationText.getText())) { //if no changes were made, do not update user
+                cancelEditProfile();
+                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "No changes were made", ToastType.INFO, false);
+            } else {
+                reAuthenticateAndSubmit();
+
+
+            }
         }
+
         //TODO PASSWORD CHANGE
+    }
+
+    private void updateUser() {
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        if (firebaseUser != null) {
+            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                    .setDisplayName(fullName.getText().toString())
+                    .setPhotoUri(Uri.parse("https://picsum.photos/200")) // TODO CHANGE TO INPUT PICTURE
+                    .build();
+            firebaseUser.updateProfile(profileUpdates);
+
+            User user = new User(mobileNumber.getText().toString(), locationId, userDateCreated);
+
+            getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+
+                    fullNameText.setText(fullName.getText().toString());
+                    locationText.setText(location.getText().toString());
+                    phoneText.setText(mobileNumber.getText().toString());
+                    //TODO also update image if edited
+
+                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "User information updated successfully", ToastType.SUCCESS, false);
+                } else {
+                    Log.e(TAG, "User information was not updated." + task.getException().getMessage());
+
+                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while updating account", ToastType.ERROR, false);
+                }
+                if (!email.getText().toString().equals(emailText.getText())) {// TODO If user added new email send email verification as well
+                    updateEmail(firebaseUser);
+                    //todo check for existing?
+                } else {
+                    cancelEditProfile();
+                }
+            });
+
+        } else {
+            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while updating account", ToastType.ERROR, false);
+            cancelEditProfile();
+        }
+    }
+
+    private void updateEmail(FirebaseUser firebaseUser) {
+        firebaseUser.updateEmail(email.getText().toString()).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d(TAG, "User email address updated.");
+                emailText.setText(email.getText().toString());
+                final NavController navController = Navigation.findNavController(view);
+                FirebaseAuth.getInstance().signOut();
+                firebaseUser.sendEmailVerification();
+                navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
+                        "Email changed. Please check your email, a verification link has been sent.", ToastType.INFO, true);
+
+            }
+        }).addOnFailureListener((exception) -> {
+            Log.e(TAG, "User email address was not updated." + exception.getMessage());
+            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
+                    exception.getMessage().equals("The email address is already in use by another account.") ?"The email address is already in use by another account. Changes have been saved." :"Error while updating email", ToastType.ERROR, false);
+            cancelEditProfile();
+        });
+    }
+
+    private void reAuthenticateAndSubmit() {
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.password_input_dialog, (ViewGroup) getView(), false);
+        final EditText input = viewInflated.findViewById(R.id.password_input);
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Re-authenticate")
+                .setView(viewInflated)
+                .setMessage("Please verify your password to save your changes")
+                .setPositiveButton("Submit", (dialog, id) -> {
+                    final FirebaseUser user = mAuth.getCurrentUser();
+                    if (!input.getText().toString().isEmpty()) {
+                        AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), input.getText().toString());
+                        user.reauthenticate(credential)
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful()) {
+                                        updateUser();
+                                    } else {
+                                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Incorrect password, please try again", ToastType.ERROR, false);
+                                    }
+                                });
+
+                    } else {
+                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Password can not be empty", ToastType.ERROR, false);
+                        input.setError("Password can not be empty");
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, id) -> {
+
+                })
+                .show();
     }
 
     private void userSignOut() {

@@ -150,10 +150,10 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
         //TODO REMOVE - ONLY FOR TESTING
         int rand = new Random().nextInt(10000);
         fullName.setText("Test user");
-        email.setText("test"+rand+"@test.com");
+        email.setText("test"+rand+"@iillii.org"); // https://www.fakemail.net/
         mobileNumber.setText("555555555");
         location.setText("TEST LOCATION");
-        locationId = "00000TEST00000";
+        locationId = "ChIJZxWJ268aDTkRhwqTHHNw0hA";
         password.setText("1234qwerQWER");
         confirmPassword.setText("1234qwerQWER");
         //TODO REMOVE - ONLY FOR TESTING
@@ -296,7 +296,6 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_welcomeFragment);
         }
     }
-
 
     @Override
     public void onValidationFailed(List<ValidationError> errors) {

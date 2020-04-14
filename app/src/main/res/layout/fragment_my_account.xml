@@ -28,7 +28,7 @@
             android:layout_marginTop="24dp"
             android:contentDescription="@string/closebutton"
             android:padding="5dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:src="@drawable/ic_arrow_back_white_24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -56,6 +56,8 @@
             android:gravity="center"
             android:padding="5dp"
             android:textColor="@color/quantum_grey800"
+            android:focusable="false"
+            android:clickable="false"
             app:layout_constraintEnd_toEndOf="@+id/profile_image"
             app:layout_constraintStart_toStartOf="@+id/profile_image"
             app:layout_constraintTop_toBottomOf="@+id/profile_image" />
@@ -71,6 +73,8 @@
             android:gravity="center"
             android:padding="5dp"
             android:tag="text"
+            android:focusable="false"
+            android:clickable="false"
             android:textColor="@color/quantum_grey800"
             app:layout_constraintEnd_toEndOf="@+id/full_name_text"
             app:layout_constraintStart_toStartOf="@+id/full_name_text"
@@ -95,6 +99,8 @@
             android:gravity="center"
             android:padding="5dp"
             android:text=""
+            android:focusable="false"
+            android:clickable="false"
             android:textColor="@color/quantum_grey800"
             android:drawableStart="@drawable/ic_location_grey_24dp"
             android:drawablePadding="5dp"
@@ -207,7 +213,7 @@
             android:layout_marginStart="110dp"
             android:layout_marginTop="0dp"
             android:contentDescription="Add Photo"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/profile_image"
             app:layout_constraintEnd_toEndOf="@+id/profile_image"
             app:layout_constraintHorizontal_bias="0.0"
@@ -225,7 +231,7 @@
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="150dp"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:hint="@string/fullName"
             app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
@@ -238,6 +244,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:textColor="@color/white" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -252,7 +262,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="0dp"
             android:hint="@string/email"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -266,6 +276,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -279,7 +293,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="0dp"
             android:hint="@string/phoneNumber"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -292,6 +306,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:inputType="phone"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -304,10 +322,8 @@
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="0dp"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
             android:hint="@string/location"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -317,6 +333,7 @@
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/edit_location"
+                android:tag="locationInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
@@ -336,7 +353,7 @@
             android:layout_marginTop="0dp"
             android:hint="@string/newPassword"
             app:errorEnabled="true"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:startIconDrawable="@drawable/ic_password_key_white_24dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -348,7 +365,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:inputType="textPassword"/>
+                android:inputType="textPassword"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -361,7 +382,7 @@
             android:layout_marginStart="32dp"
             android:layout_marginTop="0dp"
             android:hint="@string/confirmNewPassword"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:errorEnabled="true"
             app:startIconDrawable="@drawable/ic_password_confirm_white_24dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -375,7 +396,10 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:inputType="textPassword"
-                />
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -388,7 +412,7 @@
             android:text="@string/save_changes"
             android:textSize="17sp"
             android:textStyle="bold"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="@+id/edit_confirm_password_layout"
             app:layout_constraintStart_toStartOf="@+id/edit_confirm_password_layout"
             app:layout_constraintTop_toBottomOf="@+id/edit_confirm_password_layout" />
