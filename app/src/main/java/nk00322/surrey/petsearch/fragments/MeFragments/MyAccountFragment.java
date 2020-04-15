@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,11 +15,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
@@ -42,15 +40,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.mobsandgeeks.saripaar.Rule;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
-import com.mobsandgeeks.saripaar.annotation.ConfirmPassword;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
-import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -66,7 +61,6 @@ import nk00322.surrey.petsearch.models.User;
 import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.getNow;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getViewsByTag;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.slideView;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.textViewSlideIn;
@@ -75,7 +69,6 @@ import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
-import static nk00322.surrey.petsearch.utils.ValidationUtils.PASSWORD_FORMAT_ERROR;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayoutValidator;
 
@@ -84,7 +77,7 @@ import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayou
  */
 public class MyAccountFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener {
     private static final String TAG = "MyAccountFragment";
-    private static Animation slideOut, slideIn, slideOutUp, slideInUp, shakeAnimation;
+    private static Animation slideOut, slideIn, slideOutUp, slideInUp;
     private View view, optionsView;
     private TextView editProfile, signOut, deleteAccount, fullNameText, emailText, locationText, phoneText;
     private FirebaseAuth mAuth;
@@ -148,7 +141,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         slideIn = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_right);
         slideOutUp = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_up);
         slideInUp = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_up);
-        shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
 
         backButton = view.findViewById(R.id.back_to_profile);
         addPhoto = view.findViewById(R.id.add_photo);
@@ -180,9 +172,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         signOut.setTextColor(textSelector);
         deleteAccount.setTextColor(textSelector);
 
-
-        //TODO: passwords reset, delete and edit account
-        //https://firebase.google.com/docs/auth/web/manage-users
     }
 
     private void setListeners() {
@@ -253,7 +242,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.edit_profile: //TODO SLIDE OUT ALL 3 OPTIONS & TOP SECTIONWITH ANIMATION AND SHOW EDIT PROFILE
+            case R.id.edit_profile:
                 if (!isEmpty(locationText.getText().toString()) && !isEmpty(phoneText.getText().toString())) {
                     userEditProfile();
                 }
@@ -459,7 +448,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                     updateEmail(firebaseUser);
                 }
 
-                if(!isEmpty(newPassword.getText().toString()) && newPassword.getText().toString().equals(confirmNewPassword.getText().toString())){
+                if (!isEmpty(newPassword.getText().toString()) && newPassword.getText().toString().equals(confirmNewPassword.getText().toString())) {
                     updatePassword(firebaseUser);
                 }
 
@@ -476,12 +465,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private void updatePassword(FirebaseUser firebaseUser) {
 
         firebaseUser.updatePassword(newPassword.getText().toString()).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        newPassword.setText("");
-                        confirmNewPassword.setText("");
-                        Log.d(TAG, "User password updated.");
-                    }
-                }).addOnFailureListener((exception) -> {
+            if (task.isSuccessful()) {
+                newPassword.setText("");
+                confirmNewPassword.setText("");
+                Log.d(TAG, "User password updated.");
+            }
+        }).addOnFailureListener((exception) -> {
             Log.e(TAG, "User password was not updated." + exception.getMessage());
             new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
                     "Error while updating password", ToastType.ERROR, true);
