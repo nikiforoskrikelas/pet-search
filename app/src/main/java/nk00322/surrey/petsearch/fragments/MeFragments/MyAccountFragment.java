@@ -42,7 +42,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.mobsandgeeks.saripaar.Rule;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
+import com.mobsandgeeks.saripaar.annotation.ConfirmPassword;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
+import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
 import java.util.Arrays;
@@ -73,6 +75,7 @@ import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
+import static nk00322.surrey.petsearch.utils.ValidationUtils.PASSWORD_FORMAT_ERROR;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayoutValidator;
 
@@ -105,7 +108,9 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             message = "Invalid Phone Number", sequence = 2)
     private TextInputEditText mobileNumber;
 
+    @Pattern(regex = "^$|(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d]).+", message = "Invalid Password")
     private TextInputEditText newPassword;
+
     private TextInputEditText confirmNewPassword;
 
     private String userMobileNumber, userLocationId;
@@ -114,6 +119,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private DatabaseReference usersReference;
     private ConstraintLayout constraintLayout;
     private String userDateCreated = "";
+
     public MyAccountFragment() {
         // Required empty public constructor
     }
@@ -344,7 +350,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
                 if (((TextInputLayout) view).getEditText().getTag() != null &&
                         ((TextInputLayout) view).getEditText().getTag().equals("locationInput")) {
-//                    view.setClickable(true);
                     ((TextInputLayout) view).getEditText().setFocusable(false);
                     ((TextInputLayout) view).getEditText().setFocusableInTouchMode(false);
                     ((TextInputLayout) view).getEditText().setCursorVisible(false);
@@ -359,12 +364,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void cancelEditProfile() {
-        setupCancelEditProfileAnimations();
-
-    }
-
-    private void setupCancelEditProfileAnimations() {
-
         getViewsByTag((ViewGroup) view, "textView").forEach((n) -> textViewSlideIn(n, getActivity()));
 
         optionsView.startAnimation(slideIn);
@@ -406,6 +405,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         saveChanges.setVisibility(View.GONE);
         saveChanges.startAnimation(slideOutUp);
         scrollView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.background));
+
     }
 
     private void addPhotoPopup() {
@@ -413,21 +413,21 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void submitProfileChanges() {
-        if (isEmpty(newPassword.getText().toString()) && TextUtils.isEmpty(confirmNewPassword.getText().toString())) {
-            if (fullName.getText().toString().equals(fullNameText.getText()) &&
-                    email.getText().toString().equals(emailText.getText()) &&
-                    mobileNumber.getText().toString().equals(phoneText.getText()) &&
-                    location.getText().toString().equals(locationText.getText())) { //if no changes were made, do not update user
-                cancelEditProfile();
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "No changes were made", ToastType.INFO, false);
-            } else {
-                reAuthenticateAndSubmit();
+        if (fullName.getText().toString().equals(fullNameText.getText()) &&
+                email.getText().toString().equals(emailText.getText()) &&
+                mobileNumber.getText().toString().equals(phoneText.getText()) &&
+                location.getText().toString().equals(locationText.getText()) &&
+                isEmpty(newPassword.getText().toString()) &&
+                isEmpty(confirmNewPassword.getText().toString())) { //if no changes were made, do not update user
+            cancelEditProfile();
+            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "No changes were made", ToastType.INFO, false);
+        } else {
+            reAuthenticateAndSubmit();
 
 
-            }
         }
 
-        //TODO PASSWORD CHANGE
+
     }
 
     private void updateUser() {
@@ -455,18 +455,39 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
                     new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while updating account", ToastType.ERROR, false);
                 }
-                if (!email.getText().toString().equals(emailText.getText())) {// TODO If user added new email send email verification as well
+                if (!email.getText().toString().equals(emailText.getText())) {
                     updateEmail(firebaseUser);
-                    //todo check for existing?
-                } else {
-                    cancelEditProfile();
                 }
+
+                if(!isEmpty(newPassword.getText().toString()) && newPassword.getText().toString().equals(confirmNewPassword.getText().toString())){
+                    updatePassword(firebaseUser);
+                }
+
+                cancelEditProfile();
+
             });
 
         } else {
             new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while updating account", ToastType.ERROR, false);
             cancelEditProfile();
         }
+    }
+
+    private void updatePassword(FirebaseUser firebaseUser) {
+
+        firebaseUser.updatePassword(newPassword.getText().toString()).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        newPassword.setText("");
+                        confirmNewPassword.setText("");
+                        Log.d(TAG, "User password updated.");
+                    }
+                }).addOnFailureListener((exception) -> {
+            Log.e(TAG, "User password was not updated." + exception.getMessage());
+            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
+                    "Error while updating password", ToastType.ERROR, true);
+        });
+
+
     }
 
     private void updateEmail(FirebaseUser firebaseUser) {
@@ -485,7 +506,9 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         }).addOnFailureListener((exception) -> {
             Log.e(TAG, "User email address was not updated." + exception.getMessage());
             new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
-                    exception.getMessage().equals("The email address is already in use by another account.") ?"The email address is already in use by another account. Changes have been saved." :"Error while updating email", ToastType.ERROR, false);
+                    exception.getMessage().equals("The email address is already in use by another account.") ?
+                            "The email address is already in use by another account. Other changes have been saved." :
+                            "Error while updating email", ToastType.ERROR, true);
             cancelEditProfile();
         });
     }
@@ -588,7 +611,14 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
      */
     @Override
     public void onValidationSucceeded() {
-        submitProfileChanges();
+        if (!newPassword.getText().toString().equals(confirmNewPassword.getText().toString())) {
+            ((TextInputLayout) newPassword.getParent().getParent()).setError(null);
+            ((TextInputLayout) confirmNewPassword.getParent().getParent()).setError("Passwords don't match");
+        } else {
+            ((TextInputLayout) confirmNewPassword.getParent().getParent()).setError(null);
+            submitProfileChanges();
+
+        }
     }
 
     /**
