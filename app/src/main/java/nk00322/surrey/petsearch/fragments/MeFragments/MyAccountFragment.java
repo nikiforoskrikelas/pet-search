@@ -567,7 +567,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                         user.reauthenticate(credential)
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
-                                        user.delete()
+                                        user.delete() //todo also delete user info from storage?
                                                 .addOnCompleteListener(task1 -> {
                                                     if (task1.isSuccessful()) {
                                                         navController.navigate(R.id.action_meFragment_to_welcomeFragment);
