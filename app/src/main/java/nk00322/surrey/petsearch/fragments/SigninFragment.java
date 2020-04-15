@@ -11,7 +11,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.petsearch.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -38,6 +37,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
+import nk00322.surrey.petsearch.ToastType;
 
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.areAllFieldsCompleted;

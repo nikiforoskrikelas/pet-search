@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="nk00322.surrey.petsearch.fragments.MeFragment">
 
-
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/background"
-        android:gravity="center_horizontal|top"
-        android:textColor="@android:color/black"
-        android:text="ME"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
-
-    <Button
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Out"
-        android:id="@+id/signout"
-        android:layout_gravity="center_horizontal|bottom"/>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/background_color"
+        app:tabSelectedTextColor="@color/white">
 
-</FrameLayout>
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_parties"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_parties" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_events"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_events" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_account" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tab_layout" />
+</androidx.constraintlayout.widget.ConstraintLayout>

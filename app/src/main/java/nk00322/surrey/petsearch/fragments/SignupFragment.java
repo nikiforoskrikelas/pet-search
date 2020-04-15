@@ -30,7 +30,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.ServerValue;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Checked;
@@ -39,8 +38,6 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -51,6 +48,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
+import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
@@ -152,10 +150,10 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
         //TODO REMOVE - ONLY FOR TESTING
         int rand = new Random().nextInt(10000);
         fullName.setText("Test user");
-        email.setText("test"+rand+"@test.com");
+        email.setText("test"+rand+"@iillii.org"); // https://www.fakemail.net/
         mobileNumber.setText("555555555");
         location.setText("TEST LOCATION");
-        locationId = "00000TEST00000";
+        locationId = "ChIJZxWJ268aDTkRhwqTHHNw0hA";
         password.setText("1234qwerQWER");
         confirmPassword.setText("1234qwerQWER");
         //TODO REMOVE - ONLY FOR TESTING
@@ -298,7 +296,6 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_welcomeFragment);
         }
     }
-
 
     @Override
     public void onValidationFailed(List<ValidationError> errors) {

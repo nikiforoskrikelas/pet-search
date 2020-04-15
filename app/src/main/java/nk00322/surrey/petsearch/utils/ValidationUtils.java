@@ -42,13 +42,9 @@ public class ValidationUtils {
     public static Validator setupTextInputLayoutValidator(Validator validator, Object controller, final View view) {
         validator = new Validator(controller);
 
-        validator.setViewValidatedAction(new Validator.ViewValidatedAction() {
-
-            @Override
-            public void onAllRulesPassed(View textInputLayoutView) {
-                if (textInputLayoutView instanceof TextInputLayout)
-                    ((TextInputLayout) view.findViewById(textInputLayoutView.getId()).getParent().getParent()).setError(null);
-            }
+        validator.setViewValidatedAction(textInputLayoutView -> {
+            if (textInputLayoutView instanceof TextInputLayout)
+                ((TextInputLayout) view.findViewById(textInputLayoutView.getId()).getParent().getParent()).setError(null);
         });
         return validator;
     }

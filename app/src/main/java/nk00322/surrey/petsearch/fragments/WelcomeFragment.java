@@ -16,9 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
-
-import static nk00322.surrey.petsearch.utils.ValidationUtils.areAllFieldsCompleted;
-import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
+import nk00322.surrey.petsearch.ToastType;
 
 
 /**
@@ -69,7 +67,6 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener{
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "User already signed in", ToastType.INFO, false);
             Navigation.findNavController(view).navigate(R.id.action_welcomeFragment_to_mapFragment);
         }
     }
