@@ -52,7 +52,7 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
     private ConstraintLayout forgotPasswordLayout;
     private ImageView closeActivityImage;
     private Validator validator;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
 
     public ForgotPasswordFragment() {
         // Required empty public constructor
@@ -62,9 +62,9 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_forgot_password, container, false);
         initViews();
-        validator = setupTextInputLayoutValidator(validator, this, view);
+        validator = setupTextInputLayoutValidator(this, view);
         setListeners();
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         // Inflate the layout for this fragment
         return view;
@@ -112,7 +112,7 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
     public void onValidationSucceeded() {
         final NavController navController = Navigation.findNavController(view);
 
-        mAuth.sendPasswordResetEmail(email.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        auth.sendPasswordResetEmail(email.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
@@ -123,10 +123,10 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
                     action.setRegisteredEmail(email.getText().toString());
                     //TODO CUSTOM PASSWORD RESET WEBPAGE (the default allows passwords that are not as strong as in the app)
                     navController.navigate(action);
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Reset email instructions have been sent", ToastType.SUCCESS, false);
+                    new CustomToast().showToast(getContext(), view, "Reset email instructions have been sent", ToastType.SUCCESS, false);
 
                 } else {
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "This email does not exist", ToastType.ERROR, false);
+                    new CustomToast().showToast(getContext(), view, "This email does not exist", ToastType.ERROR, false);
 
                 }
             }
@@ -144,7 +144,7 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
                 // this will get TextInputEditText parent which is TextInputLayout
                 ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
             } else {
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         }
     }

@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageLoader;
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
@@ -48,7 +47,6 @@ import java.util.List;
 import java.util.Objects;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
@@ -61,6 +59,7 @@ import nk00322.surrey.petsearch.models.User;
 import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getViewsByTag;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.slideView;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.textViewSlideIn;
@@ -80,7 +79,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private static Animation slideOut, slideIn, slideOutUp, slideInUp;
     private View view, optionsView;
     private TextView editProfile, signOut, deleteAccount, fullNameText, emailText, locationText, phoneText;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
     private ImageView backButton, addPhoto;
     private int originalViewYPosition;
     private float originalProfileYPosition;
@@ -108,9 +107,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
     private String userMobileNumber, userLocationId;
     private Button saveChanges;
-    private FirebaseUser currentUser;
     private DatabaseReference usersReference;
-    private ConstraintLayout constraintLayout;
     private String userDateCreated = "";
 
     public MyAccountFragment() {
@@ -120,9 +117,13 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_my_account, container, false);
-        mAuth = FirebaseAuth.getInstance();
-        validator = setupTextInputLayoutValidator(validator, this, view);
-
+        if(!isLoggedIn()){
+            final NavController navController = Navigation.findNavController(view);
+            FirebaseAuth.getInstance().signOut();
+            navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+        }
+        auth = FirebaseAuth.getInstance();
+        validator = setupTextInputLayoutValidator(this, view);
         initViews();
         setListeners();
         return view;
@@ -130,7 +131,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void initViews() {
-        currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = auth.getCurrentUser();
         usersReference = getDatabaseReference().child("user").child(currentUser.getUid());
 
         editProfile = view.findViewById(R.id.edit_profile);
@@ -146,8 +147,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         addPhoto = view.findViewById(R.id.add_photo);
         scrollView = view.findViewById(R.id.edit_scrollview);
         topView = view.findViewById(R.id.view);
-
-        constraintLayout = view.findViewById(R.id.edit_constraint_layout);
 
         fullNameText = view.findViewById(R.id.full_name_text);
         emailText = view.findViewById(R.id.email_text);
@@ -282,7 +281,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 location.setText(place.getName());
                 locationId = place.getId();
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error with Google Maps", ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, "Error with Google Maps", ToastType.ERROR, false);
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i("ERROR AUTOCOMPLETE", status.getStatusMessage());
             }
@@ -409,7 +408,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 isEmpty(newPassword.getText().toString()) &&
                 isEmpty(confirmNewPassword.getText().toString())) { //if no changes were made, do not update user
             cancelEditProfile();
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "No changes were made", ToastType.INFO, false);
+            new CustomToast().showToast(getContext(), view, "No changes were made", ToastType.INFO, false);
         } else {
             reAuthenticateAndSubmit();
 
@@ -420,7 +419,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void updateUser() {
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        FirebaseUser firebaseUser = auth.getCurrentUser();
         if (firebaseUser != null) {
             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                     .setDisplayName(fullName.getText().toString())
@@ -438,11 +437,11 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                     phoneText.setText(mobileNumber.getText().toString());
                     //TODO also update image if edited
 
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "User information updated successfully", ToastType.SUCCESS, false);
+                    new CustomToast().showToast(getContext(), view, "User information updated successfully", ToastType.SUCCESS, false);
                 } else {
                     Log.e(TAG, "User information was not updated." + task.getException().getMessage());
 
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while updating account", ToastType.ERROR, false);
+                    new CustomToast().showToast(getContext(), view, "Error while updating account", ToastType.ERROR, false);
                 }
                 if (!email.getText().toString().equals(emailText.getText())) {
                     updateEmail(firebaseUser);
@@ -457,7 +456,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             });
 
         } else {
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while updating account", ToastType.ERROR, false);
+            new CustomToast().showToast(getContext(), view, "Error while updating account", ToastType.ERROR, false);
             cancelEditProfile();
         }
     }
@@ -472,7 +471,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             }
         }).addOnFailureListener((exception) -> {
             Log.e(TAG, "User password was not updated." + exception.getMessage());
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
+            new CustomToast().showToast(getContext(), view,
                     "Error while updating password", ToastType.ERROR, true);
         });
 
@@ -488,13 +487,13 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 FirebaseAuth.getInstance().signOut();
                 firebaseUser.sendEmailVerification();
                 navController.navigate(R.id.action_meFragment_to_welcomeFragment);
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
+                new CustomToast().showToast(getContext(), view,
                         "Email changed. Please check your email, a verification link has been sent.", ToastType.INFO, true);
 
             }
         }).addOnFailureListener((exception) -> {
             Log.e(TAG, "User email address was not updated." + exception.getMessage());
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view,
+            new CustomToast().showToast(getContext(), view,
                     exception.getMessage().equals("The email address is already in use by another account.") ?
                             "The email address is already in use by another account. Other changes have been saved." :
                             "Error while updating email", ToastType.ERROR, true);
@@ -510,7 +509,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 .setView(viewInflated)
                 .setMessage("Please verify your password to save your changes")
                 .setPositiveButton("Submit", (dialog, id) -> {
-                    final FirebaseUser user = mAuth.getCurrentUser();
+                    final FirebaseUser user = auth.getCurrentUser();
                     if (!input.getText().toString().isEmpty()) {
                         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), input.getText().toString());
                         user.reauthenticate(credential)
@@ -518,12 +517,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                                     if (task.isSuccessful()) {
                                         updateUser();
                                     } else {
-                                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Incorrect password, please try again", ToastType.ERROR, false);
+                                        new CustomToast().showToast(getContext(), view, "Incorrect password, please try again", ToastType.ERROR, false);
                                     }
                                 });
 
                     } else {
-                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Password can not be empty", ToastType.ERROR, false);
+                        new CustomToast().showToast(getContext(), view, "Password can not be empty", ToastType.ERROR, false);
                         input.setError("Password can not be empty");
                     }
                 })
@@ -561,7 +560,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 .setView(viewInflated)
                 .setMessage("Please verify your password first")
                 .setPositiveButton("Delete", (dialog, id) -> {
-                    final FirebaseUser user = mAuth.getCurrentUser();
+                    final FirebaseUser user = auth.getCurrentUser();
                     if (!input.getText().toString().isEmpty()) {
                         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), input.getText().toString());
                         user.reauthenticate(credential)
@@ -571,19 +570,19 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                                                 .addOnCompleteListener(task1 -> {
                                                     if (task1.isSuccessful()) {
                                                         navController.navigate(R.id.action_meFragment_to_welcomeFragment);
-                                                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Account Deleted Successfully", ToastType.SUCCESS, false);
+                                                        new CustomToast().showToast(getContext(), view, "Account Deleted Successfully", ToastType.SUCCESS, false);
                                                     } else {
-                                                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Authentication Error: Account was not deleted", ToastType.ERROR, false);
+                                                        new CustomToast().showToast(getContext(), view, "Authentication Error: Account was not deleted", ToastType.ERROR, false);
                                                     }
                                                 });
 
                                     } else {
-                                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Incorrect password, please try again", ToastType.ERROR, false);
+                                        new CustomToast().showToast(getContext(), view, "Incorrect password, please try again", ToastType.ERROR, false);
                                     }
                                 });
 
                     } else {
-                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Password can not be empty", ToastType.ERROR, false);
+                        new CustomToast().showToast(getContext(), view, "Password can not be empty", ToastType.ERROR, false);
                         input.setError("Password can not be empty");
                     }
                 })
@@ -627,7 +626,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 // this will get TextInputEditText parent which is TextInputLayout
                 ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
             } else {
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         }
     }

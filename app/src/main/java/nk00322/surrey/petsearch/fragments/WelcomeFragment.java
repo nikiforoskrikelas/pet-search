@@ -23,7 +23,7 @@ import nk00322.surrey.petsearch.ToastType;
  * A simple {@link Fragment} subclass.
  */
 public class WelcomeFragment extends Fragment implements View.OnClickListener{
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
     private View view;
     private Button signUpButton;
     private Button signinButton;
@@ -37,7 +37,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_welcome, container, false);
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         signUpButton = view.findViewById(R.id.welcome_signup);
         signinButton = view.findViewById(R.id.welcome_signin);
 
@@ -65,7 +65,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener{
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             Navigation.findNavController(view).navigate(R.id.action_welcomeFragment_to_mapFragment);
         }
