@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,6 +74,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private FirebaseAuth auth;
     private StorageReference storageRef;
     private static Animation shakeAnimation;
+    private long mLastClickTime = 0;
 
     @NotEmpty
     private TextInputEditText title, location;
@@ -146,7 +148,11 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Override
-    public void onClick(View view) {
+        public void onClick(View view) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){ //To prevent double clicking
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         switch (view.getId()) {
             case R.id.add_pet_image:
                 initiateUserInputImage();

@@ -1,6 +1,7 @@
 package nk00322.surrey.petsearch.fragments;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +45,7 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
 
     private static Animation shakeAnimation;
     private View view;
+    private long mLastClickTime = 0;
 
     @NotEmpty(sequence = 1)
     @Pattern(regex = EMAIL_REGEX, message = "Invalid email", sequence = 2)
@@ -91,62 +93,67 @@ public class ForgotPasswordFragment extends Fragment implements View.OnClickList
     }
 
     @Override
+
     public void onClick(View v) {
-        final NavController navController = Navigation.findNavController(view);
-
-        switch (v.getId()) {
-            case R.id.close_activity:
-                navController.navigate(R.id.action_forgotPasswordFragment_to_signinFragment);
-                break;
-
-            case R.id.password_reset_button:
-                clearTextInputEditTextErrors(email);
-                validator.validate();
-                break;
-
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) { //To prevent double clicking
+            return;
         }
+        mLastClickTime = SystemClock.elapsedRealtime();
+            final NavController navController = Navigation.findNavController(view);
+
+            switch (v.getId()) {
+                case R.id.close_activity:
+                    navController.navigate(R.id.action_forgotPasswordFragment_to_signinFragment);
+                    break;
+
+                case R.id.password_reset_button:
+                    clearTextInputEditTextErrors(email);
+                    validator.validate();
+                    break;
+
+            }
 
     }
 
-    @Override
-    public void onValidationSucceeded() {
-        final NavController navController = Navigation.findNavController(view);
+        @Override
+        public void onValidationSucceeded () {
+            final NavController navController = Navigation.findNavController(view);
 
-        auth.sendPasswordResetEmail(email.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    //Safe Args to pass data with type safety
-                    //https://developer.android.com/guide/navigation/navigation-pass-data#java
-                    ForgotPasswordFragmentDirections.ActionForgotPasswordFragmentToSigninFragment action =
-                            ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToSigninFragment();
-                    action.setRegisteredEmail(email.getText().toString());
-                    //TODO CUSTOM PASSWORD RESET WEBPAGE (the default allows passwords that are not as strong as in the app)
-                    navController.navigate(action);
-                    new CustomToast().showToast(getContext(), view, "Reset email instructions have been sent", ToastType.SUCCESS, false);
+            auth.sendPasswordResetEmail(email.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        //Safe Args to pass data with type safety
+                        //https://developer.android.com/guide/navigation/navigation-pass-data#java
+                        ForgotPasswordFragmentDirections.ActionForgotPasswordFragmentToSigninFragment action =
+                                ForgotPasswordFragmentDirections.actionForgotPasswordFragmentToSigninFragment();
+                        action.setRegisteredEmail(email.getText().toString());
+                        //TODO CUSTOM PASSWORD RESET WEBPAGE (the default allows passwords that are not as strong as in the app)
+                        navController.navigate(action);
+                        new CustomToast().showToast(getContext(), view, "Reset email instructions have been sent", ToastType.SUCCESS, false);
 
+                    } else {
+                        new CustomToast().showToast(getContext(), view, "This email does not exist", ToastType.ERROR, false);
+
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onValidationFailed (List < ValidationError > errors) {
+            for (ValidationError error : errors) {
+                View view = error.getView();
+                String message = error.getCollatedErrorMessage(getContext());
+
+                // Display error messages
+                if (view instanceof TextInputEditText) {
+                    // this will get TextInputEditText parent which is TextInputLayout
+                    ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
                 } else {
-                    new CustomToast().showToast(getContext(), view, "This email does not exist", ToastType.ERROR, false);
-
+                    new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
                 }
             }
-        });
-    }
-
-    @Override
-    public void onValidationFailed(List<ValidationError> errors) {
-        for (ValidationError error : errors) {
-            View view = error.getView();
-            String message = error.getCollatedErrorMessage(getContext());
-
-            // Display error messages
-            if (view instanceof TextInputEditText) {
-                // this will get TextInputEditText parent which is TextInputLayout
-                ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
-            } else {
-                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
-            }
         }
-    }
 
-}
+    }

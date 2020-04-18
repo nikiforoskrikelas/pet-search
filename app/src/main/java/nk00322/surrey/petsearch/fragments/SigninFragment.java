@@ -2,6 +2,7 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +55,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
 
     private static Animation shakeAnimation;
     private View view;
+    private long mLastClickTime = 0;
 
     @NotEmpty(sequence = 1)
     @Pattern(regex = EMAIL_REGEX, message = "Invalid email", sequence = 2)
@@ -138,6 +140,10 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
 
     @Override
     public void onClick(View v) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) { //To prevent double clicking
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         final NavController navController = Navigation.findNavController(view);
         switch (v.getId()) {
             case R.id.close_activity:
