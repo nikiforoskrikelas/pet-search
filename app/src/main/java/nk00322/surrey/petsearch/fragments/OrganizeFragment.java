@@ -1,6 +1,5 @@
 package nk00322.surrey.petsearch.fragments;
 
-import android.Manifest;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -50,15 +49,14 @@ import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
 
 import static android.app.Activity.RESULT_OK;
-import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.setFocusableAndClickable;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.DESCRIPTION_CHAR_LIMIT;
-import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayoutValidator;
 
@@ -84,13 +82,10 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private TextInputEditText description;
 
     @NotEmpty
-    @Digits(integer = 5, message = "Please use an integer with up to 5 digits",  sequence = 2)
+    @Digits(integer = 5, message = "Please use an integer with up to 5 digits", sequence = 2)
     private TextInputEditText reward;
 
     private ImageView photo;
-    private static final int width = 512;
-    private static final int height = 512;
-    private final static int PICK_IMAGE_REQUEST = 2;
     private Uri imageUri;
 
     private Button submit;

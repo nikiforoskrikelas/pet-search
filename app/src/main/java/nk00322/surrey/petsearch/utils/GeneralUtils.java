@@ -25,7 +25,9 @@ import androidx.fragment.app.FragmentActivity;
 
 //Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/
 public class GeneralUtils {
-    private final static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+    private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+
+    public final static int PICK_IMAGE_REQUEST = 2;
 
 
     public static String getNow() {

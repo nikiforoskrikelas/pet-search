@@ -31,6 +31,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Checked;
@@ -266,14 +268,17 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private void createUser() {
         FirebaseUser firebaseUser = auth.getCurrentUser();
         if (firebaseUser != null) {
+            //Retrieve default image from storage
+            StorageReference defaultImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
+
+
             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                     .setDisplayName(fullName.getText().toString())
-                    .setPhotoUri(Uri.parse("https://picsum.photos/200")) // default picture
                     .build();
             firebaseUser.updateProfile(profileUpdates);
             firebaseUser.sendEmailVerification();
 
-            User user = new User(mobileNumber.getText().toString(), locationId, getNow());
+            User user = new User(mobileNumber.getText().toString(), locationId, getNow(), defaultImageRef.toString());
 
             getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                 NavController navController = Navigation.findNavController(view);
