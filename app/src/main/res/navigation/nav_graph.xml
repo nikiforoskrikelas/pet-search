@@ -116,6 +116,9 @@
         <action
             android:id="@+id/action_organizeFragment_to_searchPartiesFragment"
             app:destination="@id/searchPartiesFragment" />
+        <action
+            android:id="@+id/action_organizeFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchPartiesFragment"

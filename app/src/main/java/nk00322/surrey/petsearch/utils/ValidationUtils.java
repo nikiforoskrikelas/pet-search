@@ -19,6 +19,8 @@ public class ValidationUtils {
             "{3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|" +
             "\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)])";
 
+    public final static String DESCRIPTION_CHAR_LIMIT = "^(.{1,300})$";
+
 
     public static boolean areAllFieldsCompleted(EditText... textFields) {
         ArrayList<String> textFieldStrings = new ArrayList<>();
@@ -39,8 +41,8 @@ public class ValidationUtils {
             ((TextInputLayout) e.getParent().getParent()).setError(null);
     }
 
-    public static Validator setupTextInputLayoutValidator(Validator validator, Object controller, final View view) {
-        validator = new Validator(controller);
+    public static Validator setupTextInputLayoutValidator(Object controller, final View view) {
+        Validator validator = new Validator(controller);
 
         validator.setViewValidatedAction(textInputLayoutView -> {
             if (textInputLayoutView instanceof TextInputLayout)

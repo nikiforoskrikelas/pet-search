@@ -2,6 +2,7 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,6 +55,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
 
     private static Animation shakeAnimation;
     private View view;
+    private long mLastClickTime = 0;
 
     @NotEmpty(sequence = 1)
     @Pattern(regex = EMAIL_REGEX, message = "Invalid email", sequence = 2)
@@ -68,7 +70,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
     private ImageView closeActivityImage;
     private Validator validator;
 
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
 
     public SigninFragment() {
         // Required empty public constructor
@@ -80,10 +82,10 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
         view = inflater.inflate(R.layout.fragment_signin, container, false);
         initViews();
 
-        validator = setupTextInputLayoutValidator(validator, this, view);
+        validator = setupTextInputLayoutValidator(this, view);
         setListeners();
 
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         // Inflate the layout for this fragment
         return view;
@@ -93,9 +95,9 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "User already signed in", ToastType.INFO, false);
+            new CustomToast().showToast(getContext(), view, "User already signed in", ToastType.INFO, false);
             Navigation.findNavController(view).navigate(R.id.action_signinFragment_to_mapFragment);
         }
     }
@@ -138,6 +140,10 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
 
     @Override
     public void onClick(View v) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) { //To prevent double clicking
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         final NavController navController = Navigation.findNavController(view);
         switch (v.getId()) {
             case R.id.close_activity:
@@ -147,7 +153,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
                 //Validate fields before logging in
                 if (!areAllFieldsCompleted(email, password)) {
                     signinLayout.startAnimation(shakeAnimation);
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "All fields are required.", ToastType.ERROR, false);
+                    new CustomToast().showToast(getContext(), view, "All fields are required.", ToastType.ERROR, false);
                     break;
                 }
                 clearTextInputEditTextErrors(email, password);
@@ -171,7 +177,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
     }
 
     private void loginAccount(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             final NavController navController = Navigation.findNavController(view);
 
             @Override
@@ -179,13 +185,13 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
                 if (task.isSuccessful()) {
                     // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success");
-                    FirebaseUser user = mAuth.getCurrentUser();
+                    FirebaseUser user = auth.getCurrentUser();
                     if(user.isEmailVerified()) {
                         navController.navigate(R.id.action_signinFragment_to_mapFragment);
                     }else{
                         user.sendEmailVerification();
                         FirebaseAuth.getInstance().signOut();
-                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "This account is not verified. Please check your email, a verification link has been sent", ToastType.ERROR, true);
+                        new CustomToast().showToast(getContext(), view, "This account is not verified. Please check your email, a verification link has been sent", ToastType.ERROR, true);
                     }
                 }
             }
@@ -209,10 +215,10 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
                         message = e.getLocalizedMessage();
                     }
                 } else {
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, e.getMessage(), ToastType.ERROR, false);
+                    new CustomToast().showToast(getContext(), view, e.getMessage(), ToastType.ERROR, false);
                     navController.navigate(R.id.action_signinFragment_to_welcomeFragment);
                 }
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         });
     }
@@ -228,7 +234,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
                 // this will get TextInputEditText parent which is TextInputLayout
                 ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
             } else {
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         }
     }

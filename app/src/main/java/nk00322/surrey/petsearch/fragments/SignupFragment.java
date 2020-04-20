@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.mobsandgeeks.saripaar.ValidationError;
 import com.mobsandgeeks.saripaar.Validator;
 import com.mobsandgeeks.saripaar.annotation.Checked;
@@ -71,6 +74,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private static String TAG = "SignupFragment";
     private static Animation shakeAnimation;
     private View view;
+    private long mLastClickTime = 0;
 
     @NotEmpty
     private TextInputEditText fullName;
@@ -103,7 +107,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private Validator validator;
     private ImageView closeActivityImage;
 
-    private FirebaseAuth mAuth;
+    private FirebaseAuth auth;
     private String locationId;
     public SignupFragment() {
         // Required empty public constructor
@@ -114,9 +118,9 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_signup, container, false);
         initViews();
-        validator = setupTextInputLayoutValidator(validator, this, view);
+        validator = setupTextInputLayoutValidator(this, view);
         setListeners();
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         // Inflate the layout for this fragment
         return view;
     }
@@ -125,9 +129,9 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "User already signed in", ToastType.INFO, false);
+            new CustomToast().showToast(getContext(), view, "User already signed in", ToastType.INFO, false);
             Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_mapFragment);
         }
     }
@@ -187,7 +191,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 locationId = place.getId();
                 //TODO store ID and or name or other data required to user
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error with Google Maps", ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, "Error with Google Maps", ToastType.ERROR, false);
                 Status status = Autocomplete.getStatusFromIntent(data);
                 Log.i("ERROR AUTOCOMPLETE", status.getStatusMessage());
             }
@@ -196,6 +200,10 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
 
     @Override
     public void onClick(View v) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){ //To prevent double clicking
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         final NavController navController = Navigation.findNavController(view);
 
         switch (v.getId()) {
@@ -208,7 +216,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             case R.id.signUpBtn:
                 if (!areAllFieldsCompleted(fullName, email, mobileNumber, location, password, confirmPassword)) {
                     signupLayout.startAnimation(shakeAnimation);
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "All fields are required.", ToastType.ERROR, false);
+                    new CustomToast().showToast(getContext(), view, "All fields are required.", ToastType.ERROR, false);
                     break;
                 }
                 clearTextInputEditTextErrors(fullName, email, mobileNumber, location, password, confirmPassword);
@@ -231,7 +239,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private void createAccount() {
         final String email = this.email.getText().toString();
         String password = this.password.getText().toString();
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
@@ -249,25 +257,28 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 if (e instanceof FirebaseAuthUserCollisionException) {
                     message = "Email already in use by another account.";
                 } else {
-                    new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, e.getMessage(), ToastType.ERROR, false);
+                    new CustomToast().showToast(getContext(), view, e.getMessage(), ToastType.ERROR, false);
                     navController.navigate(R.id.action_signupFragment_to_welcomeFragment);
                 }
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         });
     }
 
     private void createUser() {
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        FirebaseUser firebaseUser = auth.getCurrentUser();
         if (firebaseUser != null) {
+            //Retrieve default image from storage
+            StorageReference defaultImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
+
+
             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                     .setDisplayName(fullName.getText().toString())
-                    .setPhotoUri(Uri.parse("https://picsum.photos/200")) // default picture
                     .build();
             firebaseUser.updateProfile(profileUpdates);
             firebaseUser.sendEmailVerification();
 
-            User user = new User(mobileNumber.getText().toString(), locationId, getNow());
+            User user = new User(mobileNumber.getText().toString(), locationId, getNow(), defaultImageRef.toString());
 
             getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                 NavController navController = Navigation.findNavController(view);
@@ -276,14 +287,14 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                     if (task.isSuccessful()) {
                         //the Firebase method instantly logs in the user after sign up
                         FirebaseAuth.getInstance().signOut();
-                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Account created successfully", ToastType.SUCCESS, false);
+                        new CustomToast().showToast(getContext(), view, "Account created successfully", ToastType.SUCCESS, false);
                         SignupFragmentDirections.ActionSignupFragmentToSigninFragment action =
                                 SignupFragmentDirections.actionSignupFragmentToSigninFragment();
                         action.setRegisteredEmail(email.getText().toString());
                         navController.navigate(action);
                     }else{
                         FirebaseAuth.getInstance().signOut();
-                        new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while creating account", ToastType.ERROR, false);
+                        new CustomToast().showToast(getContext(), view, "Error while creating account", ToastType.ERROR, false);
                         navController.navigate(R.id.action_signupFragment_to_welcomeFragment);
 
                     }
@@ -292,7 +303,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             });
 
         }else{
-            new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, "Error while creating account", ToastType.ERROR, false);
+            new CustomToast().showToast(getContext(), view, "Error while creating account", ToastType.ERROR, false);
             Navigation.findNavController(view).navigate(R.id.action_signupFragment_to_welcomeFragment);
         }
     }
@@ -308,7 +319,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 // this will get TextInputEditText parent which is TextInputLayout
                 ((TextInputLayout) this.view.findViewById(view.getId()).getParent().getParent()).setError(message);
             } else {
-                new CustomToast().showToast(Objects.requireNonNull(getActivity()), view, message, ToastType.ERROR, false);
+                new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         }
     }

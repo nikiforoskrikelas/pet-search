@@ -1,6 +1,7 @@
 package nk00322.surrey.petsearch.fragments;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,11 +23,12 @@ import nk00322.surrey.petsearch.ToastType;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class WelcomeFragment extends Fragment implements View.OnClickListener{
-    private FirebaseAuth mAuth;
+public class WelcomeFragment extends Fragment implements View.OnClickListener {
+    private FirebaseAuth auth;
     private View view;
     private Button signUpButton;
     private Button signinButton;
+    private long mLastClickTime = 0;
 
     public WelcomeFragment() {
         // Required empty public constructor
@@ -37,7 +39,7 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_welcome, container, false);
-        mAuth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         signUpButton = view.findViewById(R.id.welcome_signup);
         signinButton = view.findViewById(R.id.welcome_signin);
 
@@ -50,6 +52,10 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) { //To prevent double clicking
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
         final NavController navController = Navigation.findNavController(view);
 
         switch (v.getId()) {
@@ -61,11 +67,12 @@ public class WelcomeFragment extends Fragment implements View.OnClickListener{
         }
 
     }
+
     @Override
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             Navigation.findNavController(view).navigate(R.id.action_welcomeFragment_to_mapFragment);
         }

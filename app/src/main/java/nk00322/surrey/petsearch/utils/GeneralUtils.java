@@ -3,12 +3,16 @@ package nk00322.surrey.petsearch.utils;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.webkit.MimeTypeMap;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.petsearch.R;
@@ -21,7 +25,9 @@ import androidx.fragment.app.FragmentActivity;
 
 //Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/
 public class GeneralUtils {
-    private final static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+    private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
+
+    public final static int PICK_IMAGE_REQUEST = 2;
 
 
     public static String getNow() {
@@ -89,5 +95,20 @@ public class GeneralUtils {
         view.startAnimation(AnimationUtils.loadAnimation(activity, R.anim.slide_in_right));
         view.setVisibility(View.VISIBLE);
     }
+
+    public static String getFileExtension(Uri uri, Context context) {
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(context.getContentResolver().getType(uri));
+    }
+
+    public static void setFocusableAndClickable(boolean makeFocusableAndClickable, View... view) {
+        for (View v : view){
+            v.setFocusable(makeFocusableAndClickable);
+            v.setFocusableInTouchMode(makeFocusableAndClickable);
+            v.setClickable(makeFocusableAndClickable);
+            v.clearFocus();
+        }
+    }
+
+
 
 }

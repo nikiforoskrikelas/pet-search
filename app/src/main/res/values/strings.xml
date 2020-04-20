@@ -38,6 +38,15 @@
     <string name="newPassword">New password</string>
     <string name="confirmNewPassword">Confirm New Password</string>
     <string name="save_changes">Save Changes</string>
+    <string name="organize">Organize a Search Party</string>
+    <string name="organize_title">Title</string>
+    <string name="organize_description">Description</string>
+    <string name="addphoto">addPhoto</string>
+    <string name="last_location">Last seen location</string>
+    <string name="reward">Finder\'s reward</string>
+    <string name="organize_welcome_text">Use these fields to create a new Search Party for your lost pet. Other users can view your Search Party and help you find it.</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="new_email">New Email</string>
 
 
 </resources>

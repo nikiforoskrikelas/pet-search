@@ -1,18 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="nk00322.surrey.petsearch.fragments.OrganizeFragment">
+    android:id="@+id/organize_scrollview"
+    android:background="@color/background_color">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
-        android:gravity="center_horizontal|top"
-        android:textColor="@android:color/black"
-        android:text="ORGANIZE"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+        android:id="@+id/organize_constraint_layout">
 
-</FrameLayout>
+        <TextView
+            android:id="@+id/organize_welcome_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:text="@string/organize_welcome_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/organize_title_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="@string/organize_title"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="@+id/organize_welcome_text"
+            app:layout_constraintStart_toStartOf="@+id/organize_welcome_text"
+            app:layout_constraintTop_toBottomOf="@+id/organize_welcome_text"
+            app:startIconDrawable="@drawable/ic_title_white24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/organize_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textColor="@color/white" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/organize_description_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:hint="@string/organize_description"
+            app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="300"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/organize_title_layout"
+            app:startIconDrawable="@drawable/ic_description_white_24dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/organize_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:textColor="@color/white" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/add_pet_image"
+            android:layout_width="0dp"
+            android:layout_height="249dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/add_photo"
+            android:clickable="true"
+            app:layout_constraintEnd_toEndOf="@+id/organize_description_layout"
+            app:layout_constraintStart_toStartOf="@+id/organize_description_layout"
+            app:layout_constraintTop_toBottomOf="@id/organize_description_layout"
+            android:contentDescription="@string/addphoto" />
+
+        <ProgressBar
+            android:id="@+id/upload_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="invisible"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            app:layout_constraintEnd_toEndOf="@+id/add_pet_image"
+            app:layout_constraintStart_toStartOf="@+id/add_pet_image"
+            app:layout_constraintTop_toBottomOf="@+id/add_pet_image"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/last_location_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/last_location"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="@+id/add_pet_image"
+            app:layout_constraintStart_toStartOf="@+id/add_pet_image"
+            app:layout_constraintTop_toBottomOf="@+id/add_pet_image"
+            app:startIconDrawable="@drawable/ic_location_white_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/last_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="text"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/reward_layout"
+            style="@style/TextInputLayoutOutlineStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:hint="@string/reward"
+            app:errorEnabled="true"
+            app:layout_constraintEnd_toEndOf="@+id/last_location_layout"
+            app:layout_constraintStart_toStartOf="@+id/last_location_layout"
+            app:layout_constraintTop_toBottomOf="@+id/last_location_layout"
+            app:startIconDrawable="@drawable/ic_money_white_24dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/reward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:theme="@style/AppTheme.Button"
+            android:id="@+id/organize_submit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="3dp"
+            android:text="@string/submit"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/reward_layout"
+            app:layout_constraintStart_toStartOf="@+id/reward_layout"
+            app:layout_constraintTop_toBottomOf="@+id/reward_layout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
