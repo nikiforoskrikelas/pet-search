@@ -207,7 +207,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
 
     private void createSearchParty() {
         if (imageUri != null) {
-            StorageReference fileReference = storageRef.child(System.currentTimeMillis() + "." + getFileExtension(imageUri, getContext()));
+            StorageReference searchPartyImageRef = storageRef.child(System.currentTimeMillis() + "." + getFileExtension(imageUri, getContext()));
             new CustomToast().showToast(getContext(), view, "Image upload in progress. Please wait", ToastType.INFO, false);
 
             setFocusableAndClickable(false, title, description, reward);
@@ -218,7 +218,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
             uploadProgress.setVisibility(View.VISIBLE);
             uploadProgress.startAnimation(shakeAnimation);
 
-            uploadTask = fileReference.putFile(imageUri).addOnSuccessListener((response) -> {
+            uploadTask = searchPartyImageRef.putFile(imageUri).addOnSuccessListener((response) -> {
                 Handler handler = new Handler();
                 handler.postDelayed(() -> {
                     uploadProgress.setProgress(0);
@@ -226,7 +226,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 }, 3500); // delay reset by 5 seconds
                 Log.i(TAG, "Image upload successful");
                 new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
-                SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(), fileReference.getDownloadUrl().toString(), locationId, reward.getText().toString());
+                SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(), searchPartyImageRef.toString(), locationId, reward.getText().toString());
                 String uploadId = currentUserReference.child("searchParties").push().getKey();
                 currentUserReference.child("searchParties").child(uploadId).setValue(searchParty);
 
