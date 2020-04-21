@@ -57,7 +57,7 @@ import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.getNowString;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.getNowTimestamp;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
@@ -280,7 +280,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             firebaseUser.sendEmailVerification();
 
             HashMap<String, SearchParty> empty = new HashMap<>();
-            User user = new User(firebaseUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(), locationId, getNowString(), defaultImageRef.toString(), empty);
+            User user = new User(firebaseUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(), locationId, getNowTimestamp(), defaultImageRef.toString(), empty);
 
             getDatabaseReference().child("users").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                 NavController navController = Navigation.findNavController(view);

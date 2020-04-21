@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="12dp"
+    android:paddingStart="12dp"
+    android:paddingBottom="0dp"
     android:background="@color/white">
 
     <ProgressBar
@@ -89,17 +92,18 @@
         android:drawableStart="@drawable/ic_person_white_24dp"
         android:drawableTint="@color/quantum_grey800"
         android:textColor="@color/quantum_grey800"
-        app:layout_constraintBottom_toTopOf="@+id/description"
+        app:layout_constraintBottom_toTopOf="@+id/item_divider"
         app:layout_constraintStart_toEndOf="@+id/image"
         app:layout_constraintTop_toBottomOf="@+id/date" />
 
     <View
         style="@style/Divider.Horizontal"
+        android:id="@+id/item_divider"
         android:layout_marginTop="8dp"
         android:tag="divider"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/description" />
+        app:layout_constraintTop_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

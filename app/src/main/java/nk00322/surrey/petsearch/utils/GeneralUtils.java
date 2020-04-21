@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.example.petsearch.R;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -27,14 +28,27 @@ import java.util.Locale;
 
 import androidx.fragment.app.FragmentActivity;
 
+import static java.text.DateFormat.getDateTimeInstance;
+
 //Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/
 public class GeneralUtils {
 
     public final static int PICK_IMAGE_REQUEST = 2;
 
 
-    public static String getNowString() {
+
+    public static String getNowTimestamp() {
         return LocalDateTime.now().toString();
+    }
+
+    public static String getTimeDate(long timestamp){
+        try{
+            DateFormat dateFormat = getDateTimeInstance(2,3, Locale.UK);
+            Date netDate = (new Date(timestamp));
+            return dateFormat.format(netDate);
+        } catch(Exception e) {
+            return "Error";
+        }
     }
 
     public static String printDate(String inputDate) {

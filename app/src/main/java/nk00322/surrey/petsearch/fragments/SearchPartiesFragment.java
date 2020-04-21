@@ -29,6 +29,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -43,7 +45,7 @@ import nk00322.surrey.petsearch.models.User;
 
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.printDate;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.getTimeDate;
 import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
 import static nk00322.surrey.petsearch.utils.LocationUtils.PLACE_FIELDS;
 
@@ -138,7 +140,7 @@ public class SearchPartiesFragment extends Fragment {
                     Log.i(TAG, "No location stored in user");
                 }
 
-                holder.date.setText(printDate(model.getDateCreated()));
+                holder.date.setText(getTimeDate(model.getTimestampCreatedLong()));
 
                 Observable<User> userObservable = getUserFromId(model.getOwnerUid());
                 disposable = userObservable.subscribe(
@@ -213,7 +215,9 @@ public class SearchPartiesFragment extends Fragment {
     public void onStop() {
         super.onStop();
         adapter.stopListening();
-        disposable.dispose();
+        if (disposable != null) {
+            disposable.dispose();
+        }
 
     }
 }

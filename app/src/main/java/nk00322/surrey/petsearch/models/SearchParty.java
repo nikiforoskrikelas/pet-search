@@ -1,5 +1,10 @@
 package nk00322.surrey.petsearch.models;
 
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
+
+import java.util.HashMap;
+
 public class SearchParty {
     private String title;
     private String description;
@@ -7,12 +12,14 @@ public class SearchParty {
     private String locationId;
     private String reward;
     private String ownerUid;
-    private String dateCreated;
+    private HashMap<String, Object> timestampCreated;
+
 
     public SearchParty() {
         // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
     }
-    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, String dateCreated){
+
+    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -20,7 +27,9 @@ public class SearchParty {
         this.locationId = locationId;
         this.reward = reward;
         this.ownerUid = ownerUid;
-        this.dateCreated = dateCreated;
+        HashMap<String, Object> timestampNow = new HashMap<>();
+        timestampNow.put("timestamp", ServerValue.TIMESTAMP);
+        this.timestampCreated = timestampNow;
     }
 
 
@@ -48,7 +57,12 @@ public class SearchParty {
         return ownerUid;
     }
 
-    public String getDateCreated() {
-        return dateCreated;
+    public HashMap<String, Object> getTimestampCreated(){
+        return timestampCreated;
+    }
+
+    @Exclude
+    public long getTimestampCreatedLong(){
+        return (long)timestampCreated.get("timestamp");
     }
 }
