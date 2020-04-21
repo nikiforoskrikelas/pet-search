@@ -19,6 +19,8 @@ import android.widget.ProgressBar;
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
@@ -40,6 +42,7 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -53,6 +56,7 @@ import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.getNowString;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.setFocusableAndClickable;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
@@ -120,7 +124,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
 
     private void initViews() {
         currentUser = auth.getCurrentUser();
-        currentUserReference = getDatabaseReference().child("user").child(currentUser.getUid());
+        currentUserReference = getDatabaseReference().child("users").child(currentUser.getUid());
         storageRef = FirebaseStorage.getInstance().getReference("searchPartyImages");
         title = view.findViewById(R.id.organize_title);
         description = view.findViewById(R.id.organize_description);
@@ -226,9 +230,25 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 }, 3500); // delay reset by 5 seconds
                 Log.i(TAG, "Image upload successful");
                 new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
-                SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(), searchPartyImageRef.toString(), locationId, reward.getText().toString());
+                SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(), searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), getNowString());
                 String uploadId = currentUserReference.child("searchParties").push().getKey();
                 currentUserReference.child("searchParties").child(uploadId).setValue(searchParty);
+
+                getDatabaseReference().child("searchParties").child(uploadId).setValue(searchParty).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+
+                            new CustomToast().showToast(getContext(), view, "success", ToastType.SUCCESS, false);
+
+                        }else{
+                            new CustomToast().showToast(getContext(), view, task.getException().getMessage(), ToastType.ERROR, false);
+
+                        }
+
+                    }
+                });;
+
 
                 title.setText("");
                 description.setText("");

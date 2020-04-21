@@ -55,6 +55,8 @@ import com.mobsandgeeks.saripaar.annotation.Pattern;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -65,14 +67,17 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
+import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
@@ -120,15 +125,17 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
     private String userOldMobileNumber, userOldLocationId;
     private Button saveChanges;
-    private DatabaseReference usersReference;
+    private DatabaseReference userReference;
     private String userDateCreated = "";
     private String userOldProfileImageURL;
+    private HashMap<String, SearchParty> userSearchParties;
     private long mLastClickTime = 0;
 
     private Uri imageInputUri;
     private StorageTask uploadTask;
     private boolean dialogActive = false;
     private ProgressBar uploadProgress, glideProgress;
+    private Disposable disposable;
 
     public MyAccountFragment() {
         // Required empty public constructor
@@ -146,13 +153,14 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         validator = setupTextInputLayoutValidator(this, view);
         initViews();
         setListeners();
+        setUserData();
         return view;
 
     }
 
     private void initViews() {
         currentUser = auth.getCurrentUser();
-        usersReference = getDatabaseReference().child("user").child(currentUser.getUid());
+        userReference = getDatabaseReference().child("users").child(currentUser.getUid());
 
         uploadProgress = view.findViewById(R.id.upload_progress);
         glideProgress = view.findViewById(R.id.glide_progress);
@@ -209,91 +217,89 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         saveChanges.setOnClickListener(this);
         validator.setValidationListener(this);
         location.setOnClickListener(this);
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    }
 
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dataSnapshot.getValue();
-                User user = dataSnapshot.getValue(User.class);
-                if (user == null) {
-                    final NavController navController = Navigation.findNavController(view);
-                    FirebaseAuth.getInstance().signOut();
-                    navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+    private void setUserData() {
+        Observable<User> userObservable = getUserFromId(currentUser.getUid());
+        disposable = userObservable.subscribe(user -> {
+            if (user == null) {
+                final NavController navController = Navigation.findNavController(view);
+                FirebaseAuth.getInstance().signOut();
+                navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+            } else {
+                userOldMobileNumber = user.getMobileNumber();
+                userOldLocationId = user.getLocationId();
+                userDateCreated = user.getDateCreated();
+                userOldProfileImageURL = user.getImageUrl();
+                userSearchParties = user.getSearchParties();
+                if (userOldLocationId != null) {
+
+                    Places.initialize(getContext(), API_KEY);
+                    FetchPlaceRequest request = FetchPlaceRequest.newInstance(userOldLocationId, PLACE_FIELDS);
+                    PlacesClient placesClient = Places.createClient(getContext());
+                    Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                        locationText.setText(response.getPlace().getName());
+                        Log.i(TAG, "Place found");
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            Log.e(TAG, "Place not found: " + exception.getMessage());
+                            locationText.setText("N/A");
+                        }
+                    });
+                    Thread thread = new Thread(fetchUserInfo);
+                    thread.start();
+
+
                 } else {
-                    userOldMobileNumber = user.getMobileNumber();
-                    userOldLocationId = user.getLocationId();
-                    userDateCreated = user.getDateCreated();
-                    userOldProfileImageURL = user.getImageUrl();
-
-                    if (userOldLocationId != null) {
-
-                        Places.initialize(getContext(), API_KEY);
-                        FetchPlaceRequest request = FetchPlaceRequest.newInstance(userOldLocationId, PLACE_FIELDS);
-                        PlacesClient placesClient = Places.createClient(getContext());
-                        Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                            locationText.setText(response.getPlace().getName());
-                            Log.i(TAG, "Place found");
-                        }).addOnFailureListener((exception) -> {
-                            if (exception instanceof ApiException) {
-                                Log.e(TAG, "Place not found: " + exception.getMessage());
-                                locationText.setText("N/A");
-                            }
-                        });
-                        Thread thread = new Thread(fetchUserInfo);
-                        thread.start();
-
-
-                    } else {
-                        locationText.setText("N/A");
-                        Log.i(TAG, "No location stored in user");
-                    }
-
-                    view.findViewById(R.id.loading_location).setVisibility(View.GONE);
-                    locationText.setVisibility(View.VISIBLE);
-                    editProfile.setFocusable(true);
-                    editProfile.setClickable(true);
-                    editProfile.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
-                    changeEmail.setFocusable(true);
-                    changeEmail.setClickable(true);
-                    changeEmail.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
-                    phoneText.setText(userOldMobileNumber);
-                    view.findViewById(R.id.loading_phone).setVisibility(View.GONE);
-                    phoneText.setVisibility(View.VISIBLE);
-                    StorageReference profileImageRef;
-                    try {
-                        profileImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(userOldProfileImageURL);
-                    } catch (IllegalArgumentException e) {
-                        Log.i(TAG, "Error loading profile image, loading default instead");
-                        profileImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
-                    }
-
-                    Glide.with(getContext())
-                            .load(profileImageRef)
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                    glideProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    glideProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .into(profileImage);
-
+                    locationText.setText("N/A");
+                    Log.i(TAG, "No location stored in user");
                 }
+
+                view.findViewById(R.id.loading_location).setVisibility(View.GONE);
+                locationText.setVisibility(View.VISIBLE);
+                editProfile.setFocusable(true);
+                editProfile.setClickable(true);
+                editProfile.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+                changeEmail.setFocusable(true);
+                changeEmail.setClickable(true);
+                changeEmail.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+                phoneText.setText(userOldMobileNumber);
+                view.findViewById(R.id.loading_phone).setVisibility(View.GONE);
+                phoneText.setVisibility(View.VISIBLE);
+                StorageReference profileImageRef;
+                try {
+                    profileImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(userOldProfileImageURL);
+                } catch (IllegalArgumentException e) {
+                    Log.i(TAG, "Error loading profile image, loading default instead");
+                    profileImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
+                }
+
+                Glide.with(getContext())
+                        .load(profileImageRef)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                glideProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                glideProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+                        })
+                        .into(profileImage);
+
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("MyAccountFragment", databaseError.toString());
 
-            }
+        }, throwable -> {
+            final NavController navController = Navigation.findNavController(view);
+            FirebaseAuth.getInstance().signOut();
+            navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+            Log.i(TAG, "Throwable " + throwable.getMessage());
         });
-
 
     }
 
@@ -577,7 +583,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void updateExistingUserInfo() {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -591,6 +597,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                     userOldMobileNumber = user.getMobileNumber();
                     userOldLocationId = user.getLocationId();
                     userDateCreated = user.getDateCreated();
+                    userSearchParties = user.getSearchParties();
                     userOldProfileImageURL = user.getImageUrl();
                     if (userOldLocationId != null) {
 
@@ -688,12 +695,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
             }
 
-            User user = new User(mobileNumber.getText().toString(),
+            User user = new User(currentUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(),
                     newLocationId == null ? userOldLocationId : newLocationId, // If no new location is added, keep old location
                     userDateCreated,
-                    newProfileImageRef == null ? userOldProfileImageURL : newProfileImageRef.toString());
+                    newProfileImageRef == null ? userOldProfileImageURL : newProfileImageRef.toString(), userSearchParties);
 
-            getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(task -> {
+            getDatabaseReference().child("users").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
 
                     fullNameText.setText(fullName.getText().toString());
@@ -706,7 +713,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
                     new CustomToast().showToast(getContext(), view, "Error while updating account", ToastType.ERROR, false);
                 }
-                if (uploadTask != null && !uploadTask.isInProgress()) {
+                if (uploadTask == null || !uploadTask.isInProgress()) {
                     if (!isEmpty(newPassword.getText().toString()) && newPassword.getText().toString().equals(confirmNewPassword.getText().toString())) {
                         updatePassword(firebaseUser);
                     }
@@ -811,9 +818,17 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                         user.reauthenticate(credential)
                                 .addOnCompleteListener(task -> {
                                     if (task.isSuccessful()) {
-                                        user.delete() //todo also delete user info from storage?
+                                        getDatabaseReference().child("users").child(user.getUid()).removeValue()
+                                                .addOnFailureListener(e -> Log.e(TAG, "User delete " + e.getMessage()));
+                                        user.delete()
                                                 .addOnCompleteListener(task1 -> {
                                                     if (task1.isSuccessful()) {
+
+                                                        //Remove associated data
+                                                        if (userSearchParties != null)
+                                                            userSearchParties.forEach((uid, searchParty) -> getDatabaseReference().child("searchParties").child(uid).removeValue());
+
+
                                                         navController.navigate(R.id.action_meFragment_to_welcomeFragment);
                                                         new CustomToast().showToast(getContext(), view, "Account Deleted Successfully", ToastType.SUCCESS, false);
                                                     } else {
@@ -874,5 +889,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposable.dispose();
+
     }
 }

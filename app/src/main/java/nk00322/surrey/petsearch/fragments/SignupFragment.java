@@ -2,7 +2,6 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -41,6 +40,7 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -52,11 +52,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
+import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.getNow;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.getNowString;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.EMAIL_REGEX;
@@ -278,9 +279,10 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             firebaseUser.updateProfile(profileUpdates);
             firebaseUser.sendEmailVerification();
 
-            User user = new User(mobileNumber.getText().toString(), locationId, getNow(), defaultImageRef.toString());
+            HashMap<String, SearchParty> empty = new HashMap<>();
+            User user = new User(firebaseUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(), locationId, getNowString(), defaultImageRef.toString(), empty);
 
-            getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+            getDatabaseReference().child("users").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                 NavController navController = Navigation.findNavController(view);
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -294,8 +296,12 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                         navController.navigate(action);
                     }else{
                         FirebaseAuth.getInstance().signOut();
-                        new CustomToast().showToast(getContext(), view, "Error while creating account", ToastType.ERROR, false);
+                        getDatabaseReference().child("users").child(firebaseUser.getUid()).removeValue();
+                        firebaseUser.delete();
+
+
                         navController.navigate(R.id.action_signupFragment_to_welcomeFragment);
+                        new CustomToast().showToast(getContext(), view, "Error while creating account", ToastType.ERROR, false);
 
                     }
 

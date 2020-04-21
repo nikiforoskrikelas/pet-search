@@ -18,22 +18,31 @@ import android.widget.TextView;
 import com.example.petsearch.R;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import androidx.fragment.app.FragmentActivity;
 
 //Code from https://www.androhub.com/login-signup-and-forgot-password-screen-design-android/
 public class GeneralUtils {
-    private static final SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:sss'Z'");
 
     public final static int PICK_IMAGE_REQUEST = 2;
 
 
-    public static String getNow() {
-        return ISO_8601_FORMAT.format(new Date());
+    public static String getNowString() {
+        return LocalDateTime.now().toString();
     }
 
+    public static String printDate(String inputDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m d/MMM/yyyy", Locale.ENGLISH);
+        LocalDateTime date = LocalDateTime.parse(inputDate);
+
+        return date.format(formatter);
+    }
 
     //https://stackoverflow.com/questions/8817377/android-how-to-find-multiple-views-with-common-attribute
     //Retrieve multiple views with the same tag

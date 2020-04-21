@@ -6,14 +6,21 @@ public class SearchParty {
     private String imageUrl;
     private String locationId;
     private String reward;
+    private String ownerUid;
+    private String dateCreated;
 
-    public SearchParty(String title, String description, String imageUrl, String locationId, String reward){
+    public SearchParty() {
+        // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
+    }
+    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, String dateCreated){
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
 
         this.locationId = locationId;
         this.reward = reward;
+        this.ownerUid = ownerUid;
+        this.dateCreated = dateCreated;
     }
 
 
@@ -35,5 +42,13 @@ public class SearchParty {
 
     public String getReward() {
         return reward;
+    }
+
+    public String getOwnerUid() {
+        return ownerUid;
+    }
+
+    public String getDateCreated() {
+        return dateCreated;
     }
 }
