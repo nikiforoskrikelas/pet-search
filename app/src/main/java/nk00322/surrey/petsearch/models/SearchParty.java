@@ -1,10 +1,12 @@
 package nk00322.surrey.petsearch.models;
 
-import com.google.firebase.database.Exclude;
-import com.google.firebase.database.ServerValue;
+import com.google.firebase.Timestamp;
+import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.firestore.ServerTimestamp;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
+@IgnoreExtraProperties
 public class SearchParty {
     private String title;
     private String description;
@@ -12,14 +14,16 @@ public class SearchParty {
     private String locationId;
     private String reward;
     private String ownerUid;
-    private HashMap<String, Object> timestampCreated;
+    @ServerTimestamp
+    private Timestamp timestampCreated;
+    private ArrayList<String> subscriberUids;
 
 
     public SearchParty() {
         // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
     }
 
-    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid) {
+    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, ArrayList<String> subscriberUids) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -27,9 +31,10 @@ public class SearchParty {
         this.locationId = locationId;
         this.reward = reward;
         this.ownerUid = ownerUid;
-        HashMap<String, Object> timestampNow = new HashMap<>();
-        timestampNow.put("timestamp", ServerValue.TIMESTAMP);
-        this.timestampCreated = timestampNow;
+//        HashMap<String, Object> timestampNow = new HashMap<>();
+//        timestampNow.put("timestamp", FieldValue.serverTimestamp());
+
+        this.subscriberUids = subscriberUids;
     }
 
 
@@ -57,12 +62,12 @@ public class SearchParty {
         return ownerUid;
     }
 
-    public HashMap<String, Object> getTimestampCreated(){
+
+    public Timestamp getTimestampCreated() {
         return timestampCreated;
     }
 
-    @Exclude
-    public long getTimestampCreatedLong(){
-        return (long)timestampCreated.get("timestamp");
+    public ArrayList<String> getSubscriberUids() {
+        return subscriberUids;
     }
 }

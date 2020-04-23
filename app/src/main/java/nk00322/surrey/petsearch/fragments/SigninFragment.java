@@ -120,7 +120,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
 
         // Setting text selector over textviews
-        ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector);
+        ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector,  getContext().getTheme());
         forgotPassword.setTextColor(textSelector);
 
         signUp.setTextColor(textSelector);

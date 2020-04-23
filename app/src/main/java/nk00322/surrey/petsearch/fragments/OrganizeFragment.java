@@ -26,7 +26,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
@@ -37,6 +38,7 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,7 +51,6 @@ import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
 
 import static android.app.Activity.RESULT_OK;
-import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
@@ -91,7 +92,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private Button submit;
     private Validator validator;
     private String locationId;
-    private DatabaseReference currentUserReference;
+    private DocumentReference currentUserReference;
     private ProgressBar uploadProgress;
     private FirebaseUser currentUser;
     private Drawable defaultImage;
@@ -120,7 +121,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
 
     private void initViews() {
         currentUser = auth.getCurrentUser();
-        currentUserReference = getDatabaseReference().child("users").child(currentUser.getUid());
+        currentUserReference = FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid());
+
         storageRef = FirebaseStorage.getInstance().getReference("searchPartyImages");
         title = view.findViewById(R.id.organize_title);
         description = view.findViewById(R.id.organize_description);
@@ -143,8 +145,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Override
-        public void onClick(View view) {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){ //To prevent double clicking
+    public void onClick(View view) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) { //To prevent double clicking
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
@@ -225,14 +227,21 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                     uploadProgress.setVisibility(View.GONE);
                 }, 3500); // delay reset by 5 seconds
                 Log.i(TAG, "Image upload successful");
-                new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
+
+                ArrayList<String> subscriberUids = new ArrayList<>();
+                subscriberUids.add(currentUser.getUid()); // users are subscribed to their own search parties by default
+
                 SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
-                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid());
-                String uploadId = currentUserReference.child("searchParties").push().getKey();
-                currentUserReference.child("searchParties").child(uploadId).setValue(searchParty);
+                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids);
 
-                getDatabaseReference().child("searchParties").child(uploadId).setValue(searchParty);
+                currentUserReference.collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
+                    if (task.isSuccessful()) {
+                        FirebaseFirestore.getInstance().collection("searchParties").document(task.getResult().getId()).set(searchParty);
+                        new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
 
+                    } else
+                        new CustomToast().showToast(getContext(), view, "Error while creating searh party", ToastType.SUCCESS, true);
+                });
 
                 title.setText("");
                 description.setText("");

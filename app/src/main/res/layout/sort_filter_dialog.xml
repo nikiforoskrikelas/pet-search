@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/background_color"
+    android:paddingStart="20dp"
+    android:padding="10dp"
+    android:paddingEnd="20dp">
+
+    <TextView
+        android:id="@+id/sort_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sort by"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/sort_radio_group"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/sort_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sort_title">
+
+        <RadioButton
+            android:id="@+id/newest_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Newest" />
+
+        <RadioButton
+            android:id="@+id/oldest_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Oldest" />
+
+        <RadioButton
+            android:id="@+id/distance_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="Distance" />
+    </RadioGroup>
+
+
+    <TextView
+        android:id="@+id/filter_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Filter by"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/filter_radio_group"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sort_radio_group" />
+
+    <RadioGroup
+        android:id="@+id/filter_radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:paddingEnd="10dp"
+        android:paddingStart="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/filter_title">
+
+        <RadioButton
+            android:id="@+id/my_subscriptions_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="My Subscriptions" />
+
+        <RadioButton
+            android:id="@+id/all_search_parties_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:text="All Search Parties" />
+    </RadioGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

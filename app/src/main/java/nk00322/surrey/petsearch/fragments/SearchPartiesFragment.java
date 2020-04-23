@@ -2,12 +2,15 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -16,23 +19,24 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.petsearch.R;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -45,7 +49,7 @@ import nk00322.surrey.petsearch.models.User;
 
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.getTimeDate;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.printDate;
 import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
 import static nk00322.surrey.petsearch.utils.LocationUtils.PLACE_FIELDS;
 
@@ -53,15 +57,19 @@ import static nk00322.surrey.petsearch.utils.LocationUtils.PLACE_FIELDS;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchPartiesFragment extends Fragment {
+public class SearchPartiesFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "SearchPartiesFragment";
     private View view;
     private FirebaseAuth auth;
     private RecyclerView searchPartiesRecyclerView;
     private FirebaseUser currentUser;
-
-    private FirebaseRecyclerAdapter adapter;
+    private long mLastClickTime = 0;
+    private boolean dialogActive = false;
+    private FirestoreRecyclerAdapter adapter;
     private Disposable disposable;
+    private FloatingActionButton sortFilterButton;
+    private int sortOptionIndex = 0;
+    private int filterOptionIndex = 1;
 
     public SearchPartiesFragment() {
         // Required empty public constructor
@@ -90,20 +98,23 @@ public class SearchPartiesFragment extends Fragment {
 
     private void initViews() {
         searchPartiesRecyclerView = view.findViewById(R.id.search_parties_recycler_view);
+        sortFilterButton = view.findViewById(R.id.sort_filter_fab);
+
 
     }
 
+    //TODO QUERYING WITH FIRESTORE
     private void setupRecyclerView() {
 
-        Query query = FirebaseDatabase.getInstance()
-                .getReference()
-                .child("searchParties");
+        Query query = FirebaseFirestore.getInstance().collection("searchParties").orderBy("timestampCreated", Query.Direction.DESCENDING);
 
-        FirebaseRecyclerOptions<SearchParty> options = new FirebaseRecyclerOptions.Builder<SearchParty>()
+
+        FirestoreRecyclerOptions<SearchParty> options = new FirestoreRecyclerOptions.Builder<SearchParty>()
                 .setQuery(query, SearchParty.class)
                 .build();
 
-        adapter = new FirebaseRecyclerAdapter<SearchParty, SearchPartyViewHolder>(options) {
+        adapter = new FirestoreRecyclerAdapter<SearchParty, SearchPartyViewHolder>(options) {
+
             @NonNull
             @Override
             public SearchPartyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -139,9 +150,15 @@ public class SearchPartiesFragment extends Fragment {
                     holder.location.setText("N/A");
                     Log.i(TAG, "No location stored in user");
                 }
+                holder.date.setText(printDate(model.getTimestampCreated().toDate()));
 
-                holder.date.setText(getTimeDate(model.getTimestampCreatedLong()));
-
+                if (model.getSubscriberUids() != null && model.getSubscriberUids().contains(currentUser.getUid())) {
+                    Drawable drawable = getContext().getDrawable(R.drawable.ic_check_success_green_24dp);
+                    holder.subscribed.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+                }else{
+                    Drawable drawable = getContext().getDrawable(R.drawable.ic_close_red_24dp);
+                    holder.subscribed.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+                }
                 Observable<User> userObservable = getUserFromId(model.getOwnerUid());
                 disposable = userObservable.subscribe(
                         user -> holder.owner.setText(user.getFullName()),
@@ -180,11 +197,101 @@ public class SearchPartiesFragment extends Fragment {
     }
 
     private void setListeners() {
+
+        sortFilterButton.setOnClickListener(this);
     }
+
+    @Override
+    public void onClick(View view) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000 || dialogActive) { //To prevent double clicking
+            return;
+        }
+        mLastClickTime = SystemClock.elapsedRealtime();
+        switch (view.getId()) {
+            case R.id.sort_filter_fab:
+                sortFilterPopUp();
+                break;
+
+        }
+
+    }
+
+    private void sortFilterPopUp() {
+        //display alert dialog for sort filter options
+        dialogActive = true;
+
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.sort_filter_dialog, (ViewGroup) getView(), false);
+        final RadioGroup sortRadioGroup = viewInflated.findViewById(R.id.sort_radio_group);
+        final RadioGroup filterRadioGroup = viewInflated.findViewById(R.id.filter_radio_group);
+
+        if (sortOptionIndex != -1) {
+            ((RadioButton) sortRadioGroup.getChildAt(sortOptionIndex)).setChecked(true);
+
+        }
+        if (filterOptionIndex != -1) {
+            ((RadioButton) filterRadioGroup.getChildAt(filterOptionIndex)).setChecked(true);
+        }
+
+        final Query[] query = new Query[1];
+
+        query[0] = FirebaseFirestore.getInstance().collection("searchParties");
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Sort and Filter")
+                .setIcon(R.drawable.ic_sort_white_24dp)
+                .setView(viewInflated)
+                .setPositiveButton("OK", (dialog, id) -> {
+                    //Build query based on options
+                    switch (sortRadioGroup.getCheckedRadioButtonId()) {
+                        case R.id.newest_radio:
+                            // newest
+
+                            query[0] = query[0].orderBy("timestampCreated", Query.Direction.DESCENDING);
+
+                            sortOptionIndex = 0;
+                            break;
+                        case R.id.oldest_radio:
+                            // Oldest
+                            query[0] = query[0].orderBy("timestampCreated", Query.Direction.ASCENDING);
+
+                            sortOptionIndex = 1;
+
+                            break;
+                        case R.id.distance_radio:
+                            // Distance from me
+                            sortOptionIndex = 2;
+
+                            break;
+                    }
+                    switch (filterRadioGroup.getCheckedRadioButtonId()) {
+                        case R.id.my_subscriptions_radio:
+                            // My Subscriptions
+                            query[0] = query[0].whereArrayContains("subscriberUids", currentUser.getUid());
+                            filterOptionIndex = 0;
+                            break;
+                        case R.id.all_search_parties_radio:
+                            // Not Subscribed not possible with current structure due to the nature of the DB queries. Show all instead
+                            filterOptionIndex = 1;
+
+                            break;
+
+                    }
+                    dialogActive = false;
+
+
+                    adapter.updateOptions(new FirestoreRecyclerOptions.Builder<SearchParty>()
+                            .setQuery(query[0], SearchParty.class)
+                            .build());
+
+                })
+                .setOnCancelListener(dialog -> dialogActive = false)
+                .show();
+
+    }
+
 
     private static class SearchPartyViewHolder extends RecyclerView.ViewHolder {
 
-        TextView title, reward, location, date, owner;
+        TextView title, reward, location, date, owner, subscribed;
         ImageView image;
         ProgressBar recyclerItemProgress;
 
@@ -198,9 +305,9 @@ public class SearchPartiesFragment extends Fragment {
             location = itemView.findViewById(R.id.location);
             date = itemView.findViewById(R.id.date);
             owner = itemView.findViewById(R.id.owner);
-            recyclerItemProgress = itemView.findViewById(R.id.recycler_item_progress);
-
+            subscribed = itemView.findViewById(R.id.subscribed);
             image = itemView.findViewById(R.id.image);
+            recyclerItemProgress = itemView.findViewById(R.id.recycler_item_progress);
 
         }
     }

@@ -51,11 +51,9 @@ public class GeneralUtils {
         }
     }
 
-    public static String printDate(String inputDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("H:m d/MMM/yyyy", Locale.ENGLISH);
-        LocalDateTime date = LocalDateTime.parse(inputDate);
+    public static String printDate(Date inputDate) {
+        return new SimpleDateFormat("d/MMM/yyyy H:m").format(inputDate);
 
-        return date.format(formatter);
     }
 
     //https://stackoverflow.com/questions/8817377/android-how-to-find-multiple-views-with-common-attribute
