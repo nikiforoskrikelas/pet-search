@@ -49,6 +49,8 @@ import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
+import uk.co.mgbramwell.geofire.android.GeoFire;
+import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
 import static android.app.Activity.RESULT_OK;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
@@ -67,7 +69,7 @@ import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayou
  * <p>
  * Image upload adapted from https://www.youtube.com/watch?v=gqIWrNitbbk
  */
-public class OrganizeFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener {
+public class OrganizeFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener, SetLocationListener {
     private static final String TAG = "OrganizeFragment";
     private View view;
     private FirebaseAuth auth;
@@ -92,6 +94,9 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private Button submit;
     private Validator validator;
     private String locationId;
+    private double longitude;
+    private double latitude;
+
     private DocumentReference currentUserReference;
     private ProgressBar uploadProgress;
     private FirebaseUser currentUser;
@@ -189,6 +194,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
                 location.setText(place.getName());
                 locationId = place.getId();
+                latitude = place.getLatLng().latitude;
+                longitude = place.getLatLng().longitude;
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 new CustomToast().showToast(getContext(), view, "Error with Google Maps", ToastType.ERROR, false);
                 Status status = Autocomplete.getStatusFromIntent(data);
@@ -232,16 +239,21 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 subscriberUids.add(currentUser.getUid()); // users are subscribed to their own search parties by default
 
                 SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
-                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids);
+                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude);
 
                 currentUserReference.collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
                     if (task.isSuccessful()) {
                         FirebaseFirestore.getInstance().collection("searchParties").document(task.getResult().getId()).set(searchParty);
+
+                        new GeoFire(FirebaseFirestore.getInstance().collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
+                        new GeoFire(currentUserReference.collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
+
                         new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
 
                     } else
                         new CustomToast().showToast(getContext(), view, "Error while creating searh party", ToastType.SUCCESS, true);
                 });
+
 
                 title.setText("");
                 description.setText("");
@@ -292,5 +304,10 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
             photo.setImageDrawable(errorImage);
             photo.startAnimation(shakeAnimation);
         }
+    }
+
+    @Override
+    public void onCompleted(Exception exception) {
+        Log.w(TAG, "onCompleted ", exception);
     }
 }

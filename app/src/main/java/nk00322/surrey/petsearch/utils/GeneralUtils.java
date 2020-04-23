@@ -1,10 +1,13 @@
 package nk00322.surrey.petsearch.utils;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +19,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.petsearch.R;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -23,10 +29,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import nk00322.surrey.petsearch.models.SearchParty;
 
 import static java.text.DateFormat.getDateTimeInstance;
 
@@ -36,23 +46,22 @@ public class GeneralUtils {
     public final static int PICK_IMAGE_REQUEST = 2;
 
 
-
     public static String getNowTimestamp() {
         return LocalDateTime.now().toString();
     }
 
-    public static String getTimeDate(long timestamp){
-        try{
-            DateFormat dateFormat = getDateTimeInstance(2,3, Locale.UK);
+    public static String getTimeDate(long timestamp) {
+        try {
+            DateFormat dateFormat = getDateTimeInstance(2, 3, Locale.UK);
             Date netDate = (new Date(timestamp));
             return dateFormat.format(netDate);
-        } catch(Exception e) {
+        } catch (Exception e) {
             return "Error";
         }
     }
 
     public static String printDate(Date inputDate) {
-        return new SimpleDateFormat("d/MMM/yyyy H:m").format(inputDate);
+        return new SimpleDateFormat("d/MMM/yyyy HH:mm").format(inputDate);
 
     }
 
@@ -122,7 +131,7 @@ public class GeneralUtils {
     }
 
     public static void setFocusableAndClickable(boolean makeFocusableAndClickable, View... view) {
-        for (View v : view){
+        for (View v : view) {
             v.setFocusable(makeFocusableAndClickable);
             v.setFocusableInTouchMode(makeFocusableAndClickable);
             v.setClickable(makeFocusableAndClickable);
@@ -130,6 +139,50 @@ public class GeneralUtils {
         }
     }
 
+    public static double getDistanceInKilometers(double p1Lat, double p1Long, double p2Lat, double p2Long) {
+        Location locationA = new Location("point A");
 
+        locationA.setLatitude(p1Lat / 1E6);
+        locationA.setLongitude(p1Long / 1E6);
+
+        Location locationB = new Location("point B");
+
+        locationB.setLatitude(p2Lat / 1E6);
+        locationB.setLongitude(p2Long / 1E6);
+
+        return (double) Math.round((locationA.distanceTo(locationB) * 100000)) / 100;
+    }
+
+    public static void checkPermission(Activity activity) {
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {//Can add more as per requirement
+
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    123);
+        }
+    }
+
+
+    public static Comparator<DocumentSnapshot> getDistanceToUserComparator(double userLatitude, double userLongitude) {
+        return (o1, o2) -> {
+            double firstPartyDistance = getDistanceInKilometers(o1.toObject(SearchParty.class).getLatitude(), o1.toObject(SearchParty.class).getLongitude(), userLatitude, userLongitude);
+            double secondPartyDistance = getDistanceInKilometers(o2.toObject(SearchParty.class).getLatitude(), o2.toObject(SearchParty.class).getLongitude(), userLatitude, userLongitude);
+
+            return Double.compare(firstPartyDistance, secondPartyDistance);
+
+        };
+    }
+    public static Comparator<DocumentSnapshot> getCreationDateComparator() {
+        return (o1, o2) -> {
+
+            Timestamp firstPartyCreationTimestamp = o1.toObject(SearchParty.class).getTimestampCreated();
+            Timestamp secondPartyCreationTimestamp = o2.toObject(SearchParty.class).getTimestampCreated();
+
+            return firstPartyCreationTimestamp.compareTo(secondPartyCreationTimestamp);
+
+        };
+    }
 
 }

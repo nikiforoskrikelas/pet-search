@@ -17,13 +17,14 @@ public class SearchParty {
     @ServerTimestamp
     private Timestamp timestampCreated;
     private ArrayList<String> subscriberUids;
-
+    private double latitude;
+    private double longitude;
 
     public SearchParty() {
         // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
     }
 
-    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, ArrayList<String> subscriberUids) {
+    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, ArrayList<String> subscriberUids, double latitude, double longitude) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -35,6 +36,8 @@ public class SearchParty {
 //        timestampNow.put("timestamp", FieldValue.serverTimestamp());
 
         this.subscriberUids = subscriberUids;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
 
@@ -69,5 +72,13 @@ public class SearchParty {
 
     public ArrayList<String> getSubscriberUids() {
         return subscriberUids;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
     }
 }

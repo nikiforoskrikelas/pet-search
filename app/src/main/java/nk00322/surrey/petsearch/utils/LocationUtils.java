@@ -17,7 +17,7 @@ public class LocationUtils {
     public final static int AUTOCOMPLETE_REQUEST_CODE = 1;
     public final static String API_KEY = "AIzaSyBoVHKsY1l_2v73jyL75-czkFNI_mpxmVY";
     private static final String TAG = "FirebaseUtils";
-    public final static List<Place.Field> PLACE_FIELDS = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+    public final static List<Place.Field> PLACE_FIELDS = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG,Place.Field.ADDRESS);
 
     /**
      * Launches intent for location autocomplete
@@ -29,9 +29,8 @@ public class LocationUtils {
         // Create a new Places client instance
 
         // Set the fields to specify which types of place data to return after the user has made a selection.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
 
         // Start the autocomplete intent.
-        return new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields).build(context);
+        return new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, PLACE_FIELDS).build(context);
     }
 }
