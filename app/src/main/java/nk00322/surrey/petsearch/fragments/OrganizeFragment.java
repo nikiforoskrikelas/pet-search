@@ -241,12 +241,9 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
                         searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude);
 
-                currentUserReference.collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
+                FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
                     if (task.isSuccessful()) {
-                        FirebaseFirestore.getInstance().collection("searchParties").document(task.getResult().getId()).set(searchParty);
-
                         new GeoFire(FirebaseFirestore.getInstance().collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
-                        new GeoFire(currentUserReference.collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
 
                         new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
 
