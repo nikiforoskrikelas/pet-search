@@ -26,7 +26,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
@@ -37,6 +38,7 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -47,9 +49,10 @@ import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
+import uk.co.mgbramwell.geofire.android.GeoFire;
+import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
 import static android.app.Activity.RESULT_OK;
-import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
@@ -66,7 +69,7 @@ import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayou
  * <p>
  * Image upload adapted from https://www.youtube.com/watch?v=gqIWrNitbbk
  */
-public class OrganizeFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener {
+public class OrganizeFragment extends Fragment implements View.OnClickListener, Validator.ValidationListener, SetLocationListener {
     private static final String TAG = "OrganizeFragment";
     private View view;
     private FirebaseAuth auth;
@@ -91,7 +94,10 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private Button submit;
     private Validator validator;
     private String locationId;
-    private DatabaseReference currentUserReference;
+    private double longitude;
+    private double latitude;
+
+    private DocumentReference currentUserReference;
     private ProgressBar uploadProgress;
     private FirebaseUser currentUser;
     private Drawable defaultImage;
@@ -120,7 +126,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
 
     private void initViews() {
         currentUser = auth.getCurrentUser();
-        currentUserReference = getDatabaseReference().child("user").child(currentUser.getUid());
+        currentUserReference = FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid());
+
         storageRef = FirebaseStorage.getInstance().getReference("searchPartyImages");
         title = view.findViewById(R.id.organize_title);
         description = view.findViewById(R.id.organize_description);
@@ -143,8 +150,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     }
 
     @Override
-        public void onClick(View view) {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){ //To prevent double clicking
+    public void onClick(View view) {
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000) { //To prevent double clicking
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
@@ -187,6 +194,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
                 location.setText(place.getName());
                 locationId = place.getId();
+                latitude = place.getLatLng().latitude;
+                longitude = place.getLatLng().longitude;
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 new CustomToast().showToast(getContext(), view, "Error with Google Maps", ToastType.ERROR, false);
                 Status status = Autocomplete.getStatusFromIntent(data);
@@ -225,10 +234,23 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                     uploadProgress.setVisibility(View.GONE);
                 }, 3500); // delay reset by 5 seconds
                 Log.i(TAG, "Image upload successful");
-                new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
-                SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(), searchPartyImageRef.toString(), locationId, reward.getText().toString());
-                String uploadId = currentUserReference.child("searchParties").push().getKey();
-                currentUserReference.child("searchParties").child(uploadId).setValue(searchParty);
+
+                ArrayList<String> subscriberUids = new ArrayList<>();
+                subscriberUids.add(currentUser.getUid()); // users are subscribed to their own search parties by default
+
+                SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
+                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude);
+
+                FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
+                    if (task.isSuccessful()) {
+                        new GeoFire(FirebaseFirestore.getInstance().collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
+
+                        new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
+
+                    } else
+                        new CustomToast().showToast(getContext(), view, "Error while creating searh party", ToastType.SUCCESS, true);
+                });
+
 
                 title.setText("");
                 description.setText("");
@@ -279,5 +301,10 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
             photo.setImageDrawable(errorImage);
             photo.startAnimation(shakeAnimation);
         }
+    }
+
+    @Override
+    public void onCompleted(Exception exception) {
+        Log.w(TAG, "onCompleted ", exception);
     }
 }

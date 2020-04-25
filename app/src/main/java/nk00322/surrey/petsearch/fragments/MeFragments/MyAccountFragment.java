@@ -40,10 +40,7 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
@@ -55,25 +52,29 @@ import com.mobsandgeeks.saripaar.annotation.Pattern;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
+import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
-import static nk00322.surrey.petsearch.utils.FirebaseUtils.getDatabaseReference;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteUserWithId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getViewsByTag;
@@ -120,15 +121,16 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
     private String userOldMobileNumber, userOldLocationId;
     private Button saveChanges;
-    private DatabaseReference usersReference;
     private String userDateCreated = "";
     private String userOldProfileImageURL;
+    private HashMap<String, SearchParty> userSearchParties;
     private long mLastClickTime = 0;
 
     private Uri imageInputUri;
     private StorageTask uploadTask;
     private boolean dialogActive = false;
     private ProgressBar uploadProgress, glideProgress;
+    private Disposable disposable;
 
     public MyAccountFragment() {
         // Required empty public constructor
@@ -146,13 +148,13 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         validator = setupTextInputLayoutValidator(this, view);
         initViews();
         setListeners();
+        setUserData();
         return view;
 
     }
 
     private void initViews() {
         currentUser = auth.getCurrentUser();
-        usersReference = getDatabaseReference().child("user").child(currentUser.getUid());
 
         uploadProgress = view.findViewById(R.id.upload_progress);
         glideProgress = view.findViewById(R.id.glide_progress);
@@ -189,7 +191,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         newPassword = view.findViewById(R.id.edit_password);
         confirmNewPassword = view.findViewById(R.id.edit_confirm_password);
 
-        ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector_grey_text);
+        ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector_grey_text,  getContext().getTheme());
         editProfile.setTextColor(textSelector);
         changeEmail.setTextColor(textSelector);
         signOut.setTextColor(textSelector);
@@ -209,97 +211,95 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         saveChanges.setOnClickListener(this);
         validator.setValidationListener(this);
         location.setOnClickListener(this);
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+    }
 
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dataSnapshot.getValue();
-                User user = dataSnapshot.getValue(User.class);
-                if (user == null) {
-                    final NavController navController = Navigation.findNavController(view);
-                    FirebaseAuth.getInstance().signOut();
-                    navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+    private void setUserData() {
+        Observable<User> userObservable = getUserFromId(currentUser.getUid());
+        disposable = userObservable.subscribe(user -> {
+            if (user == null) {
+                final NavController navController = Navigation.findNavController(view);
+                FirebaseAuth.getInstance().signOut();
+                navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+            } else {
+                userOldMobileNumber = user.getMobileNumber();
+                userOldLocationId = user.getLocationId();
+                userDateCreated = user.getDateCreated();
+                userOldProfileImageURL = user.getImageUrl();
+                userSearchParties = user.getSearchParties();
+                if (userOldLocationId != null) {
+
+                    Places.initialize(getContext(), API_KEY);
+                    FetchPlaceRequest request = FetchPlaceRequest.newInstance(userOldLocationId, PLACE_FIELDS);
+                    PlacesClient placesClient = Places.createClient(getContext());
+                    Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                        locationText.setText(response.getPlace().getName());
+                        Log.i(TAG, "Place found");
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            Log.e(TAG, "Place not found: " + exception.getMessage());
+                            locationText.setText("N/A");
+                        }
+                    });
+                    Thread thread = new Thread(fetchUserInfo);
+                    thread.start();
+
+
                 } else {
-                    userOldMobileNumber = user.getMobileNumber();
-                    userOldLocationId = user.getLocationId();
-                    userDateCreated = user.getDateCreated();
-                    userOldProfileImageURL = user.getImageUrl();
-
-                    if (userOldLocationId != null) {
-
-                        Places.initialize(getContext(), API_KEY);
-                        FetchPlaceRequest request = FetchPlaceRequest.newInstance(userOldLocationId, PLACE_FIELDS);
-                        PlacesClient placesClient = Places.createClient(getContext());
-                        Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                            locationText.setText(response.getPlace().getName());
-                            Log.i(TAG, "Place found");
-                        }).addOnFailureListener((exception) -> {
-                            if (exception instanceof ApiException) {
-                                Log.e(TAG, "Place not found: " + exception.getMessage());
-                                locationText.setText("N/A");
-                            }
-                        });
-                        Thread thread = new Thread(fetchUserInfo);
-                        thread.start();
-
-
-                    } else {
-                        locationText.setText("N/A");
-                        Log.i(TAG, "No location stored in user");
-                    }
-
-                    view.findViewById(R.id.loading_location).setVisibility(View.GONE);
-                    locationText.setVisibility(View.VISIBLE);
-                    editProfile.setFocusable(true);
-                    editProfile.setClickable(true);
-                    editProfile.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
-                    changeEmail.setFocusable(true);
-                    changeEmail.setClickable(true);
-                    changeEmail.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
-                    phoneText.setText(userOldMobileNumber);
-                    view.findViewById(R.id.loading_phone).setVisibility(View.GONE);
-                    phoneText.setVisibility(View.VISIBLE);
-                    StorageReference profileImageRef;
-                    try {
-                        profileImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(userOldProfileImageURL);
-                    } catch (IllegalArgumentException e) {
-                        Log.i(TAG, "Error loading profile image, loading default instead");
-                        profileImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
-                    }
-
-                    Glide.with(getContext())
-                            .load(profileImageRef)
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                    glideProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    glideProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .into(profileImage);
-
+                    locationText.setText("N/A");
+                    Log.i(TAG, "No location stored in user");
                 }
+
+                view.findViewById(R.id.loading_location).setVisibility(View.GONE);
+                locationText.setVisibility(View.VISIBLE);
+                editProfile.setFocusable(true);
+                editProfile.setClickable(true);
+                editProfile.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+                changeEmail.setFocusable(true);
+                changeEmail.setClickable(true);
+                changeEmail.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.white));
+                phoneText.setText(userOldMobileNumber);
+                view.findViewById(R.id.loading_phone).setVisibility(View.GONE);
+                phoneText.setVisibility(View.VISIBLE);
+                StorageReference profileImageRef;
+                try {
+                    profileImageRef = FirebaseStorage.getInstance().getReferenceFromUrl(userOldProfileImageURL);
+                } catch (IllegalArgumentException e) {
+                    Log.i(TAG, "Error loading profile image, loading default instead");
+                    profileImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
+                }
+
+                Glide.with(getContext())
+                        .load(profileImageRef)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                glideProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                glideProgress.setVisibility(View.GONE);
+                                return false;
+                            }
+                        })
+                        .into(profileImage);
+
             }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("MyAccountFragment", databaseError.toString());
 
-            }
+        }, throwable -> {
+            final NavController navController = Navigation.findNavController(view);
+            FirebaseAuth.getInstance().signOut();
+            navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+            Log.i(TAG, "Throwable " + throwable.getMessage());
         });
-
 
     }
 
     @Override
     public void onClick(View view) {
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000 || dialogActive == true) { //To prevent double clicking
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000 || dialogActive) { //To prevent double clicking
             return;
         }
         mLastClickTime = SystemClock.elapsedRealtime();
@@ -419,6 +419,10 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                                         currentUser.updateEmail(emailInput.getText().toString()).addOnCompleteListener(emailTask -> {
                                             if (emailTask.isSuccessful()) {
                                                 Log.d(TAG, "User email address updated.");
+                                                FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid())
+                                                        .update("email", emailInput.getText().toString())
+                                                        .addOnCompleteListener(updateTask ->
+                                                                Log.d(TAG, "User email address" + (updateTask.isSuccessful() ? " " : " not ") + "updated."));
                                                 FirebaseAuth.getInstance().signOut();
                                                 currentUser.sendEmailVerification();
                                                 navController.navigate(R.id.action_meFragment_to_welcomeFragment);
@@ -577,50 +581,40 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     }
 
     private void updateExistingUserInfo() {
-        usersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        Observable<User> userObservable = getUserFromId(currentUser.getUid());
+        disposable = userObservable.subscribe(user -> {
+            if (user == null) {
+                final NavController navController = Navigation.findNavController(view);
+                FirebaseAuth.getInstance().signOut();
+                navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+            } else {
+                userOldMobileNumber = user.getMobileNumber();
+                userOldLocationId = user.getLocationId();
+                userDateCreated = user.getDateCreated();
+                userSearchParties = user.getSearchParties();
+                userOldProfileImageURL = user.getImageUrl();
+                if (userOldLocationId != null) {
 
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dataSnapshot.getValue();
-                User user = dataSnapshot.getValue(User.class);
-                if (user == null) {
-                    final NavController navController = Navigation.findNavController(view);
-                    FirebaseAuth.getInstance().signOut();
-                    navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+                    Places.initialize(getContext(), API_KEY);
+                    FetchPlaceRequest request = FetchPlaceRequest.newInstance(userOldLocationId, PLACE_FIELDS);
+                    PlacesClient placesClient = Places.createClient(getContext());
+                    Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                        locationText.setText(response.getPlace().getName());
+                        Log.i(TAG, "Place found");
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            Log.e(TAG, "Place not found: " + exception.getMessage());
+                            locationText.setText("N/A");
+                        }
+                    });
+                    Thread thread = new Thread(fetchUserInfo);
+                    thread.start();
+
+
                 } else {
-                    userOldMobileNumber = user.getMobileNumber();
-                    userOldLocationId = user.getLocationId();
-                    userDateCreated = user.getDateCreated();
-                    userOldProfileImageURL = user.getImageUrl();
-                    if (userOldLocationId != null) {
-
-                        Places.initialize(getContext(), API_KEY);
-                        FetchPlaceRequest request = FetchPlaceRequest.newInstance(userOldLocationId, PLACE_FIELDS);
-                        PlacesClient placesClient = Places.createClient(getContext());
-                        Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                            locationText.setText(response.getPlace().getName());
-                            Log.i(TAG, "Place found");
-                        }).addOnFailureListener((exception) -> {
-                            if (exception instanceof ApiException) {
-                                Log.e(TAG, "Place not found: " + exception.getMessage());
-                                locationText.setText("N/A");
-                            }
-                        });
-                        Thread thread = new Thread(fetchUserInfo);
-                        thread.start();
-
-
-                    } else {
-                        locationText.setText("N/A");
-                        Log.i(TAG, "No location stored in user");
-                    }
-
+                    locationText.setText("N/A");
+                    Log.i(TAG, "No location stored in user");
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("MyAccountFragment", databaseError.toString());
 
             }
         });
@@ -685,37 +679,36 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                     }
                 });
 
-
             }
 
-            User user = new User(mobileNumber.getText().toString(),
+            User user = new User(currentUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(),
                     newLocationId == null ? userOldLocationId : newLocationId, // If no new location is added, keep old location
                     userDateCreated,
-                    newProfileImageRef == null ? userOldProfileImageURL : newProfileImageRef.toString());
-
-            getDatabaseReference().child("user").child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-
-                    fullNameText.setText(fullName.getText().toString());
-                    locationText.setText(location.getText().toString());
-                    phoneText.setText(mobileNumber.getText().toString());
-
-                    new CustomToast().showToast(getContext(), view, "User information updated successfully", ToastType.SUCCESS, false);
-                } else {
-                    Log.e(TAG, "User information was not updated." + task.getException().getMessage());
-
-                    new CustomToast().showToast(getContext(), view, "Error while updating account", ToastType.ERROR, false);
-                }
-                if (uploadTask != null && !uploadTask.isInProgress()) {
-                    if (!isEmpty(newPassword.getText().toString()) && newPassword.getText().toString().equals(confirmNewPassword.getText().toString())) {
-                        updatePassword(firebaseUser);
-                    }
-                    cancelEditProfile(true);
-                }
+                    newProfileImageRef == null ? userOldProfileImageURL : newProfileImageRef.toString(), userSearchParties);
 
 
-            });
+            FirebaseFirestore.getInstance().collection("users").document(firebaseUser.getUid()).set(user)
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
 
+                            fullNameText.setText(fullName.getText().toString());
+                            locationText.setText(location.getText().toString());
+                            phoneText.setText(mobileNumber.getText().toString());
+
+                            new CustomToast().showToast(getContext(), view, "User information updated successfully", ToastType.SUCCESS, false);
+                        } else {
+                            Log.e(TAG, "User information was not updated." + task.getException().getMessage());
+
+                            new CustomToast().showToast(getContext(), view, "Error while updating account", ToastType.ERROR, false);
+                        }
+                        if (uploadTask == null || !uploadTask.isInProgress()) {
+                            if (!isEmpty(newPassword.getText().toString()) && newPassword.getText().toString().equals(confirmNewPassword.getText().toString())) {
+                                updatePassword(firebaseUser);
+                            }
+                            cancelEditProfile(true);
+                        }
+
+                    });
 
         } else {
             new CustomToast().showToast(getContext(), view, "Error while updating account", ToastType.ERROR, false);
@@ -772,9 +765,8 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 .setNegativeButton("Cancel", (dialog, id) -> {
                     dialogActive = false;
                 })
-                .setOnCancelListener(dialog -> {
-                    dialogActive = false;
-                }).show();
+                .setOnCancelListener(dialog -> dialogActive = false)
+                .show();
     }
 
     private void userSignOut() {
@@ -809,17 +801,32 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                     if (!input.getText().toString().isEmpty()) {
                         AuthCredential credential = EmailAuthProvider.getCredential(user.getEmail(), input.getText().toString());
                         user.reauthenticate(credential)
-                                .addOnCompleteListener(task -> {
-                                    if (task.isSuccessful()) {
-                                        user.delete() //todo also delete user info from storage?
-                                                .addOnCompleteListener(task1 -> {
-                                                    if (task1.isSuccessful()) {
-                                                        navController.navigate(R.id.action_meFragment_to_welcomeFragment);
-                                                        new CustomToast().showToast(getContext(), view, "Account Deleted Successfully", ToastType.SUCCESS, false);
-                                                    } else {
-                                                        new CustomToast().showToast(getContext(), view, "Authentication Error: Account was not deleted", ToastType.ERROR, false);
-                                                    }
-                                                });
+                                .addOnCompleteListener(reauthorizeTask -> {
+                                    if (reauthorizeTask.isSuccessful()) {
+                                        Observable<Boolean> userDeleteObservable = deleteUserWithId(currentUser.getUid());
+                                        disposable = userDeleteObservable.subscribe(dataDeleteResult -> {
+                                            if (dataDeleteResult != null && dataDeleteResult) {
+                                                //Remove associated data
+                                                user.delete()
+                                                        .addOnCompleteListener(authDeleteTask -> {
+                                                            if (authDeleteTask.isSuccessful()) {
+                                                                navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+                                                                new CustomToast().showToast(getContext(), view, "Account Deleted Successfully", ToastType.SUCCESS, false);
+                                                            } else {
+                                                                new CustomToast().showToast(getContext(), view, "Authentication Error: Account was not deleted", ToastType.ERROR, false);
+                                                            }
+                                                        });
+                                            } else {
+                                                new CustomToast().showToast(getContext(), view, "Error: Account was not deleted", ToastType.ERROR, false);
+
+                                            }
+
+
+                                        }, throwable -> {
+                                            FirebaseAuth.getInstance().signOut();
+                                            navController.navigate(R.id.action_meFragment_to_welcomeFragment);
+                                            Log.i(TAG, "Throwable " + throwable.getMessage());
+                                        });
 
                                     } else {
                                         new CustomToast().showToast(getContext(), view, "Incorrect password, please try again", ToastType.ERROR, false);
@@ -874,5 +881,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        disposable.dispose();
+
     }
 }
