@@ -2,37 +2,22 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.petsearch.R;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.ObservableSnapshotArray;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.slider.Slider;
@@ -42,16 +27,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
@@ -60,28 +40,24 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import nk00322.surrey.petsearch.FirestoreAdapter;
 import nk00322.surrey.petsearch.models.SearchParty;
-import nk00322.surrey.petsearch.models.User;
 import uk.co.mgbramwell.geofire.android.GeoFire;
 import uk.co.mgbramwell.geofire.android.model.Distance;
 import uk.co.mgbramwell.geofire.android.model.DistanceUnit;
 import uk.co.mgbramwell.geofire.android.model.QueryLocation;
 
-import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.checkPermission;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getCreationDateComparator;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.getDistanceInKilometers;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getDistanceToUserComparator;
-import static nk00322.surrey.petsearch.utils.GeneralUtils.printDate;
 import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
-import static nk00322.surrey.petsearch.utils.LocationUtils.PLACE_FIELDS;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SearchPartiesFragment extends Fragment implements View.OnClickListener {
+public class SearchPartiesFragment extends Fragment implements View.OnClickListener, FirestoreAdapter.OnListItemCLick {
     private static final String TAG = "SearchPartiesFragment";
     private View view;
     private FirebaseAuth auth;
@@ -89,14 +65,14 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     private FirebaseUser currentUser;
     private long mLastClickTime = 0;
     private boolean dialogActive = false;
-    private FirestoreRecyclerAdapter adapter;
+    private FirestoreAdapter adapter;
     private Disposable disposable;
     private FloatingActionButton sortFilterButton;
     private int sortOptionIndex = 0;
     private int filterOptionIndex = 1;
+    private Observable<Location> userLocation;
     private Double userLatitude;
     private Double userLongitude;
-    private PlacesClient placesClient;
     private FusedLocationProviderClient fusedLocationClient;
     private float distanceSliderValue = 20;
 
@@ -117,10 +93,27 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         Places.initialize(getContext(), API_KEY);
-        placesClient = Places.createClient(getContext());
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext()); //todo only works if google maps has been used? find another sollution?
+        // Re-check before enabling. You can add an else statement to warn the user about the lack of functionality if it's disabled.
+        // "or" is used instead of "and" as per the error. If it requires both, flip it over to &&. (I'm not sure, I haven't used GPS stuff before)
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            userLocation = Observable.create(result ->
+                    LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> { //todo only works if google maps has been used? find another solution?
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "User location found");
+                            userLatitude = task.getResult().getLatitude();
+                            userLongitude = task.getResult().getLongitude();
+                            result.onNext(task.getResult());
+                        } else {
+                            Log.w(TAG, "Error getting current location.", task.getException());
+                            result.onError(task.getException());
+                        }
+                    })
+            );
 
-        checkPermission(getActivity());
+        } else {
+            checkPermission(getActivity());
+        }
         initViews();
         setupRecyclerView();
         setListeners();
@@ -145,102 +138,7 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
                 .setQuery(query, SearchParty.class)
                 .build();
 
-        adapter = new FirestoreRecyclerAdapter<SearchParty, SearchPartyViewHolder>(options) {
-
-            @NonNull
-            @Override
-            public SearchPartyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.search_party_list_item, parent, false);
-                return new SearchPartyViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull SearchPartyViewHolder holder, int position, @NonNull SearchParty model) {
-                holder.title.setText(model.getTitle());
-                holder.reward.setText(model.getReward());
-
-
-                if (model.getLocationId() != null) {
-                    FetchPlaceRequest request = FetchPlaceRequest.newInstance(model.getLocationId(), PLACE_FIELDS);
-                    Runnable fetchUserInfo = () -> placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-                        holder.location.setText(response.getPlace().getName());
-                    }).addOnFailureListener((exception) -> {
-                        if (exception instanceof ApiException) {
-                            Log.e(TAG, "Place not found: " + exception.getMessage());
-                            holder.location.setText("N/A");
-                        }
-                    });
-                    Thread thread = new Thread(fetchUserInfo);
-                    thread.start();
-
-
-                    Observable<User> userObservable = getUserFromId(model.getOwnerUid());
-                    disposable = userObservable.subscribe(
-                            user -> holder.owner.setText(user.getFullName()),
-                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
-
-                    // Re-check before enabling. You can add an else statement to warn the user about the lack of functionality if it's disabled.
-                    // "or" is used instead of "and" as per the error. If it requires both, flip it over to &&. (I'm not sure, I haven't used GPS stuff before)
-                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                            ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-                        fusedLocationClient.getLastLocation()
-                                .addOnSuccessListener(location -> {
-                                    Log.i(TAG, "Location retrieved");
-                                    userLatitude = location.getLatitude();
-                                    userLongitude = location.getLongitude();
-                                    double distance = getDistanceInKilometers(
-                                            model.getLatitude(), model.getLongitude(), userLatitude, userLongitude);
-
-                                    holder.distance.setText(distance + " km");
-                                }).addOnFailureListener(e -> {
-                            Log.i(TAG, "Location not retrieved: " + e.getMessage());
-
-                        });
-                    } else {
-                        holder.distance.setText("N/A");
-                    }
-
-                    Log.i(TAG, "Place found");
-
-
-                } else {
-                    holder.location.setText("N/A");
-                    Log.i(TAG, "No location stored in user");
-                }
-                holder.date.setText(printDate(model.getTimestampCreated().toDate()));
-
-                holder.subscribed.setCompoundDrawablesWithIntrinsicBounds(
-                        getContext().getDrawable(model.getSubscriberUids() != null && model.getSubscriberUids().contains(currentUser.getUid()) ?
-                                R.drawable.ic_check_success_green_24dp :
-                                R.drawable.ic_close_red_24dp)
-                        , null, null, null);
-
-                try {
-                    StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(model.getImageUrl());
-                    Glide.with(getContext())
-                            .load(imageRef)
-                            .listener(new RequestListener<Drawable>() {
-                                @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                                    holder.recyclerItemProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                                    holder.recyclerItemProgress.setVisibility(View.GONE);
-                                    return false;
-                                }
-                            })
-                            .into(holder.image);
-                } catch (IllegalArgumentException e) {
-                    Log.i(TAG, "Error loading model with title: " + model.getTitle());
-                }
-
-
-            }
-        };
+        adapter = new FirestoreAdapter(options, getContext(), userLocation, currentUser.getUid(), this);
 
         searchPartiesRecyclerView.setHasFixedSize(true);
         searchPartiesRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -264,6 +162,13 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
                 break;
 
         }
+
+    }
+
+    @Override
+    public void onItemClick(SearchParty searchParty, int position) {
+        Log.d(TAG, "Item clicked: " + position + " and with title: " + searchParty.getTitle()) ;
+
 
     }
 
@@ -476,31 +381,6 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     }
 
 
-    private static class SearchPartyViewHolder extends RecyclerView.ViewHolder {
-
-        TextView title, reward, location, date, owner, subscribed, distance;
-        ImageView image;
-        ProgressBar recyclerItemProgress;
-
-
-        SearchPartyViewHolder(View itemView) {
-            super(itemView);
-
-
-            title = itemView.findViewById(R.id.title);
-            reward = itemView.findViewById(R.id.reward);
-            location = itemView.findViewById(R.id.location);
-            date = itemView.findViewById(R.id.date);
-            owner = itemView.findViewById(R.id.owner);
-            subscribed = itemView.findViewById(R.id.subscribed);
-            distance = itemView.findViewById(R.id.distance);
-
-            image = itemView.findViewById(R.id.image);
-            recyclerItemProgress = itemView.findViewById(R.id.recycler_item_progress);
-
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -516,5 +396,7 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
         }
 
     }
+
+
 }
 
