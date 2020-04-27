@@ -15,7 +15,9 @@ import android.widget.RadioGroup;
 import com.example.petsearch.R;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.ObservableSnapshotArray;
-import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -33,6 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -40,7 +43,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
+import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.FirestoreAdapter;
+import nk00322.surrey.petsearch.FullscreenDisplaySearchParty;
+import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
 import uk.co.mgbramwell.geofire.android.GeoFire;
 import uk.co.mgbramwell.geofire.android.model.Distance;
@@ -73,37 +79,44 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     private Observable<Location> userLocation;
     private Double userLatitude;
     private Double userLongitude;
-    private FusedLocationProviderClient fusedLocationClient;
     private float distanceSliderValue = 20;
 
     public SearchPartiesFragment() {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_search_parties, container, false);
+        final NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
+
         if (!isLoggedIn()) {
-            final NavController navController = Navigation.findNavController(view);
             FirebaseAuth.getInstance().signOut();
-            navController.navigate(R.id.action_organizeFragment_to_welcomeFragment);
+            navController.navigate(R.id.welcomeFragment);
         }
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
         Places.initialize(getContext(), API_KEY);
-        // Re-check before enabling. You can add an else statement to warn the user about the lack of functionality if it's disabled.
-        // "or" is used instead of "and" as per the error. If it requires both, flip it over to &&. (I'm not sure, I haven't used GPS stuff before)
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+
+
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+
             userLocation = Observable.create(result ->
-                    LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> { //todo only works if google maps has been used? find another solution?
+                    LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "User location found");
-                            userLatitude = task.getResult().getLatitude();
-                            userLongitude = task.getResult().getLongitude();
-                            result.onNext(task.getResult());
+                            if(task.getResult() == null){
+                                navController.navigate(R.id.welcomeFragment);
+                                FirebaseAuth.getInstance().signOut();
+                                new CustomToast().showToast(getContext(), view, "Error while retrieving location", ToastType.ERROR, false);
+                                result.onError(new Exception("Location error"));
+                            }else {
+                                userLatitude = task.getResult().getLatitude();
+                                userLongitude = task.getResult().getLongitude();
+                                result.onNext(task.getResult());
+                            }
                         } else {
                             Log.w(TAG, "Error getting current location.", task.getException());
                             result.onError(task.getException());
@@ -168,7 +181,8 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     @Override
     public void onItemClick(SearchParty searchParty, int position) {
         Log.d(TAG, "Item clicked: " + position + " and with title: " + searchParty.getTitle()) ;
-
+        DialogFragment dialogFragment = new FullscreenDisplaySearchParty(searchParty, currentUser.getUid());
+        dialogFragment.show(getActivity().getSupportFragmentManager(), "FullscreenDisplaySearchParty");
 
     }
 
@@ -385,6 +399,28 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     public void onStart() {
         super.onStart();
         adapter.startListening();
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            LocationRequest mLocationRequest = LocationRequest.create();
+            mLocationRequest.setInterval(60000);
+            mLocationRequest.setFastestInterval(5000);
+            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            LocationCallback mLocationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(LocationResult locationResult) {
+                    if (locationResult == null) {
+                        return;
+                    }
+                    for (Location location : locationResult.getLocations()) {
+                        if (location != null) {
+                            //TODO: UI updates.
+                            Log.d(TAG, "User location found");
+                        }
+                    }
+                }
+            };
+            LocationServices.getFusedLocationProviderClient(getContext()).requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+        }
     }
 
     @Override

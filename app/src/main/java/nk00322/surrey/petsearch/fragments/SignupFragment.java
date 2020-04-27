@@ -41,8 +41,6 @@ import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -54,7 +52,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
-import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
@@ -283,8 +280,7 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             firebaseUser.updateProfile(profileUpdates);
             firebaseUser.sendEmailVerification();
 
-            HashMap<String, SearchParty> empty = new HashMap<>();
-            User user = new User(firebaseUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(), locationId, getNowTimestamp(), defaultImageRef.toString(), empty);
+            User user = new User(firebaseUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(), locationId, getNowTimestamp(), defaultImageRef.toString());
 
             db.collection("users").document(firebaseUser.getUid()).set(user)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

@@ -123,7 +123,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private Button saveChanges;
     private String userDateCreated = "";
     private String userOldProfileImageURL;
-    private HashMap<String, SearchParty> userSearchParties;
     private long mLastClickTime = 0;
 
     private Uri imageInputUri;
@@ -225,7 +224,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 userOldLocationId = user.getLocationId();
                 userDateCreated = user.getDateCreated();
                 userOldProfileImageURL = user.getImageUrl();
-                userSearchParties = user.getSearchParties();
                 if (userOldLocationId != null) {
 
                     Places.initialize(getContext(), API_KEY);
@@ -591,7 +589,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 userOldMobileNumber = user.getMobileNumber();
                 userOldLocationId = user.getLocationId();
                 userDateCreated = user.getDateCreated();
-                userSearchParties = user.getSearchParties();
                 userOldProfileImageURL = user.getImageUrl();
                 if (userOldLocationId != null) {
 
@@ -684,7 +681,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             User user = new User(currentUser.getEmail(), fullName.getText().toString(), mobileNumber.getText().toString(),
                     newLocationId == null ? userOldLocationId : newLocationId, // If no new location is added, keep old location
                     userDateCreated,
-                    newProfileImageRef == null ? userOldProfileImageURL : newProfileImageRef.toString(), userSearchParties);
+                    newProfileImageRef == null ? userOldProfileImageURL : newProfileImageRef.toString());
 
 
             FirebaseFirestore.getInstance().collection("users").document(firebaseUser.getUid()).set(user)

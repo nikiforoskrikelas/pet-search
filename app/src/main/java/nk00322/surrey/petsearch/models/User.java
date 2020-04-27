@@ -12,13 +12,12 @@ public class User {
     private String locationId;
     private String dateCreated;
     private String imageUrl;
-    private HashMap<String, SearchParty> searchParties;
 
     public User() {
         // Default constructor required for calls to DataSnapshot.getValue(User.class)
     }
 
-    public User(String email, String fullName, String mobileNumber, String locationId, String dateCreated, String imageUrl, HashMap<String, SearchParty> searchParties) {
+    public User(String email, String fullName, String mobileNumber, String locationId, String dateCreated, String imageUrl) {
         this.email = email;
         this.fullName = fullName;
         this.mobileNumber = mobileNumber;
@@ -26,7 +25,6 @@ public class User {
         this.dateCreated = dateCreated;
         this.imageUrl = imageUrl;
 
-        this.searchParties = searchParties;
     }
 
     public String getMobileNumber() {
@@ -43,10 +41,6 @@ public class User {
 
     public String getImageUrl() {
         return imageUrl;
-    }
-
-    public HashMap<String, SearchParty> getSearchParties() {
-        return searchParties;
     }
 
     public String getEmail() {

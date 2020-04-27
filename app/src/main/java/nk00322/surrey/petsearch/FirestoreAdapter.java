@@ -29,6 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
@@ -43,6 +44,7 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
     private Observable<Location> userLocation;
     private String currentUserUid;
     private OnListItemCLick onListItemCLick;
+    private Disposable disposable;
 
     public FirestoreAdapter(@NonNull FirestoreRecyclerOptions<SearchParty> options, Context context, Observable<Location> userLocation, String currentUserUid, OnListItemCLick onListItemCLick) {
         super(options);
@@ -51,6 +53,7 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
         this.currentUserUid = currentUserUid;
         this.onListItemCLick = onListItemCLick;
     }
+
 
 
     @Override
@@ -77,12 +80,12 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
         }
 
         Observable<User> userObservable = getUserFromId(model.getOwnerUid());
-        userObservable.subscribe(
+        disposable = userObservable.subscribe(
                 user -> holder.owner.setText(user.getFullName()),
                 throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
 
 
-        userLocation.subscribe(
+        disposable = userLocation.subscribe(
                 location -> {
                     double distance = getDistanceInKilometers(model.getLatitude(), model.getLongitude(), location.getLatitude(), location.getLongitude());
                     holder.distance.setText(distance + " km");
@@ -163,8 +166,15 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
         }
     }
 
-    public interface OnListItemCLick{
+    public interface OnListItemCLick {
         void onItemClick(SearchParty searchParty, int position);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+        if (disposable != null)
+            disposable.dispose();
     }
 
 }

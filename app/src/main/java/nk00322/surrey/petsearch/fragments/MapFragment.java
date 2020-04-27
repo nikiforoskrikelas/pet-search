@@ -1,20 +1,21 @@
 package nk00322.surrey.petsearch.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.petsearch.R;
 
+import androidx.fragment.app.Fragment;
+
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment {
+public class MapFragment extends Fragment{
+    private static final String TAG = "MainActivity";
+
 
     public MapFragment() {
         // Required empty public constructor
@@ -27,4 +28,5 @@ public class MapFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
+
 }
