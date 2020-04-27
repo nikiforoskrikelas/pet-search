@@ -20,12 +20,13 @@ public class SearchParty {
     private ArrayList<String> subscriberUids;
     private double latitude;
     private double longitude;
+    private boolean completed;
 
     public SearchParty() {
         // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
     }
 
-    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, ArrayList<String> subscriberUids, double latitude, double longitude) {
+    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, ArrayList<String> subscriberUids, double latitude, double longitude, boolean completed) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -39,6 +40,7 @@ public class SearchParty {
         this.subscriberUids = subscriberUids;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.completed = completed;
     }
 
 
@@ -104,4 +106,13 @@ public class SearchParty {
     public int hashCode() {
         return Objects.hash(title, description, imageUrl, locationId, reward, ownerUid, timestampCreated, subscriberUids, latitude, longitude);
     }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+
 }

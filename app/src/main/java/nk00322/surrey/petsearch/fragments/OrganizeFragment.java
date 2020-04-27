@@ -239,7 +239,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 subscriberUids.add(currentUser.getUid()); // users are subscribed to their own search parties by default
 
                 SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
-                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude);
+                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude, false);
 
                 FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
                     if (task.isSuccessful()) {

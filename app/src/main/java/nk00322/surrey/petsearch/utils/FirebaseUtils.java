@@ -2,10 +2,6 @@ package nk00322.surrey.petsearch.utils;
 
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -13,16 +9,16 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-import androidx.annotation.NonNull;
 import io.reactivex.rxjava3.core.Observable;
+import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
 public class FirebaseUtils {
@@ -113,7 +109,7 @@ public class FirebaseUtils {
     public static Observable<Boolean> deleteUserWithId(String userId) {
         return Observable.create(result -> FirebaseFirestore.getInstance().collection("users").document(userId).delete()
                 .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "DocumentSnapshot successfully deleted!");
+                    Log.d(TAG, "User successfully deleted!");
                     result.onNext(true);
                 })
                 .addOnFailureListener(e -> {
@@ -122,6 +118,54 @@ public class FirebaseUtils {
                 }));
     }
 
+    public static Observable<Boolean> deleteSearchPartyWithId(String searchPartyId) {
+        return Observable.create(result -> FirebaseFirestore.getInstance().collection("searchParties").document(searchPartyId).delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Search Party successfully deleted!");
+                    result.onNext(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error deleting document", e);
+                    result.onNext(false);
+                }));
+    }
+
+    public static Observable<String> getUidFromSearchParty(SearchParty searchParty) {
+        CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
+
+        Query searchPartiesQuery = searchPartiesRef
+                .whereEqualTo("locationId", searchParty.getLocationId())
+                .whereEqualTo("ownerUid", searchParty.getOwnerUid())
+                .whereEqualTo("timestampCreated", searchParty.getTimestampCreated());
+
+        return Observable.create(result -> searchPartiesQuery.get()
+                .addOnSuccessListener(task -> {
+                    for (DocumentSnapshot doc : task.getDocuments()) {
+                        if (Objects.requireNonNull(doc.toObject(SearchParty.class)).equals(searchParty)) {
+                            Log.d(TAG, "Search Party successfully deleted!");
+                            result.onNext(doc.getId());
+                        } else {
+                            result.onNext(null);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error getting search party.", e);
+                    result.onError(e);
+                }));
+    }
+
+    public static void deleteAllUserSearchParties(String userUid) {
+        FirebaseFirestore.getInstance().collection("searchParties").whereEqualTo("ownerUid", userUid).get()
+                .addOnSuccessListener(task -> {
+                    for (DocumentSnapshot doc : task.getDocuments()) {
+                        doc.getReference().delete();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error getting search parties.", e);
+                });
+    }
 
 }
 
