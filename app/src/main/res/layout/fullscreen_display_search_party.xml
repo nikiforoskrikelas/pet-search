@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/background_color">
+
+
+        <ImageButton
+            android:id="@+id/close_dialog"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:background="@color/background_color"
+            android:contentDescription="@string/closebutton"
+            android:padding="5dp"
+            android:src="@drawable/ic_arrow_back_white_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/search_party_image"
+            android:layout_width="0dp"
+            android:layout_height="249dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:clickable="true"
+
+            android:contentDescription="@string/addphoto"
+            android:src="@drawable/add_photo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_party_title" />
+
+
+        <ProgressBar
+            android:id="@+id/image_progress"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:indeterminate="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/search_party_image"
+            app:layout_constraintEnd_toEndOf="@+id/search_party_image"
+            app:layout_constraintStart_toStartOf="@+id/search_party_image"
+            app:layout_constraintTop_toTopOf="@+id/search_party_image" />
+
+        <TextView
+            android:id="@+id/search_party_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:text="Title"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/close_dialog" />
+
+        <TextView
+            android:id="@+id/search_party_reward"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="64dp"
+            android:text="$"
+            android:textSize="30sp"
+            app:layout_constraintStart_toEndOf="@+id/search_party_title"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/search_party_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="16dp"
+            android:drawablePadding="10dp"
+            android:drawableStart="@drawable/ic_date_gray_24dp"
+            android:drawableTint="@color/white"
+            android:text="25/02/19"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_image" />
+
+        <TextView
+            android:id="@+id/search_party_owner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="12dp"
+            android:drawablePadding="10dp"
+            android:drawableStart="@drawable/ic_person_white_24dp"
+            android:text="GEORGE"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_date" />
+
+        <TextView
+            android:id="@+id/search_party_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="10dp"
+            android:drawableStart="@drawable/ic_distance_grey_24dp"
+            android:drawableTint="@color/white"
+            android:text="25.00 km"
+            android:textSize="20sp"
+            android:layout_marginStart="44dp"
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_subscribed" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/search_party_subscribed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subscribe"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:layout_marginStart="36dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_owner" />
+
+
+        <nk00322.surrey.petsearch.CustomMapView
+            android:id="@+id/search_party_map"
+            android:layout_width="0dp"
+            android:layout_height="400dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="30dp"
+            android:paddingBottom="50dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_distance" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

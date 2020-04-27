@@ -48,6 +48,8 @@
     <string name="add_photo">Add Photo</string>
     <string name="new_email">New Email</string>
     <string name="subscribed">Subscribed</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="title_activity_maps">Map</string>
 
 
 </resources>

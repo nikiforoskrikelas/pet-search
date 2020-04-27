@@ -70,6 +70,8 @@ dependencies {
     implementation 'com.github.imperiumlabs:GeoFirestore-Android:v1.5.0'
 
     implementation 'uk.co.mgbramwell.geofire:geofire-android:0.0.2'
+
     implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
 
 }

@@ -128,6 +128,9 @@
         <action
             android:id="@+id/action_searchPartiesFragment_to_mapFragment"
             app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_searchPartiesFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment" />
     </fragment>
     <fragment
         android:id="@+id/forgotPasswordFragment"

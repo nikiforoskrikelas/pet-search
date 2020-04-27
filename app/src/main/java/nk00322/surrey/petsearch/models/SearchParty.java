@@ -5,6 +5,7 @@ import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 @IgnoreExtraProperties
 public class SearchParty {
@@ -80,5 +81,27 @@ public class SearchParty {
 
     public double getLongitude() {
         return longitude;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SearchParty that = (SearchParty) o;
+        return Double.compare(that.latitude, latitude) == 0 &&
+                Double.compare(that.longitude, longitude) == 0 &&
+                Objects.equals(title, that.title) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(imageUrl, that.imageUrl) &&
+                Objects.equals(locationId, that.locationId) &&
+                Objects.equals(reward, that.reward) &&
+                Objects.equals(ownerUid, that.ownerUid) &&
+                Objects.equals(timestampCreated, that.timestampCreated) &&
+                Objects.equals(subscriberUids, that.subscriberUids);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, imageUrl, locationId, reward, ownerUid, timestampCreated, subscriberUids, latitude, longitude);
     }
 }
