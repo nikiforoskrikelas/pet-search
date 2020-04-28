@@ -72,7 +72,6 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     private long mLastClickTime = 0;
     private boolean dialogActive = false;
     private FirestoreAdapter adapter;
-    private Disposable disposable;
     private FloatingActionButton sortFilterButton;
     private int sortOptionIndex = 0;
     private int filterOptionIndex = 1;
@@ -102,7 +101,6 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
             userLocation = Observable.create(result ->
                     LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
@@ -399,37 +397,12 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     public void onStart() {
         super.onStart();
         adapter.startListening();
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationRequest mLocationRequest = LocationRequest.create();
-            mLocationRequest.setInterval(60000);
-            mLocationRequest.setFastestInterval(5000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            LocationCallback mLocationCallback = new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    if (locationResult == null) {
-                        return;
-                    }
-                    for (Location location : locationResult.getLocations()) {
-                        if (location != null) {
-                            //TODO: UI updates.
-                            Log.d(TAG, "User location found");
-                        }
-                    }
-                }
-            };
-            LocationServices.getFusedLocationProviderClient(getContext()).requestLocationUpdates(mLocationRequest, mLocationCallback, null);
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         adapter.stopListening();
-        if (disposable != null) {
-            disposable.dispose();
-        }
 
     }
 

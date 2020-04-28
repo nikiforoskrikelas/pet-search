@@ -1,11 +1,13 @@
 package nk00322.surrey.petsearch;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +17,12 @@ import android.widget.Toast;
 import com.example.petsearch.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +34,9 @@ import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
-public class MainActivity extends AppCompatActivity{
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
+
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
@@ -45,6 +54,11 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupNavigation();
+
+        if (!isLoggedIn()) {
+            FirebaseAuth.getInstance().signOut();
+            navController.navigate(R.id.welcomeFragment);
+        }
     }
 
     private void setupNavigation() {
@@ -67,10 +81,9 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
-    private boolean checkMapServices(){
-        if(isServicesOK()){
-            if(isMapsEnabled()){
+    private boolean checkMapServices() {
+        if (isServicesOK()) {
+            if (isMapsEnabled()) {
                 return true;
             }
         }
@@ -91,10 +104,10 @@ public class MainActivity extends AppCompatActivity{
         alert.show();
     }
 
-    public boolean isMapsEnabled(){
-        final LocationManager manager = (LocationManager) this.getSystemService( Context.LOCATION_SERVICE );
+    public boolean isMapsEnabled() {
+        final LocationManager manager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             buildAlertMessageNoGps();
             return false;
         }
@@ -120,22 +133,21 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    public boolean isServicesOK(){
+    public boolean isServicesOK() {
         Log.d(TAG, "isServicesOK: checking google services version");
 
         int available = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this);
 
-        if(available == ConnectionResult.SUCCESS){
+        if (available == ConnectionResult.SUCCESS) {
             //everything is fine and the user can make map requests
             Log.d(TAG, "isServicesOK: Google Play Services is working");
             return true;
-        }
-        else if(GoogleApiAvailability.getInstance().isUserResolvableError(available)){
+        } else if (GoogleApiAvailability.getInstance().isUserResolvableError(available)) {
             //an error occured but we can resolve it
             Log.d(TAG, "isServicesOK: an error occured but we can fix it");
             Dialog dialog = GoogleApiAvailability.getInstance().getErrorDialog(this, available, ERROR_DIALOG_REQUEST);
             dialog.show();
-        }else{
+        } else {
             Toast.makeText(this, "You can't make map requests", Toast.LENGTH_SHORT).show();
         }
         return false;
@@ -163,10 +175,9 @@ public class MainActivity extends AppCompatActivity{
         Log.d(TAG, "onActivityResult: called.");
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
-                if(mLocationPermissionGranted){
+                if (mLocationPermissionGranted) {
                     //todo
-                }
-                else{
+                } else {
                     getLocationPermission();
                 }
             }
@@ -177,11 +188,31 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public void onResume() {
         super.onResume();
-        if(checkMapServices()){
-            if(mLocationPermissionGranted){
-                // todo
-            }
-            else{
+        if (checkMapServices()) {
+            if (mLocationPermissionGranted) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    LocationRequest mLocationRequest = LocationRequest.create();
+                    mLocationRequest.setInterval(60000);
+                    mLocationRequest.setFastestInterval(5000);
+                    mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    LocationCallback mLocationCallback = new LocationCallback() {
+                        @Override
+                        public void onLocationResult(LocationResult locationResult) {
+                            if (locationResult == null) {
+                                return;
+                            }
+                            for (Location location : locationResult.getLocations()) {
+                                if (location != null) {
+                                    //TODO: UI updates.
+                                    Log.d(TAG, "User location found");
+                                }
+                            }
+                        }
+                    };
+                    LocationServices.getFusedLocationProviderClient(this).requestLocationUpdates(mLocationRequest, mLocationCallback, null);
+                }
+            } else {
                 getLocationPermission();
             }
         }

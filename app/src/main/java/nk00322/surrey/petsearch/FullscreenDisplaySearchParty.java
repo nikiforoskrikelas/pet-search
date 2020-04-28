@@ -59,7 +59,6 @@ import static nk00322.surrey.petsearch.utils.GeneralUtils.printDate;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getPlaceFromId;
 
 public class FullscreenDisplaySearchParty extends DialogFragment implements View.OnClickListener, OnMapReadyCallback {
-
     private SearchParty searchParty;
     private String currentUserUid;
 
@@ -184,6 +183,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         mMapView.getMapAsync(this);
 
         if (searchParty.getOwnerUid().equals(currentUserUid)) {
+            //todo add edit search party
             deleteAction.setVisibility(View.VISIBLE);
             completedCheckbox.setVisibility(View.VISIBLE);
             completedCheckbox.setChecked(searchParty.isCompleted());
