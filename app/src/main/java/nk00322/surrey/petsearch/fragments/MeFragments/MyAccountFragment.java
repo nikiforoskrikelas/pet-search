@@ -72,6 +72,7 @@ import nk00322.surrey.petsearch.models.User;
 
 import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteAllUserSearchParties;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteUserWithId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
@@ -190,7 +191,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
         newPassword = view.findViewById(R.id.edit_password);
         confirmNewPassword = view.findViewById(R.id.edit_confirm_password);
 
-        ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector_grey_text,  getContext().getTheme());
+        ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector_grey_text, getContext().getTheme());
         editProfile.setTextColor(textSelector);
         changeEmail.setTextColor(textSelector);
         signOut.setTextColor(textSelector);
@@ -784,8 +785,6 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private void userDeleteAccount() {
         final NavController navController = Navigation.findNavController(view);
 
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.password_input_dialog, (ViewGroup) getView(), false);
         final EditText input = viewInflated.findViewById(R.id.password_input);
 
@@ -800,9 +799,11 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                         user.reauthenticate(credential)
                                 .addOnCompleteListener(reauthorizeTask -> {
                                     if (reauthorizeTask.isSuccessful()) {
-                                        Observable<Boolean> userDeleteObservable = deleteUserWithId(currentUser.getUid());
+                                        String currentUserUid = currentUser.getUid();
+                                        Observable<Boolean> userDeleteObservable = deleteUserWithId(currentUserUid);
                                         disposable = userDeleteObservable.subscribe(dataDeleteResult -> {
                                             if (dataDeleteResult != null && dataDeleteResult) {
+                                                deleteAllUserSearchParties(currentUserUid);
                                                 //Remove associated data
                                                 user.delete()
                                                         .addOnCompleteListener(authDeleteTask -> {

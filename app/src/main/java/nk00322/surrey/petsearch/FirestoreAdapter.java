@@ -55,7 +55,6 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
     }
 
 
-
     @Override
     protected void onBindViewHolder(@NonNull SearchPartyViewHolder holder, int position, @NonNull SearchParty model) {
 
@@ -104,6 +103,16 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
                         R.drawable.ic_close_red_24dp)
                 , null, null, null);
 
+        if (model.isCompleted()) {
+            holder.completed.setText("Status: Completed");
+            holder.completed.setCompoundDrawablesWithIntrinsicBounds(
+                    context.getDrawable(R.drawable.ic_check_success_green_24dp), null, null, null);
+        } else {
+            holder.completed.setText("Status: In progress");
+            holder.completed.setCompoundDrawablesWithIntrinsicBounds(
+                    context.getDrawable(R.drawable.ic_nav_organize_24dp), null, null, null);
+        }
+
         try {
             StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(model.getImageUrl());
             Glide.with(context)
@@ -138,7 +147,7 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
 
     public class SearchPartyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView title, reward, location, date, owner, subscribed, distance;
+        private TextView title, reward, location, date, owner, subscribed, distance, completed;
         private ImageView image;
         private ProgressBar recyclerItemProgress;
 
@@ -153,6 +162,7 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
             owner = itemView.findViewById(R.id.owner);
             subscribed = itemView.findViewById(R.id.subscribed);
             distance = itemView.findViewById(R.id.distance);
+            completed = itemView.findViewById(R.id.completed);
 
             image = itemView.findViewById(R.id.image);
             recyclerItemProgress = itemView.findViewById(R.id.recycler_item_progress);

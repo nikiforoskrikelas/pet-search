@@ -26,33 +26,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/search_party_image"
-            android:layout_width="0dp"
-            android:layout_height="249dp"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="12dp"
-            android:clickable="true"
-
-            android:contentDescription="@string/addphoto"
-            android:src="@drawable/add_photo"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/search_party_title" />
-
-
-        <ProgressBar
-            android:id="@+id/image_progress"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:indeterminate="true"
-            android:visibility="visible"
-            app:layout_constraintBottom_toBottomOf="@+id/search_party_image"
-            app:layout_constraintEnd_toEndOf="@+id/search_party_image"
-            app:layout_constraintStart_toStartOf="@+id/search_party_image"
-            app:layout_constraintTop_toTopOf="@+id/search_party_image" />
-
         <TextView
             android:id="@+id/search_party_title"
             android:layout_width="wrap_content"
@@ -76,19 +49,81 @@
             app:layout_constraintStart_toEndOf="@+id/search_party_title"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ProgressBar
+            android:id="@+id/image_progress"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:indeterminate="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/search_party_image"
+            app:layout_constraintEnd_toEndOf="@+id/search_party_image"
+            app:layout_constraintStart_toStartOf="@+id/search_party_image"
+            app:layout_constraintTop_toTopOf="@+id/search_party_image" />
+
+        <ImageView
+            android:id="@+id/search_party_image"
+            android:layout_width="0dp"
+            android:layout_height="249dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:padding="10dp"
+            android:background="@drawable/textview_outline"
+            android:contentDescription="@string/addphoto"
+            android:src="@drawable/add_photo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_party_title" />
+
+        <TextView
+            android:id="@+id/search_party_delete_action"
+            style="@style/ActionTextView"
+            android:layout_marginBottom="12dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="12dp"
+            android:drawableStart="@drawable/ic_delete_grey_24dp"
+            android:drawableTint="@color/white"
+            android:textColor="@color/white"
+            android:background="@drawable/textview_outline"
+            android:textSize="20sp"
+            android:tag="textView"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/delete_search_party"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_image" />
+
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/search_party_completed_checkbox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/mark_as_completed"
+            android:textColor="@color/white"
+            android:layout_marginTop="12dp"
+            android:padding="12dp"
+            android:textSize="20sp"
+            android:visibility="gone"
+            android:background="@drawable/textview_outline"
+            app:layout_constraintEnd_toEndOf="@+id/search_party_delete_action"
+            app:layout_constraintStart_toStartOf="@+id/search_party_delete_action"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_delete_action"
+            />
+
         <TextView
             android:id="@+id/search_party_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="40dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:drawablePadding="10dp"
             android:drawableStart="@drawable/ic_date_gray_24dp"
             android:drawableTint="@color/white"
-            android:text="25/02/19"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_party_image" />
+            app:layout_constraintTop_toBottomOf="@+id/search_party_completed_checkbox" />
 
         <TextView
             android:id="@+id/search_party_owner"
@@ -98,10 +133,21 @@
             android:layout_marginTop="12dp"
             android:drawablePadding="10dp"
             android:drawableStart="@drawable/ic_person_white_24dp"
-            android:text="GEORGE"
             android:textSize="20sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_party_date" />
+
+        <TextView
+            android:id="@+id/search_party_completed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="44dp"
+            android:textSize="20sp"
+            android:drawablePadding="10dp"
+            android:drawableTint="@color/white"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_subscribed"
+            app:layout_constraintBottom_toTopOf="@+id/search_party_distance"/>
 
         <TextView
             android:id="@+id/search_party_distance"
@@ -110,12 +156,11 @@
             android:drawablePadding="10dp"
             android:drawableStart="@drawable/ic_distance_grey_24dp"
             android:drawableTint="@color/white"
-            android:text="25.00 km"
             android:textSize="20sp"
             android:layout_marginStart="44dp"
-
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_party_subscribed" />
+            app:layout_constraintTop_toBottomOf="@+id/search_party_completed" />
+
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/search_party_subscribed"
@@ -136,10 +181,13 @@
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="12dp"
-            android:layout_marginBottom="30dp"
-            android:paddingBottom="50dp"
+            android:padding="10dp"
+            android:background="@drawable/textview_outline"
+            android:layout_marginBottom="40dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_party_distance" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

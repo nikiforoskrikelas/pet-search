@@ -50,6 +50,8 @@
     <string name="subscribed">Subscribed</string>
     <string name="subscribe">Subscribe</string>
     <string name="title_activity_maps">Map</string>
+    <string name="mark_as_completed">Mark as Completed</string>
+    <string name="delete_search_party">Delete Search Party</string>
 
 
 </resources>
