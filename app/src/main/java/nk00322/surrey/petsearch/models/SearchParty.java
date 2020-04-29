@@ -23,12 +23,13 @@ public class SearchParty {
     private double latitude;
     private double longitude;
     private boolean completed;
-
+    private ArrayList<Sighting> sightings;
     public SearchParty() {
         // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
     }
 
-    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid, ArrayList<String> subscriberUids, double latitude, double longitude, boolean completed) {
+    public SearchParty(String title, String description, String imageUrl, String locationId, String reward, String ownerUid,
+                       ArrayList<String> subscriberUids, double latitude, double longitude, boolean completed, ArrayList<Sighting> sightings) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
@@ -43,6 +44,7 @@ public class SearchParty {
         this.latitude = latitude;
         this.longitude = longitude;
         this.completed = completed;
+        this.sightings = sightings;
     }
 
 
@@ -123,4 +125,15 @@ public class SearchParty {
         return title;
     }
 
+    public ArrayList<Sighting> getSightings() {
+        return sightings;
+    }
+
+    public void setSightings(ArrayList<Sighting> sightings) {
+        this.sightings = sightings;
+    }
+
+    public void addToSightings(Sighting sighting) {
+        this.sightings.add(sighting);
+    }
 }

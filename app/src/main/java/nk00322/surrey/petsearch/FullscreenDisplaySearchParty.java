@@ -125,7 +125,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> { //todo only works if google maps has been used? find another solution?
+            LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "User location found");
                     double distanceKm = getDistanceInKilometers(searchParty.getLatitude(), searchParty.getLongitude(),

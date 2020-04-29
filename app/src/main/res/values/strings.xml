@@ -53,8 +53,9 @@
     <string name="mark_as_completed">Mark as Completed</string>
     <string name="delete_search_party">Delete Search Party</string>
     <string name="select_a_search_party_to_track">Select a search party to track</string>
-    <string name="track_a_search_party">[Track a Search Party...]</string>
+    <string name="track_a_search_party">[Track a Search Party…]</string>
     <string name="dropdown">dropdown</string>
+    <string name="no_search_party_subscriptions">No search party subscriptions!</string>
 
 
 </resources>

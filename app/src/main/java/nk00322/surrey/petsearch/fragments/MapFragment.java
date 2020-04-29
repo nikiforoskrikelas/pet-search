@@ -2,6 +2,7 @@ package nk00322.surrey.petsearch.fragments;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
@@ -17,8 +18,10 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 import com.example.petsearch.R;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,31 +33,48 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
 
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import nk00322.surrey.petsearch.CustomMapView;
+import nk00322.surrey.petsearch.CustomToast;
+import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
+import nk00322.surrey.petsearch.models.Sighting;
+import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUidFromSearchParty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserSubscriptions;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.checkPermission;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getMarkerIconFromDrawable;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.printDate;
 import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
+import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
+import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getPlaceFromId;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback, View.OnClickListener, SetLocationListener {
     private static final String TAG = "MapFragment";
     private static final String SPINNER_PREFS = "spinnerPrefs";
     private CustomMapView mMapView;
@@ -66,7 +86,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Disposable disposable;
     private GoogleMap googleMap;
     private ImageView dropdownIcon;
+    private FloatingActionButton sightingFab, areaFab;
     private ArrayList<Marker> markers = new ArrayList<>();
+    private String currentSearchPartyId;
+    private SearchParty activeSearchParty;
+    private BitmapDescriptor markerSightingIcon;
+    private ArrayList<SearchParty> subscribedSearchParties;
+    private TextView redMarkerLegend, greenMarkerlegend, noSearchPartySubscriptions;
+    private CoordinatorLayout fabMapLayout;
 
     public MapFragment() {
     }
@@ -87,6 +114,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         spinner = view.findViewById(R.id.active_search_party_spinner);
         dropdownIcon = view.findViewById(R.id.dropdown_icon);
+        sightingFab = view.findViewById(R.id.add_sighting_fab);
+        areaFab = view.findViewById(R.id.add_area_fab);
+        redMarkerLegend = view.findViewById(R.id.red_marker_legend);
+        greenMarkerlegend = view.findViewById(R.id.green_marker_legend);
+        fabMapLayout = view.findViewById(R.id.fab_map_layout);
+        noSearchPartySubscriptions = view.findViewById(R.id.no_search_party_subscriptions);
+
+        Drawable iconDrawable = getContext().getDrawable(R.drawable.ic_location_green_24dp);
+        markerSightingIcon = getMarkerIconFromDrawable(iconDrawable);
 
         auth = FirebaseAuth.getInstance();
         currentUser = auth.getCurrentUser();
@@ -108,26 +144,98 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         });
-
+        sightingFab.setOnClickListener(this);
+        areaFab.setOnClickListener(this);
         return view;
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.add_sighting_fab:
+                startActivityForResult(getLocationAutoCompleteIntent(Objects.requireNonNull(getContext()).getApplicationContext()), AUTOCOMPLETE_REQUEST_CODE);
+                break;
+            case R.id.add_area_fab:
+                addArea();
+                break;
+        }
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
+
+                LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude); //Make them global
+                if (activeSearchParty != null) {
+                    Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
+                    if (currentSearchPartyId == null)
+                        disposable = searchPartyUidObservable.subscribe(
+                                id -> {
+                                    Sighting newSighting = new Sighting(new Timestamp(new Date()),
+                                            place.getLatLng().latitude, place.getLatLng().longitude, place.getName());
+
+                                    currentSearchPartyId = id;
+                                    FirebaseFirestore.getInstance().collection("searchParties")
+                                            .document(currentSearchPartyId)
+                                            .update("sightings", FieldValue.arrayUnion(newSighting));
+
+                                    //also update locally
+                                    subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSightings(newSighting);
+
+                                    ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
+                                    adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                                    spinner.setPrompt("Track a Search Party");
+
+                                    spinner.setAdapter(
+                                            new NothingSelectedSpinnerAdapter(
+                                                    adapter,
+                                                    R.layout.contact_spinner_row_nothing_selected,
+                                                    getContext()));
+                                    int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                                    if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                                        spinner.setSelection(position);
+
+                                },
+                                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                    else
+                        FirebaseFirestore.getInstance().collection("searchParties").document(currentSearchPartyId).update("sightings",
+                                FieldValue.arrayUnion((new Sighting(new Timestamp(new Date()), place.getLatLng().latitude, place.getLatLng().longitude, place.getName()))));
+
+                    Marker placeMarker = googleMap.addMarker(new MarkerOptions().position(placeLocation)
+                            .title(place.getName())
+                            .icon(markerSightingIcon)
+                            .snippet("Created on: " + printDate(new Timestamp(new Date()).toDate())));
+                    markers.add(placeMarker);
+                }
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                new CustomToast().showToast(getContext(), view, "Error with Google Maps. Couldn't retrieve location", ToastType.ERROR, false);
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i("ERROR AUTOCOMPLETE", status.getStatusMessage());
+            }
+        }
+    }
+
+
     private void updateMapWith(SearchParty searchParty) {
         if (searchParty != null) {
+            activeSearchParty = searchParty;
+
+            for (Marker marker : markers) {
+                marker.remove();
+            }
             Observable<Place> searchPartyLocation = getPlaceFromId(searchParty.getLocationId(), getContext());
-
-
             disposable = searchPartyLocation.subscribe(
                     place -> {
                         //Remove data from previously tracked search party
-                        for (Marker marker : markers) {
-                            marker.remove();
-                        }
+                        Drawable iconDrawable = getContext().getDrawable(R.drawable.ic_location_red_24dp);
+                        BitmapDescriptor markerIcon = getMarkerIconFromDrawable(iconDrawable);
 
-                        Drawable circleDrawable = getContext().getDrawable(R.drawable.ic_location_red_24dp);
-                        BitmapDescriptor markerIcon = getMarkerIconFromDrawable(circleDrawable);
+                        LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
 
-                        LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude); //Make them global
                         Marker placeMarker = googleMap.addMarker(new MarkerOptions().position(placeLocation)
                                 .title(place.getName())
                                 .icon(markerIcon)
@@ -135,7 +243,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         markers.add(placeMarker);
                     },
                     throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+
+            if (searchParty.getSightings() != null && !searchParty.getSightings().isEmpty())
+                for (Sighting sighting : searchParty.getSightings()) {
+                    if (sighting != null) {
+                        LatLng placeLocation = new LatLng(sighting.getLatitude(), sighting.getLongitude());
+
+                        Marker placeMarker = googleMap.addMarker(new MarkerOptions().position(placeLocation)
+                                .title(sighting.getPlaceName())
+                                .icon(markerSightingIcon)
+                                .snippet("Created on: " + printDate(sighting.getTimestampCreated().toDate())));
+                        markers.add(placeMarker);
+                    }
+                }
+
         }
+
+
+    }
+
+    private void addSighting() {
+
+    }
+
+    private void addArea() {
+
     }
 
     @Override
@@ -151,7 +283,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mMapView.onSaveInstanceState(mapViewBundle);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -160,34 +291,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         Observable<ArrayList<SearchParty>> searchPartiesObservable = getUserSubscriptions(currentUser.getUid());
         disposable = searchPartiesObservable.subscribe(
                 searchParties -> {
+                    subscribedSearchParties = searchParties;
 
-                    ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, searchParties);
-                    adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-                    spinner.setPrompt("Track a Search Party");
+                    //setup spinner
+                    if (subscribedSearchParties.size() != 0) {
+                        ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, searchParties);
+                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                        spinner.setPrompt("Track a Search Party");
 
-                    spinner.setAdapter(
-                            new NothingSelectedSpinnerAdapter(
-                                    adapter,
-                                    R.layout.contact_spinner_row_nothing_selected,
-                                    getContext()));
-                    dropdownIcon.setVisibility(View.VISIBLE);
+                        spinner.setAdapter(
+                                new NothingSelectedSpinnerAdapter(
+                                        adapter,
+                                        R.layout.contact_spinner_row_nothing_selected,
+                                        getContext()));
+                        dropdownIcon.setVisibility(View.VISIBLE);
 
-                    int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
-                    if (position > 0)
-                        spinner.setSelection(position);
+                        redMarkerLegend.setVisibility(View.VISIBLE);
+                        greenMarkerlegend.setVisibility(View.VISIBLE);
+                        fabMapLayout.setVisibility(View.VISIBLE);
 
-
+                        int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                        if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                            spinner.setSelection(position);
+                    }else{
+                        noSearchPartySubscriptions.setVisibility(View.VISIBLE);
+                    }
+                    googleMap.getUiSettings().setMapToolbarEnabled(false);
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     try {
                         googleMap.setMyLocationEnabled(true);
-                    } catch (SecurityException se) {
+                    } catch (SecurityException ignored) {
 
                     }
 
@@ -195,16 +334,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     googleMap.setBuildingsEnabled(true);
                     googleMap.getUiSettings().setZoomGesturesEnabled(true);
 
-
                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                             ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                        LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> { //todo only works if google maps has been used? find another solution?
+                        LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "User location found");
 
                                 LatLng userLocation = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude()); //Make them global
 
-                                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 10);
+                                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 15);
                                 googleMap.animateCamera(cameraUpdate);
 
                             } else {
@@ -216,8 +354,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     } else {
                         checkPermission(getActivity());
                     }
-
-
                     this.googleMap = googleMap;
                 },
                 throwable -> Log.i(TAG, "Throwable " + throwable));
@@ -256,12 +392,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     }
 
+    @Override
+    public void onCompleted(Exception exception) {
+        Log.w(TAG, "onCompleted ", exception);
+    }
 
     /**
      * Decorator Adapter to allow a Spinner to show a 'Nothing Selected...' initially
      * displayed instead of the first choice in the Adapter.
      */
-    public class NothingSelectedSpinnerAdapter implements SpinnerAdapter, ListAdapter {
+    public static class NothingSelectedSpinnerAdapter implements SpinnerAdapter, ListAdapter {
 
         protected static final int EXTRA = 1;
         protected SpinnerAdapter adapter;

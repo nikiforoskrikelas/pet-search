@@ -142,7 +142,7 @@ public class FirebaseUtils {
                 .addOnSuccessListener(task -> {
                     for (DocumentSnapshot doc : task.getDocuments()) {
                         if (Objects.requireNonNull(doc.toObject(SearchParty.class)).equals(searchParty)) {
-                            Log.d(TAG, "Search Party successfully deleted!");
+                            Log.d(TAG, "Search Party Uid retrieved successfully");
                             result.onNext(doc.getId());
                         } else {
                             result.onNext(null);
