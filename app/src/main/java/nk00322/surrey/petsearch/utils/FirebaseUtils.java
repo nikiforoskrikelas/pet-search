@@ -167,6 +167,26 @@ public class FirebaseUtils {
                 });
     }
 
+    public static Observable<ArrayList<SearchParty>> getUserSubscriptions(String id) {
+        Query query = FirebaseFirestore.getInstance().collection("searchParties")
+                .whereArrayContains("subscriberUids", id);
+
+        return Observable.create(result -> query.get()
+                .addOnSuccessListener(task -> {
+                    ArrayList<SearchParty> searchParties = new ArrayList<>();
+                    for (DocumentSnapshot doc : task.getDocuments())
+                        searchParties.add(doc.toObject(SearchParty.class));
+
+                    result.onNext(searchParties);
+
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error getting search parties.", e);
+                    result.onError(e);
+                }));
+    }
+
+
 }
 
 

@@ -310,7 +310,9 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        if (mMapView != null) {
+            mMapView.onResume();
+        }
     }
 
     @Override
@@ -324,10 +326,10 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Observable<Place> userLocationObservable = getPlaceFromId(searchParty.getLocationId(), getContext());
+        Observable<Place> searchPartyLocation = getPlaceFromId(searchParty.getLocationId(), getContext());
 
 
-        disposable = userLocationObservable.subscribe(
+        disposable = searchPartyLocation.subscribe(
                 place -> {
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     try {
@@ -357,19 +359,25 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
 
     @Override
     public void onPause() {
-        mMapView.onPause();
+        if (mMapView != null) {
+            mMapView.onPause();
+        }
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mMapView.onDestroy();
+        if (mMapView != null) {
+            mMapView.onDestroy();
+        }
         super.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        if (mMapView != null) {
+            mMapView.onLowMemory();
+        }
     }
 }

@@ -7,6 +7,8 @@ import com.google.firebase.firestore.ServerTimestamp;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
+
 @IgnoreExtraProperties
 public class SearchParty {
     private String title;
@@ -113,6 +115,12 @@ public class SearchParty {
 
     public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return title;
     }
 
 }
