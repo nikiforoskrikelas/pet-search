@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -54,6 +56,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -99,18 +102,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private Disposable disposable;
     private GoogleMap googleMap;
     private ImageView dropdownIcon;
-    private FloatingActionButton sightingFab, areaFab;
+    private FloatingActionButton sightingFab, areaFab, help_fab;
     private ArrayList<Marker> markers = new ArrayList<>();
     private ArrayList<Polygon> polygons = new ArrayList<>();
 
     private SearchParty activeSearchParty;
     private BitmapDescriptor markerSightingIcon;
     private ArrayList<SearchParty> subscribedSearchParties;
-    private TextView redMarkerLegend, greenMarkerlegend, noSearchPartySubscriptions;
+    private TextView redMarkerLegend, greenMarkerLegend, noSearchPartySubscriptions;
     private CoordinatorLayout fabMapLayout;
+    private ConstraintLayout helpInfoLayout;
+    private static Animation  slideOutBottom, slideInBottom;
+
+
     private ArrayList<LatLng> latLngList = new ArrayList<>();
     private List<Marker> markerList = new ArrayList<>();
     boolean addAreaActive = false;
+    private boolean isHelpActive = false;
 
     public MapFragment() {
     }
@@ -133,10 +141,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         dropdownIcon = view.findViewById(R.id.dropdown_icon);
         sightingFab = view.findViewById(R.id.add_sighting_fab);
         areaFab = view.findViewById(R.id.add_area_fab);
+        help_fab = view.findViewById(R.id.help_fab);
         redMarkerLegend = view.findViewById(R.id.red_marker_legend);
-        greenMarkerlegend = view.findViewById(R.id.green_marker_legend);
+        greenMarkerLegend = view.findViewById(R.id.green_marker_legend);
         fabMapLayout = view.findViewById(R.id.fab_map_layout);
         noSearchPartySubscriptions = view.findViewById(R.id.no_search_party_subscriptions);
+        helpInfoLayout = view.findViewById(R.id.help_info_layout);
 
         Drawable iconDrawable = getContext().getDrawable(R.drawable.ic_location_green_24dp);
         markerSightingIcon = getMarkerIconFromDrawable(iconDrawable);
@@ -147,6 +157,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
 
         areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+        help_fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+
+        slideOutBottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_out_bottom);
+        slideInBottom = AnimationUtils.loadAnimation(getActivity(), R.anim.slide_in_bottom);
 
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -166,6 +180,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         });
         sightingFab.setOnClickListener(this);
         areaFab.setOnClickListener(this);
+        help_fab.setOnClickListener(this);
         return view;
     }
 
@@ -179,8 +194,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                 areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.background_color)));
                 addArea();
                 break;
+            case R.id.help_fab:
+                toggleHelpInfo();
+                break;
         }
 
+    }
+
+    private void toggleHelpInfo() {
+        //Check flag that represents the state of the help fab toggle state
+        if (isHelpActive) { // hide help
+
+            help_fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+            DrawableCompat.setTintList(DrawableCompat.wrap(help_fab.getDrawable()), ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.grey_neutral)));
+            helpInfoLayout.setVisibility(View.GONE);
+            helpInfoLayout.startAnimation(slideOutBottom);
+            isHelpActive = false;
+        } else { // User wants to view help info
+            help_fab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.background_color)));
+            DrawableCompat.setTintList(DrawableCompat.wrap(help_fab.getDrawable()), ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white))); // <- background
+            helpInfoLayout.setVisibility(View.VISIBLE);
+            helpInfoLayout.startAnimation(slideInBottom);
+            isHelpActive = true;
+
+
+        }
     }
 
     /**
@@ -324,7 +362,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
             for (Marker marker : markerList) {
                 marker.remove();
             }
-            markerList.clear();
+            markerList.clear();     //TODO DEDSCRIPTION
 
             if (!latLngList.isEmpty() && latLngList.size() > 2) { // Polygon is required to have more than 2 vertices
                 //Save searched area
@@ -440,8 +478,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                         getContext()));
                         dropdownIcon.setVisibility(View.VISIBLE);
 
-                        redMarkerLegend.setVisibility(View.VISIBLE);
-                        greenMarkerlegend.setVisibility(View.VISIBLE);
                         fabMapLayout.setVisibility(View.VISIBLE);
 
                         int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);

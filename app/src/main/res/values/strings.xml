@@ -57,6 +57,11 @@
     <string name="dropdown">dropdown</string>
     <string name="no_search_party_subscriptions">No search party subscriptions!</string>
     <string name="subscriber_count">[]</string>
+    <string name="first_disappearance">First disappearance</string>
+    <string name="sighting">Sighting</string>
+    <string name="my_searched_area">My Searched Area</string>
+    <string name="area_searched_by_others">Area searched by others</string>
+    <string name="info_legend">Use the buttons on the left to add a Pet sighting or an area you have searched</string>
 
 
 </resources>

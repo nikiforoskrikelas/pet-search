@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_color">
@@ -32,7 +31,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
-            android:text="Title"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +42,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="64dp"
-            android:text="$"
+            android:drawableStart="@drawable/ic_money_white_24dp"
             android:textSize="30sp"
             app:layout_constraintStart_toEndOf="@+id/search_party_title"
             app:layout_constraintTop_toTopOf="parent" />
@@ -149,19 +147,6 @@
             app:layout_constraintTop_toBottomOf="@+id/search_party_subscribed"
             app:layout_constraintBottom_toTopOf="@+id/search_party_distance"/>
 
-        <TextView
-            android:id="@+id/search_party_distance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawablePadding="10dp"
-            android:drawableStart="@drawable/ic_distance_grey_24dp"
-            android:drawableTint="@color/white"
-            android:textSize="20sp"
-            android:layout_marginStart="44dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_party_completed" />
-
-
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/search_party_subscribed"
             android:layout_width="wrap_content"
@@ -185,6 +170,34 @@
             app:layout_constraintStart_toEndOf="@+id/search_party_subscribed"
             app:layout_constraintTop_toBottomOf="@+id/search_party_owner" />
 
+        <TextView
+            android:id="@+id/search_party_distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="10dp"
+            android:drawableStart="@drawable/ic_distance_grey_24dp"
+            android:drawableTint="@color/white"
+            android:textSize="20sp"
+            android:layout_marginStart="44dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_completed" />
+
+        <TextView
+            android:id="@+id/search_party_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:layout_marginTop="12dp"
+            android:textSize="18sp"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_distance" />
+
         <nk00322.surrey.petsearch.CustomMapView
             android:id="@+id/search_party_map"
             android:layout_width="0dp"
@@ -199,7 +212,7 @@
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search_party_distance" />
+            app:layout_constraintTop_toBottomOf="@+id/search_party_description" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

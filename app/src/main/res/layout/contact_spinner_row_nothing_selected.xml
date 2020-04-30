@@ -7,7 +7,7 @@
     android:layout_height="48dp"
     android:ellipsize="marquee"
     android:background="@color/white"
-    android:textColor="#808080"
+    android:textColor="@color/grey_neutral"
     android:gravity="start|center"
 
     android:text="@string/track_a_search_party" />

@@ -2,7 +2,7 @@
 <androidx.appcompat.widget.AppCompatCheckedTextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/text1"
     style="?android:attr/spinnerDropDownItemStyle"
-    android:textColor="#808080"
+    android:textColor="@color/grey_neutral"
     android:singleLine="true"
     android:layout_width="match_parent"
     android:layout_height="48dp"

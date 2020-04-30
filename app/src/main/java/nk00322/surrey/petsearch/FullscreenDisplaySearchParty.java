@@ -63,7 +63,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private SearchParty searchParty;
     private String currentUserUid;
 
-    private TextView title, reward, date, owner, distance, deleteAction, completed, subscriberCount;
+    private TextView title, reward, date, owner, distance, deleteAction, completed, subscriberCount, searchPartyDescription;
     private ImageView image;
     private CheckBox subscribeCheckbox, completedCheckbox;
     private static final String TAG = "FullscreenDisplaySearchParty";
@@ -105,15 +105,17 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         deleteAction = view.findViewById(R.id.search_party_delete_action);
         completedCheckbox = view.findViewById(R.id.search_party_completed_checkbox);
         subscriberCount = view.findViewById(R.id.search_party_subscriber_count);
+        searchPartyDescription = view.findViewById(R.id.search_party_description);
 
         title.setText(searchParty.getTitle());
         reward.setText(searchParty.getReward());
+        searchPartyDescription.setText(searchParty.getDescription());
 
         Observable<User> userObservable = getUserFromId(searchParty.getOwnerUid());
         disposable = userObservable.subscribe(
                 user -> owner.setText(user.getFullName()),
                 throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
-
+//TODO DESCRIPTION
         Observable<String> searchPartyUidObservable = getUidFromSearchParty(searchParty);
         disposable = searchPartyUidObservable.subscribe(
                 id -> {
