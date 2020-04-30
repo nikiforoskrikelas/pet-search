@@ -41,5 +41,7 @@
     <color name="blue_100">#b2ccdf</color>
     <color name="blue_700">#004d96</color>
     <color name="checkbox_grey">#757575</color>
+    <color name="map_green">#21B676</color>
+    <color name="grey_neutral">#808080</color>
 
 </resources>

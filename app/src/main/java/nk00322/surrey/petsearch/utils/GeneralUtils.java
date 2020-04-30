@@ -4,33 +4,34 @@ import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.MimeTypeMap;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.petsearch.R;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.GeoPoint;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import androidx.core.app.ActivityCompat;
@@ -174,6 +175,7 @@ public class GeneralUtils {
 
         };
     }
+
     public static Comparator<DocumentSnapshot> getCreationDateComparator() {
         return (o1, o2) -> {
 
@@ -184,5 +186,72 @@ public class GeneralUtils {
 
         };
     }
+
+    public static BitmapDescriptor getMarkerIconFromDrawable(Drawable drawable) {
+        Canvas canvas = new Canvas();
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        canvas.setBitmap(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+    public static LatLng findCentroid(List<LatLng> points) {
+        double x = 0;
+        double y = 0;
+
+        for (LatLng p : points) {
+            x += p.longitude;
+            y += p.latitude;
+        }
+
+        return new LatLng(y / points.size(), x / points.size());
+    }
+
+    public static List<LatLng> sortVertices(List<LatLng> points) {
+
+
+        LatLng center = findCentroid(points);
+        Collections.sort(points, (a, b) -> {
+            double a1 = (Math.toDegrees(Math.atan2(a.longitude - center.longitude, a.latitude - center.latitude)) + 360) % 360;
+            double a2 = (Math.toDegrees(Math.atan2(b.longitude - center.longitude, b.latitude - center.latitude)) + 360) % 360;
+
+            return (int) (a1 - a2);
+        });
+        return points;
+    }
+
+    public static class Point {
+        private double lat;
+        private double lng;
+
+        public Point() {
+
+        }
+
+        public Point(double lat, double lng) {
+            this.lat = lat;
+            this.lng = lng;
+        }
+
+        public Point(LatLng latLng) {
+            this.lat = latLng.latitude;
+            this.lng = latLng.longitude;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public double getLng() {
+            return lng;
+        }
+
+        public LatLng getLatLng(){
+            return new LatLng(lat, lng);
+        }
+
+    }
+
 
 }

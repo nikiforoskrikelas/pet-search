@@ -9,9 +9,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkRequest;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.petsearch.R;
@@ -25,12 +29,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int ERROR_DIALOG_REQUEST = 9003;
 
     private boolean mLocationPermissionGranted = false;
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,53 @@ public class MainActivity extends AppCompatActivity {
             FirebaseAuth.getInstance().signOut();
             navController.navigate(R.id.welcomeFragment);
         }
+
+
+        registerNetworkCallback();
+
+
+    }
+
+
+    public void registerNetworkCallback() {
+        try {
+            connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    GlobalVariables.isNetworkConnected = true;
+                }
+
+                @Override
+                public void onLost(Network network) {
+                    noInternetAction();
+                    GlobalVariables.isNetworkConnected = false;
+                }
+            };
+            connectivityManager.registerDefaultNetworkCallback(networkCallback);
+
+        } catch (Exception e) {
+            noInternetAction();
+            GlobalVariables.isNetworkConnected = false;
+        }
+    }
+
+    private void noInternetAction() {
+        if (isLoggedIn()) {
+            FirebaseAuth.getInstance().signOut();
+        }
+        Context context = this;
+        runOnUiThread(() -> {
+
+            navController.navigate(R.id.welcomeFragment);
+            ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+
+            new CustomToast().showToast(context, rootView, "Internet is required. Please reconnect and try again", ToastType.ERROR, false);
+
+        });
+
+
     }
 
     private void setupNavigation() {
@@ -67,14 +119,19 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         //When the fragment destination is changed decide to hide or show navigation bar
-        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
-            @Override
-            public void onDestinationChanged(@NonNull NavController controller, @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                if (destination.getId() == R.id.welcomeFragment || destination.getId() == R.id.signupFragment
-                        || destination.getId() == R.id.signinFragment || destination.getId() == R.id.forgotPasswordFragment) {
-                    bottomNavigationView.setVisibility(View.GONE);
-                } else {
-                    bottomNavigationView.setVisibility(View.VISIBLE);
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            if (destination.getId() == R.id.welcomeFragment || destination.getId() == R.id.signupFragment
+                    || destination.getId() == R.id.signinFragment || destination.getId() == R.id.forgotPasswordFragment) {
+                bottomNavigationView.setVisibility(View.GONE);
+            } else {
+                bottomNavigationView.setVisibility(View.VISIBLE);
+            }
+
+            if (GlobalVariables.isNetworkConnected != null && !GlobalVariables.isNetworkConnected) { // kick them out if no internet
+                ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+                new CustomToast().showToast(this, rootView, "Internet is required. Please reconnect", ToastType.ERROR, false);
+                if (isLoggedIn()) {
+                    FirebaseAuth.getInstance().signOut();
                 }
             }
         });
@@ -188,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        registerNetworkCallback();
+
         if (checkMapServices()) {
             if (mLocationPermissionGranted) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
@@ -216,5 +275,12 @@ public class MainActivity extends AppCompatActivity {
                 getLocationPermission();
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        connectivityManager.unregisterNetworkCallback(networkCallback);
+
     }
 }

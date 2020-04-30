@@ -215,8 +215,7 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
                         message = e.getLocalizedMessage();
                     }
                 } else {
-                    new CustomToast().showToast(getContext(), view, e.getMessage(), ToastType.ERROR, false);
-                    navController.navigate(R.id.action_signinFragment_to_welcomeFragment);
+                    message = e.getLocalizedMessage();
                 }
                 new CustomToast().showToast(getContext(), view, message, ToastType.ERROR, false);
             }

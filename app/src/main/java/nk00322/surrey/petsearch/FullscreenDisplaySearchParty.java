@@ -1,6 +1,7 @@
 package nk00322.surrey.petsearch;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -62,7 +63,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private SearchParty searchParty;
     private String currentUserUid;
 
-    private TextView title, reward, date, owner, distance, deleteAction, completed;
+    private TextView title, reward, date, owner, distance, deleteAction, completed, subscriberCount, searchPartyDescription;
     private ImageView image;
     private CheckBox subscribeCheckbox, completedCheckbox;
     private static final String TAG = "FullscreenDisplaySearchParty";
@@ -85,6 +86,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         setStyle(DialogFragment.STYLE_NORMAL, R.style.FullscreenDialogTheme);
     }
 
+    @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,16 +104,18 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         completed = view.findViewById(R.id.search_party_completed);
         deleteAction = view.findViewById(R.id.search_party_delete_action);
         completedCheckbox = view.findViewById(R.id.search_party_completed_checkbox);
-
+        subscriberCount = view.findViewById(R.id.search_party_subscriber_count);
+        searchPartyDescription = view.findViewById(R.id.search_party_description);
 
         title.setText(searchParty.getTitle());
         reward.setText(searchParty.getReward());
+        searchPartyDescription.setText(searchParty.getDescription());
 
         Observable<User> userObservable = getUserFromId(searchParty.getOwnerUid());
         disposable = userObservable.subscribe(
                 user -> owner.setText(user.getFullName()),
                 throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
-
+//TODO DESCRIPTION
         Observable<String> searchPartyUidObservable = getUidFromSearchParty(searchParty);
         disposable = searchPartyUidObservable.subscribe(
                 id -> {
@@ -125,7 +129,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> { //todo only works if google maps has been used? find another solution?
+            LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "User location found");
                     double distanceKm = getDistanceInKilometers(searchParty.getLatitude(), searchParty.getLongitude(),
@@ -148,7 +152,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         else
             subscribeCheckbox.setChecked(false);
 
-
+        subscriberCount.setText("[" + searchParty.getSubscriberUids().size()+ "]");
         try {
             StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(searchParty.getImageUrl());
             Glide.with(getContext())
@@ -214,6 +218,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         return view;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onClick(View view) {
         CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
@@ -226,9 +231,11 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                 if (subscribeCheckbox.isChecked()) {
                     searchPartiesRef.document(currentSearchPartyId).update("subscriberUids", FieldValue.arrayUnion(currentUserUid));
                     searchParty.getSubscriberUids().add(currentUserUid); // mirror db changes to local search party in case the user tries to subscribe again
+                    subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
                 } else {
                     searchPartiesRef.document(currentSearchPartyId).update("subscriberUids", FieldValue.arrayRemove(currentUserUid));
                     searchParty.getSubscriberUids().remove(currentUserUid);
+                    subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
                 }
                 break;
             case R.id.search_party_delete_action:
@@ -251,6 +258,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private void deleteConfirmDialog() {
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.password_input_dialog, (ViewGroup) getView(), false);
         final EditText input = viewInflated.findViewById(R.id.password_input);
+
 
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Delete Search Party")
@@ -310,7 +318,9 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
+        if (mMapView != null) {
+            mMapView.onResume();
+        }
     }
 
     @Override
@@ -324,10 +334,10 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Observable<Place> userLocationObservable = getPlaceFromId(searchParty.getLocationId(), getContext());
+        Observable<Place> searchPartyLocation = getPlaceFromId(searchParty.getLocationId(), getContext());
 
 
-        disposable = userLocationObservable.subscribe(
+        disposable = searchPartyLocation.subscribe(
                 place -> {
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     try {
@@ -357,19 +367,25 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
 
     @Override
     public void onPause() {
-        mMapView.onPause();
+        if (mMapView != null) {
+            mMapView.onPause();
+        }
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        mMapView.onDestroy();
+        if (mMapView != null) {
+            mMapView.onDestroy();
+        }
         super.onDestroy();
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        mMapView.onLowMemory();
+        if (mMapView != null) {
+            mMapView.onLowMemory();
+        }
     }
 }

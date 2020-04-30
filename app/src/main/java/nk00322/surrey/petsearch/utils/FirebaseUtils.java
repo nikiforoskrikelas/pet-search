@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -142,7 +143,7 @@ public class FirebaseUtils {
                 .addOnSuccessListener(task -> {
                     for (DocumentSnapshot doc : task.getDocuments()) {
                         if (Objects.requireNonNull(doc.toObject(SearchParty.class)).equals(searchParty)) {
-                            Log.d(TAG, "Search Party successfully deleted!");
+                            Log.d(TAG, "Search Party Uid retrieved successfully");
                             result.onNext(doc.getId());
                         } else {
                             result.onNext(null);
@@ -166,6 +167,38 @@ public class FirebaseUtils {
                     Log.w(TAG, "Error getting search parties.", e);
                 });
     }
+
+    public static void deleteAllUserSearchPartySubscriptions(String userUid) {
+        FirebaseFirestore.getInstance().collection("searchParties").whereArrayContains("subscriberUids", userUid).get()
+                .addOnSuccessListener(task -> {
+                    for (DocumentSnapshot doc : task.getDocuments()) {
+                        doc.getReference().update("subscriberUids", FieldValue.arrayRemove(userUid));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error getting search parties.", e);
+                });
+    }
+
+    public static Observable<ArrayList<SearchParty>> getUserSubscriptions(String id) {
+        Query query = FirebaseFirestore.getInstance().collection("searchParties")
+                .whereArrayContains("subscriberUids", id);
+
+        return Observable.create(result -> query.get()
+                .addOnSuccessListener(task -> {
+                    ArrayList<SearchParty> searchParties = new ArrayList<>();
+                    for (DocumentSnapshot doc : task.getDocuments())
+                        searchParties.add(doc.toObject(SearchParty.class));
+
+                    result.onNext(searchParties);
+
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error getting search parties.", e);
+                    result.onError(e);
+                }));
+    }
+
 
 }
 

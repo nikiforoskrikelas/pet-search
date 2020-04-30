@@ -41,7 +41,6 @@ public class LocationUtils {
     public static Observable<Place> getPlaceFromId(String placeUid, Context context) {
         FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeUid, PLACE_FIELDS);
 
-
         return Observable.create(result -> Places.createClient(context).fetchPlace(request)
                 .addOnCompleteListener(response -> {
                     if (response.isSuccessful()) {
