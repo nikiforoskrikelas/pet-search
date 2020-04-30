@@ -173,6 +173,17 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_party_owner" />
 
+        <TextView
+            android:id="@+id/search_party_subscriber_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="5dp"
+            android:drawableTint="@color/white"
+            android:text="@string/subscriber_count"
+            android:textSize="20sp"
+            app:layout_constraintStart_toEndOf="@+id/search_party_subscribed"
+            app:layout_constraintTop_toBottomOf="@+id/search_party_owner" />
 
         <nk00322.surrey.petsearch.CustomMapView
             android:id="@+id/search_party_map"

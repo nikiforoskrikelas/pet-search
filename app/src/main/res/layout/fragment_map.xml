@@ -99,6 +99,7 @@
             app:layout_anchorGravity="top"
             android:backgroundTint="@color/white"
             app:tint="@null"
+            app:borderWidth="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_location_green_24dp" />
@@ -110,7 +111,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            android:backgroundTint="@color/background_color"
+            app:tint="@color/map_green"
+            app:borderWidth="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_add_area" />

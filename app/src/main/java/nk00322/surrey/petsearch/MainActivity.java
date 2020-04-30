@@ -50,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int ERROR_DIALOG_REQUEST = 9003;
 
     private boolean mLocationPermissionGranted = false;
+    private ConnectivityManager connectivityManager;
+    private ConnectivityManager.NetworkCallback networkCallback;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,31 +74,29 @@ public class MainActivity extends AppCompatActivity {
 
     public void registerNetworkCallback() {
         try {
-            ConnectivityManager connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            connectivityManager = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
 
-            connectivityManager.registerDefaultNetworkCallback(
-                    new ConnectivityManager.NetworkCallback() {
-                        @Override
-                        public void onAvailable(Network network) {
-                            GlobalVariables.isNetworkConnected = true;
-                        }
+            networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    GlobalVariables.isNetworkConnected = true;
+                }
 
-                        @Override
-                        public void onLost(Network network) {
-                            noInternetAction();
-                            GlobalVariables.isNetworkConnected = false;
-                        }
-                    }
+                @Override
+                public void onLost(Network network) {
+                    noInternetAction();
+                    GlobalVariables.isNetworkConnected = false;
+                }
+            };
+            connectivityManager.registerDefaultNetworkCallback(networkCallback);
 
-            );
         } catch (Exception e) {
             noInternetAction();
             GlobalVariables.isNetworkConnected = false;
         }
     }
 
-    private void noInternetAction(){
+    private void noInternetAction() {
         if (isLoggedIn()) {
             FirebaseAuth.getInstance().signOut();
         }
@@ -244,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+        registerNetworkCallback();
+
         if (checkMapServices()) {
             if (mLocationPermissionGranted) {
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
@@ -272,5 +275,12 @@ public class MainActivity extends AppCompatActivity {
                 getLocationPermission();
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        connectivityManager.unregisterNetworkCallback(networkCallback);
+
     }
 }

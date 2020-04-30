@@ -40,6 +40,7 @@ import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -73,6 +74,7 @@ import nk00322.surrey.petsearch.models.User;
 import static android.app.Activity.RESULT_OK;
 import static android.text.TextUtils.isEmpty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteAllUserSearchParties;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteAllUserSearchPartySubscriptions;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteUserWithId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
@@ -803,8 +805,12 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                                         Observable<Boolean> userDeleteObservable = deleteUserWithId(currentUserUid);
                                         disposable = userDeleteObservable.subscribe(dataDeleteResult -> {
                                             if (dataDeleteResult != null && dataDeleteResult) {
+                                                //Delete created search parties
                                                 deleteAllUserSearchParties(currentUserUid);
-                                                //Remove associated data
+
+                                                //Remove subscriptions
+                                                deleteAllUserSearchPartySubscriptions(currentUserUid);
+
                                                 user.delete()
                                                         .addOnCompleteListener(authDeleteTask -> {
                                                             if (authDeleteTask.isSuccessful()) {

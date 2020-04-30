@@ -56,6 +56,7 @@
     <string name="track_a_search_party">[Track a Search Party…]</string>
     <string name="dropdown">dropdown</string>
     <string name="no_search_party_subscriptions">No search party subscriptions!</string>
+    <string name="subscriber_count">[]</string>
 
 
 </resources>

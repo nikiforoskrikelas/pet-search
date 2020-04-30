@@ -1,11 +1,14 @@
 package nk00322.surrey.petsearch.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,23 +34,29 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -55,16 +64,20 @@ import nk00322.surrey.petsearch.CustomMapView;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
+import nk00322.surrey.petsearch.models.SearchedArea;
 import nk00322.surrey.petsearch.models.Sighting;
+import nk00322.surrey.petsearch.models.User;
 import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUidFromSearchParty;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserSubscriptions;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.checkPermission;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getMarkerIconFromDrawable;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.printDate;
+import static nk00322.surrey.petsearch.utils.GeneralUtils.sortVertices;
 import static nk00322.surrey.petsearch.utils.LocationUtils.API_KEY;
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
@@ -88,17 +101,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private ImageView dropdownIcon;
     private FloatingActionButton sightingFab, areaFab;
     private ArrayList<Marker> markers = new ArrayList<>();
-    private String currentSearchPartyId;
+    private ArrayList<Polygon> polygons = new ArrayList<>();
+
     private SearchParty activeSearchParty;
     private BitmapDescriptor markerSightingIcon;
     private ArrayList<SearchParty> subscribedSearchParties;
     private TextView redMarkerLegend, greenMarkerlegend, noSearchPartySubscriptions;
     private CoordinatorLayout fabMapLayout;
+    private ArrayList<LatLng> latLngList = new ArrayList<>();
+    private List<Marker> markerList = new ArrayList<>();
+    boolean addAreaActive = false;
 
     public MapFragment() {
     }
 
-
+    //todo listen for updates to search party and update UI
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -129,6 +146,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         Places.initialize(getContext(), API_KEY);
 
 
+        areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+
+
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -156,55 +176,57 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                 startActivityForResult(getLocationAutoCompleteIntent(Objects.requireNonNull(getContext()).getApplicationContext()), AUTOCOMPLETE_REQUEST_CODE);
                 break;
             case R.id.add_area_fab:
+                areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.background_color)));
                 addArea();
                 break;
         }
 
     }
 
+    /**
+     * Receive result from place request. Gets called when a new sighting is created to place a marker.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+                //Result from location search for adding a pet sighting. First get location from place then update model with new Sighting
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
 
-                LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude); //Make them global
+                LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude); // get place coordinates
                 if (activeSearchParty != null) {
                     Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
-                    if (currentSearchPartyId == null)
-                        disposable = searchPartyUidObservable.subscribe(
-                                id -> {
-                                    Sighting newSighting = new Sighting(new Timestamp(new Date()),
-                                            place.getLatLng().latitude, place.getLatLng().longitude, place.getName());
+                    disposable = searchPartyUidObservable.subscribe( // get db reference for current search party
+                            id -> {
+                                Sighting newSighting = new Sighting(new Timestamp(new Date()),
+                                        place.getLatLng().latitude, place.getLatLng().longitude, place.getName());
 
-                                    currentSearchPartyId = id;
-                                    FirebaseFirestore.getInstance().collection("searchParties")
-                                            .document(currentSearchPartyId)
-                                            .update("sightings", FieldValue.arrayUnion(newSighting));
+                                FirebaseFirestore.getInstance().collection("searchParties")
+                                        .document(id)
+                                        .update("sightings", FieldValue.arrayUnion(newSighting)); // update sightings array with new sighting
 
-                                    //also update locally
-                                    subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSightings(newSighting);
+                                //also update sightings locally
+                                subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSightings(newSighting);
 
-                                    ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
-                                    adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-                                    spinner.setPrompt("Track a Search Party");
+                                //update the ui with new search party
+                                ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
+                                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                                spinner.setPrompt("Track a Search Party");
 
-                                    spinner.setAdapter(
-                                            new NothingSelectedSpinnerAdapter(
-                                                    adapter,
-                                                    R.layout.contact_spinner_row_nothing_selected,
-                                                    getContext()));
-                                    int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
-                                    if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
-                                        spinner.setSelection(position);
+                                spinner.setAdapter(
+                                        new NothingSelectedSpinnerAdapter(
+                                                adapter,
+                                                R.layout.contact_spinner_row_nothing_selected,
+                                                getContext()));
+                                int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                                if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                                    spinner.setSelection(position);
 
-                                },
-                                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
-                    else
-                        FirebaseFirestore.getInstance().collection("searchParties").document(currentSearchPartyId).update("sightings",
-                                FieldValue.arrayUnion((new Sighting(new Timestamp(new Date()), place.getLatLng().latitude, place.getLatLng().longitude, place.getName()))));
+                            },
+                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
 
+                    // place marker on sighting coordinates
                     Marker placeMarker = googleMap.addMarker(new MarkerOptions().position(placeLocation)
                             .title(place.getName())
                             .icon(markerSightingIcon)
@@ -219,18 +241,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         }
     }
 
-
+    /**
+     * Uses a search party to update the map with relevant information and deletes information overlaid on the map by previously active search party.
+     * There are three different kinds of information added to the map
+     * 1. First disappearance red marker
+     * 2. Array of green sighting markers
+     * 3. Array of Searched Area polygons, coloured according to ownership
+     *
+     * @param searchParty to update Map UI with
+     */
     private void updateMapWith(SearchParty searchParty) {
         if (searchParty != null) {
             activeSearchParty = searchParty;
 
-            for (Marker marker : markers) {
+            //Remove data from previously tracked search party
+            for (Marker marker : markers)
                 marker.remove();
-            }
+            markers.clear();
+
+            for (Polygon polygon : polygons)
+                polygon.remove();
+            polygons.clear();
+
+            //Get search party from ID
             Observable<Place> searchPartyLocation = getPlaceFromId(searchParty.getLocationId(), getContext());
             disposable = searchPartyLocation.subscribe(
                     place -> {
-                        //Remove data from previously tracked search party
+                        //Set first disappearance location marker
                         Drawable iconDrawable = getContext().getDrawable(R.drawable.ic_location_red_24dp);
                         BitmapDescriptor markerIcon = getMarkerIconFromDrawable(iconDrawable);
 
@@ -244,6 +281,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                     },
                     throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
 
+            //Add stored markers for pet sightings
             if (searchParty.getSightings() != null && !searchParty.getSightings().isEmpty())
                 for (Sighting sighting : searchParty.getSightings()) {
                     if (sighting != null) {
@@ -257,45 +295,135 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                     }
                 }
 
+            //Add stored polygons aka searched areas
+            if (searchParty.getSearchedAreas() != null && !searchParty.getSearchedAreas().isEmpty())
+                for (SearchedArea searchedArea : searchParty.getSearchedAreas()) {
+                    if (searchedArea != null && searchedArea.getPolygonVerticesInLatLng() != null && !searchedArea.getPolygonVerticesInLatLng().isEmpty()) {
+                        createPolygon(searchedArea);
+                    }
+                }
         }
-
-
     }
 
-    private void addSighting() {
 
-    }
-
+    /**
+     * Handles onClick for addArea FAB. Works like a toggle button. When first pressed it activates the searched area input mode and when
+     * pressed again it compiles the user inputted vertices, draws the corresponding shape on the map and stores it in the SearchParty model.
+     */
     private void addArea() {
+        //Check flag that represents the state of the fab toggle state
+        if (addAreaActive) {  // User has finished inputting a searched area
+            googleMap.setOnMapClickListener(null); //Deactivate listener that adds polygon vertices
+            areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white)));
+            DrawableCompat.setTintList(DrawableCompat.wrap(areaFab.getDrawable()), ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.map_green)));
+            googleMap.setOnPolygonClickListener(polygon -> showInfoDialog((SearchedAreaTag) polygon.getTag())); // re-enable info dialog
+            for (Polygon polygon : polygons) {
+                polygon.setClickable(true);
+            }
+            //Remove grey vertex markers
+            for (Marker marker : markerList) {
+                marker.remove();
+            }
+            markerList.clear();
 
-    }
+            if (!latLngList.isEmpty() && latLngList.size() > 2) { // Polygon is required to have more than 2 vertices
+                //Save searched area
+                if (activeSearchParty != null) {
+                    Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
+                    disposable = searchPartyUidObservable.subscribe( // Retrieve active search party and save searched area
+                            id -> {
+                                SearchedArea searchedArea = new SearchedArea(latLngList, new Timestamp(new Date()), currentUser.getUid());
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+                                FirebaseFirestore.getInstance().collection("searchParties")
+                                        .document(id)
+                                        .update("searchedAreas", FieldValue.arrayUnion(searchedArea));
 
-        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
-        if (mapViewBundle == null) {
-            mapViewBundle = new Bundle();
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+                                //also update locally
+                                subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSearchedAreas(searchedArea);
+
+                                ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
+                                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                                spinner.setPrompt("Track a Search Party");
+
+                                spinner.setAdapter(
+                                        new NothingSelectedSpinnerAdapter(
+                                                adapter,
+                                                R.layout.contact_spinner_row_nothing_selected,
+                                                getContext()));
+                                int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                                if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                                    spinner.setSelection(position);
+                                latLngList.clear();
+                            },
+                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                }
+
+
+            } else {
+                if (latLngList.size() > 0) {
+                    new CustomToast().showToast(getContext(), view, "Please select at least 3 points", ToastType.INFO, false);
+                }
+                latLngList.clear();
+            }
+
+            addAreaActive = false;
+        } else { // User wants to input a new searched area
+            areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.background_color)));
+            DrawableCompat.setTintList(DrawableCompat.wrap(areaFab.getDrawable()), ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.white))); // <- background
+
+            googleMap.setOnPolygonClickListener(null); // disable info dialog
+            for (Polygon polygon : polygons) {
+                polygon.setClickable(false);
+            }
+            addAreaActive = true;
+
+            googleMap.setOnMapClickListener(latLng -> { // Listener allows user to add polygon vertices when he clicks the map
+                //Create Marker Options
+                MarkerOptions markerOptions = new MarkerOptions().position(latLng).icon(getMarkerIconFromDrawable(getContext().getDrawable(R.drawable.grey_rectangle)));
+                Marker marker = googleMap.addMarker(markerOptions);
+                //Add to list
+                latLngList.add(latLng);
+                markerList.add(marker);
+            });
+
         }
-
-        mMapView.onSaveInstanceState(mapViewBundle);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mMapView != null) {
-            mMapView.onResume();
-        }
+    /**
+     * Creates a polygon from a set of parameters and adds it to the map.
+     * The search party it belongs to is added to the tag for future reference
+     * The tag is also used to uniquely identify polygons
+     *
+     * @param searchedArea associated with polygon
+     */
+    private void createPolygon(SearchedArea searchedArea) {
+        ArrayList<LatLng> latLngList = (ArrayList<LatLng>) searchedArea.getPolygonVerticesInLatLng();
+
+        PolygonOptions polygonOptions = new PolygonOptions().addAll(sortVertices(latLngList))
+                .clickable(true);
+        Polygon polygon = googleMap.addPolygon(polygonOptions);
+        polygon.setStrokeColor(Color.argb(80, 128, 128, 128));
+        polygon.setFillColor(
+                searchedArea.getOwnerUid().equals(currentUser.getUid()) ? // Set color based on if the user owns this searched area
+                        Color.argb(80, 33, 182, 118) :
+                        Color.argb(80, 128, 128, 128)
+
+        );
+        polygon.setTag(new SearchedAreaTag(activeSearchParty, searchedArea));
+
+        polygons.add(polygon);
     }
 
+    /**
+     * Setup map properties and populate active search party spinner.
+     *
+     * @param googleMap returns the Map object that represents the MapView
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
 
         Observable<ArrayList<SearchParty>> searchPartiesObservable = getUserSubscriptions(currentUser.getUid());
-        disposable = searchPartiesObservable.subscribe(
+        disposable = searchPartiesObservable.subscribe( // get user subscriptions to populate spinner
                 searchParties -> {
                     subscribedSearchParties = searchParties;
 
@@ -319,7 +447,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                         int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
                         if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
                             spinner.setSelection(position);
-                    }else{
+                    } else {
                         noSearchPartySubscriptions.setVisibility(View.VISIBLE);
                     }
                     googleMap.getUiSettings().setMapToolbarEnabled(false);
@@ -334,6 +462,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                     googleMap.setBuildingsEnabled(true);
                     googleMap.getUiSettings().setZoomGesturesEnabled(true);
 
+                    // Get user location so the map can be zoomed into the user
                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                             ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
@@ -357,6 +486,112 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                     this.googleMap = googleMap;
                 },
                 throwable -> Log.i(TAG, "Throwable " + throwable));
+
+        // Polygons can be clicked to show a dialog with information
+        googleMap.setOnPolygonClickListener(polygon -> {
+            //LatLng polygonCentroid = findCentroid(polygon.getPoints());
+            //Alternatively, display a text bubble from the centroid of the polygon
+            //https://stackoverflow.com/questions/42170114/google-maps-text-overlay-android
+
+            showInfoDialog((SearchedAreaTag) polygon.getTag());
+        });
+    }
+
+    /**
+     * Displays an information dialog for searched areas and allows owners to delete their searched areas.
+     *
+     * @param searchedAreaTag
+     */
+    @SuppressLint("SetTextI18n")
+    private void showInfoDialog(SearchedAreaTag searchedAreaTag) {
+        View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.searched_area_info_dialog, (ViewGroup) getView(), false);
+        final TextView date = viewInflated.findViewById(R.id.searched_area_date);
+        final TextView owner = viewInflated.findViewById(R.id.searched_area_owner);
+
+        Observable<User> userObservable = getUserFromId(searchedAreaTag.searchParty.getOwnerUid());
+        disposable = userObservable.subscribe(
+                user -> {
+
+                    //If Created by user, allow them to delete
+                    if (searchedAreaTag.searchedArea.getOwnerUid().equals(currentUser.getUid())) {
+                        owner.setVisibility(View.GONE);
+                        date.setText("Created on: " + searchedAreaTag.printDate);
+                        new MaterialAlertDialogBuilder(getContext())
+                                .setTitle("My Searched area")
+                                .setView(viewInflated)
+                                .setMessage("for " + searchedAreaTag.searchParty.getTitle() + " search party")
+                                .setNegativeButton("DISMISS", (dialog, id) -> {
+                                })
+                                .setPositiveButton("DELETE", (dialog, id) -> {
+                                    FirebaseFirestore.getInstance().collection("searchParties").whereArrayContains("searchedAreas", searchedAreaTag.searchedArea).get()
+                                            .addOnSuccessListener(task -> {
+                                                for (DocumentSnapshot doc : task.getDocuments()) {
+                                                    doc.getReference().update("searchedAreas", FieldValue.arrayRemove(searchedAreaTag.searchedArea));
+                                                }
+
+                                                for (Polygon polygon : polygons) //remove from UI
+                                                    if (polygon.getTag().equals(searchedAreaTag)) {
+                                                        polygon.remove();
+                                                        polygons.remove(polygon);
+
+                                                        subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).getSearchedAreas().remove(searchedAreaTag.searchedArea);
+
+                                                        ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
+                                                        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                                                        spinner.setPrompt("Track a Search Party");
+
+                                                        spinner.setAdapter(
+                                                                new NothingSelectedSpinnerAdapter(
+                                                                        adapter,
+                                                                        R.layout.contact_spinner_row_nothing_selected,
+                                                                        getContext()));
+                                                        int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                                                        if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                                                            spinner.setSelection(position);
+
+                                                        break;
+                                                    }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.w(TAG, "Error getting search parties.", e);
+                                            });
+
+                                })
+                                .show();
+                    } else { // Otherwise just show them information only
+                        owner.setText("Created by: " + user.getFullName());
+                        date.setText("Created on: " + searchedAreaTag.printDate);
+                        new MaterialAlertDialogBuilder(getContext())
+                                .setTitle("Searched area")
+                                .setView(viewInflated)
+                                .setMessage("for " + searchedAreaTag.searchParty.getTitle() + " search party")
+                                .setNeutralButton("OK", (dialog, id) -> {
+                                })
+                                .show();
+                    }
+                },
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mMapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mMapView != null) {
+            mMapView.onResume();
+        }
     }
 
     @Override
@@ -398,6 +633,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     }
 
     /**
+     * Sollution from: https://stackoverflow.com/questions/867518/how-to-make-an-android-spinner-with-initial-text-select-one
      * Decorator Adapter to allow a Spinner to show a 'Nothing Selected...' initially
      * displayed instead of the first choice in the Adapter.
      */
@@ -554,5 +790,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
     }
 
+    private static class SearchedAreaTag {
+        SearchParty searchParty;
+        String printDate;
+        SearchedArea searchedArea;
+
+        SearchedAreaTag(SearchParty searchParty, SearchedArea searchedArea) {
+
+            this.searchParty = searchParty;
+            this.searchedArea = searchedArea;
+            this.printDate = printDate(searchedArea.getTimestampCreated().toDate());
+        }
+    }
 }
 

@@ -1,6 +1,7 @@
 package nk00322.surrey.petsearch;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -62,7 +63,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private SearchParty searchParty;
     private String currentUserUid;
 
-    private TextView title, reward, date, owner, distance, deleteAction, completed;
+    private TextView title, reward, date, owner, distance, deleteAction, completed, subscriberCount;
     private ImageView image;
     private CheckBox subscribeCheckbox, completedCheckbox;
     private static final String TAG = "FullscreenDisplaySearchParty";
@@ -85,6 +86,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         setStyle(DialogFragment.STYLE_NORMAL, R.style.FullscreenDialogTheme);
     }
 
+    @SuppressLint("SetTextI18n")
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -102,7 +104,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         completed = view.findViewById(R.id.search_party_completed);
         deleteAction = view.findViewById(R.id.search_party_delete_action);
         completedCheckbox = view.findViewById(R.id.search_party_completed_checkbox);
-
+        subscriberCount = view.findViewById(R.id.search_party_subscriber_count);
 
         title.setText(searchParty.getTitle());
         reward.setText(searchParty.getReward());
@@ -148,7 +150,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         else
             subscribeCheckbox.setChecked(false);
 
-
+        subscriberCount.setText("[" + searchParty.getSubscriberUids().size()+ "]");
         try {
             StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(searchParty.getImageUrl());
             Glide.with(getContext())
@@ -214,6 +216,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         return view;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onClick(View view) {
         CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
@@ -226,9 +229,11 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                 if (subscribeCheckbox.isChecked()) {
                     searchPartiesRef.document(currentSearchPartyId).update("subscriberUids", FieldValue.arrayUnion(currentUserUid));
                     searchParty.getSubscriberUids().add(currentUserUid); // mirror db changes to local search party in case the user tries to subscribe again
+                    subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
                 } else {
                     searchPartiesRef.document(currentSearchPartyId).update("subscriberUids", FieldValue.arrayRemove(currentUserUid));
                     searchParty.getSubscriberUids().remove(currentUserUid);
+                    subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
                 }
                 break;
             case R.id.search_party_delete_action:
@@ -251,6 +256,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private void deleteConfirmDialog() {
         View viewInflated = LayoutInflater.from(getContext()).inflate(R.layout.password_input_dialog, (ViewGroup) getView(), false);
         final EditText input = viewInflated.findViewById(R.id.password_input);
+
 
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Delete Search Party")

@@ -49,6 +49,7 @@ import androidx.navigation.Navigation;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
 import nk00322.surrey.petsearch.models.SearchParty;
+import nk00322.surrey.petsearch.models.SearchedArea;
 import nk00322.surrey.petsearch.models.Sighting;
 import uk.co.mgbramwell.geofire.android.GeoFire;
 import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
@@ -240,8 +241,9 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 subscriberUids.add(currentUser.getUid()); // users are subscribed to their own search parties by default
 
                 ArrayList<Sighting> sightings = new ArrayList<>();
+                ArrayList<SearchedArea> searchedAreas = new ArrayList<>();
                 SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
-                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude, false, sightings);
+                        searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude, false, sightings, searchedAreas);
 
                 FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
                     if (task.isSuccessful()) {

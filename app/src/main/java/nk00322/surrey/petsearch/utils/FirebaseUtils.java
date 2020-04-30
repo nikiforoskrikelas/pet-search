@@ -11,6 +11,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -160,6 +161,18 @@ public class FirebaseUtils {
                 .addOnSuccessListener(task -> {
                     for (DocumentSnapshot doc : task.getDocuments()) {
                         doc.getReference().delete();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w(TAG, "Error getting search parties.", e);
+                });
+    }
+
+    public static void deleteAllUserSearchPartySubscriptions(String userUid) {
+        FirebaseFirestore.getInstance().collection("searchParties").whereArrayContains("subscriberUids", userUid).get()
+                .addOnSuccessListener(task -> {
+                    for (DocumentSnapshot doc : task.getDocuments()) {
+                        doc.getReference().update("subscriberUids", FieldValue.arrayRemove(userUid));
                     }
                 })
                 .addOnFailureListener(e -> {
