@@ -74,7 +74,7 @@
             android:layout_width="0dp"
             android:layout_height="249dp"
             android:layout_marginTop="12dp"
-            android:src="@drawable/add_photo"
+            android:src="@mipmap/add_photo"
             android:clickable="true"
             app:layout_constraintEnd_toEndOf="@+id/organize_description_layout"
             app:layout_constraintStart_toStartOf="@+id/organize_description_layout"

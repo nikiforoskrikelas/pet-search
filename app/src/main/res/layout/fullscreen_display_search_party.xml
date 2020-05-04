@@ -68,7 +68,7 @@
             android:padding="10dp"
             android:background="@drawable/textview_outline"
             android:contentDescription="@string/addphoto"
-            android:src="@drawable/add_photo"
+            android:src="@mipmap/add_photo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/search_party_title" />

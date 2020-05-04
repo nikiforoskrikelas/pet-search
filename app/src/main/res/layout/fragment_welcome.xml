@@ -46,7 +46,7 @@
         android:layout_width="226dp"
         android:layout_height="333dp"
         android:layout_marginTop="32dp"
-        android:src="@drawable/logo_transparent"
+        android:src="@mipmap/logo_transparent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

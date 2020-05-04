@@ -138,8 +138,8 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
         photo = view.findViewById(R.id.add_pet_image);
         submit = view.findViewById(R.id.organize_submit);
         uploadProgress = view.findViewById(R.id.upload_progress);
-        defaultImage = ContextCompat.getDrawable(getContext(), R.drawable.add_photo);
-        errorImage = ContextCompat.getDrawable(getContext(), R.drawable.add_photo_error);
+        defaultImage = ContextCompat.getDrawable(getContext(), R.mipmap.add_photo);
+        errorImage = ContextCompat.getDrawable(getContext(), R.mipmap.add_photo_error);
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
 
     }
