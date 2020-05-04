@@ -109,7 +109,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private SearchParty activeSearchParty;
     private BitmapDescriptor markerSightingIcon;
     private ArrayList<SearchParty> subscribedSearchParties;
-    private TextView redMarkerLegend, greenMarkerLegend, noSearchPartySubscriptions;
+    private TextView noSearchPartySubscriptions;
     private CoordinatorLayout fabMapLayout;
     private ConstraintLayout helpInfoLayout;
     private static Animation  slideOutBottom, slideInBottom;
@@ -128,7 +128,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_map, container, false);
-
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
@@ -142,8 +141,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         sightingFab = view.findViewById(R.id.add_sighting_fab);
         areaFab = view.findViewById(R.id.add_area_fab);
         help_fab = view.findViewById(R.id.help_fab);
-        redMarkerLegend = view.findViewById(R.id.red_marker_legend);
-        greenMarkerLegend = view.findViewById(R.id.green_marker_legend);
         fabMapLayout = view.findViewById(R.id.fab_map_layout);
         noSearchPartySubscriptions = view.findViewById(R.id.no_search_party_subscriptions);
         helpInfoLayout = view.findViewById(R.id.help_info_layout);
@@ -504,11 +501,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                         LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "User location found");
+                                if(task.getResult()!=null){
+                                    LatLng userLocation = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude()); //Make them global
 
-                                LatLng userLocation = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude()); //Make them global
-
-                                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 15);
-                                googleMap.animateCamera(cameraUpdate);
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 15);
+                                    googleMap.animateCamera(cameraUpdate);
+                                }
 
                             } else {
                                 Log.w(TAG, "Error getting current location.", task.getException());

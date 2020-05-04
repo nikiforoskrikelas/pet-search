@@ -132,9 +132,13 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
             LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "User location found");
-                    double distanceKm = getDistanceInKilometers(searchParty.getLatitude(), searchParty.getLongitude(),
-                            task.getResult().getLatitude(), task.getResult().getLongitude());
-                    distance.setText(distanceKm + " km");
+                    if(task.getResult()!=null) {
+                        double distanceKm = getDistanceInKilometers(searchParty.getLatitude(), searchParty.getLongitude(),
+                                task.getResult().getLatitude(), task.getResult().getLongitude());
+                        distance.setText(distanceKm + " km");
+                    }else{
+                        distance.setText("N/A");
+                    }
                 } else {
                     Log.w(TAG, "Error getting current location.", task.getException());
 
