@@ -20,7 +20,7 @@ public class ValidationUtils {
             "\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)])";
 
     public final static String DESCRIPTION_CHAR_LIMIT = "^(.{1,300})$";
-
+    public final static String TITLE_CHAR_LIMIT = "^(.{1,25})$";
 
     public static boolean areAllFieldsCompleted(EditText... textFields) {
         ArrayList<String> textFieldStrings = new ArrayList<>();

@@ -2,7 +2,6 @@ package nk00322.surrey.petsearch.models;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.Timestamp;
-import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.stream.Collectors;
 
 import nk00322.surrey.petsearch.utils.GeneralUtils;
 
-@IgnoreExtraProperties
+@com.google.firebase.firestore.IgnoreExtraProperties
 public class SearchedArea {
 
     private ArrayList<GeneralUtils.Point> polygonVertices;
@@ -45,9 +44,10 @@ public class SearchedArea {
         return ownerUid;
     }
 
-    public List<LatLng> getPolygonVerticesInLatLng() {
 
-        return polygonVertices.stream().map(GeneralUtils.Point::getLatLng)
+    public List<LatLng> convertToPolygonVerticesInLatLng() {
+
+        return polygonVertices.stream().map(GeneralUtils.Point::convertToLatLng)
                 .collect(Collectors.toList());
     }
 }

@@ -26,7 +26,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -55,6 +54,7 @@ import uk.co.mgbramwell.geofire.android.GeoFire;
 import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
 import static android.app.Activity.RESULT_OK;
+import static nk00322.surrey.petsearch.MainActivity.CURRENT_FRAGMENT_ID;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.PICK_IMAGE_REQUEST;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getFileExtension;
@@ -62,6 +62,7 @@ import static nk00322.surrey.petsearch.utils.GeneralUtils.setFocusableAndClickab
 import static nk00322.surrey.petsearch.utils.LocationUtils.AUTOCOMPLETE_REQUEST_CODE;
 import static nk00322.surrey.petsearch.utils.LocationUtils.getLocationAutoCompleteIntent;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.DESCRIPTION_CHAR_LIMIT;
+import static nk00322.surrey.petsearch.utils.ValidationUtils.TITLE_CHAR_LIMIT;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.clearTextInputEditTextErrors;
 import static nk00322.surrey.petsearch.utils.ValidationUtils.setupTextInputLayoutValidator;
 
@@ -80,11 +81,15 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private long mLastClickTime = 0;
 
     @NotEmpty
-    private TextInputEditText title, location;
+    @Pattern(regex = TITLE_CHAR_LIMIT, message = "Title must be less than 25 characters", sequence = 2)
+    private TextInputEditText title;
 
     @NotEmpty
     @Pattern(regex = DESCRIPTION_CHAR_LIMIT, message = "Description must be less than 300 characters", sequence = 2)
     private TextInputEditText description;
+
+    @NotEmpty
+    private TextInputEditText location;
 
     @NotEmpty
     @Digits(integer = 5, message = "Please use an integer with up to 5 digits", sequence = 2)
@@ -99,12 +104,12 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
     private double longitude;
     private double latitude;
 
-    private DocumentReference currentUserReference;
     private ProgressBar uploadProgress;
     private FirebaseUser currentUser;
     private Drawable defaultImage;
     private Drawable errorImage;
     private StorageTask uploadTask;
+    private NavController navController;
 
     public OrganizeFragment() {
         // Required empty public constructor
@@ -128,8 +133,6 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
 
     private void initViews() {
         currentUser = auth.getCurrentUser();
-        currentUserReference = FirebaseFirestore.getInstance().collection("users").document(currentUser.getUid());
-
         storageRef = FirebaseStorage.getInstance().getReference("searchPartyImages");
         title = view.findViewById(R.id.organize_title);
         description = view.findViewById(R.id.organize_description);
@@ -141,7 +144,7 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
         defaultImage = ContextCompat.getDrawable(getContext(), R.mipmap.add_photo);
         errorImage = ContextCompat.getDrawable(getContext(), R.mipmap.add_photo_error);
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
-
+        navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment);
     }
 
     private void setListeners() {
@@ -245,10 +248,11 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
                 SearchParty searchParty = new SearchParty(title.getText().toString(), description.getText().toString(),
                         searchPartyImageRef.toString(), locationId, reward.getText().toString(), currentUser.getUid(), subscriberUids, latitude, longitude, false, sightings, searchedAreas);
 
-                FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> { //todo fix
+                FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         new GeoFire(FirebaseFirestore.getInstance().collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
-
+                        if (CURRENT_FRAGMENT_ID == R.id.organizeFragment)
+                            navController.navigate(R.id.meFragment);
                         new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
 
                     } else

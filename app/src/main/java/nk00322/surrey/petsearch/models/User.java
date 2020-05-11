@@ -1,10 +1,6 @@
 package nk00322.surrey.petsearch.models;
 
-import com.google.firebase.database.IgnoreExtraProperties;
-
-import java.util.HashMap;
-
-@IgnoreExtraProperties
+@com.google.firebase.firestore.IgnoreExtraProperties
 public class User {
     private String email;
     private String fullName;

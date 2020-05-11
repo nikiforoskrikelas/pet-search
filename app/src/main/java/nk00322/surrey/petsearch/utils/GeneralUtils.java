@@ -221,6 +221,7 @@ public class GeneralUtils {
         return points;
     }
 
+    @com.google.firebase.firestore.IgnoreExtraProperties
     public static class Point {
         private double lat;
         private double lng;
@@ -247,7 +248,7 @@ public class GeneralUtils {
             return lng;
         }
 
-        public LatLng getLatLng(){
+        public LatLng convertToLatLng(){
             return new LatLng(lat, lng);
         }
 

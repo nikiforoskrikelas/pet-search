@@ -1,9 +1,8 @@
 package nk00322.surrey.petsearch.models;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.database.IgnoreExtraProperties;
 
-@IgnoreExtraProperties
+@com.google.firebase.firestore.IgnoreExtraProperties
 public class Sighting {
 
     private Timestamp timestampCreated;

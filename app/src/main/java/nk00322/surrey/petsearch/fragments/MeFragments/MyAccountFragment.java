@@ -65,6 +65,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import nk00322.surrey.petsearch.CustomToast;
 import nk00322.surrey.petsearch.ToastType;
@@ -132,7 +133,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     private StorageTask uploadTask;
     private boolean dialogActive = false;
     private ProgressBar uploadProgress, glideProgress;
-    private Disposable disposable;
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     public MyAccountFragment() {
         // Required empty public constructor
@@ -217,7 +218,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
     private void setUserData() {
         Observable<User> userObservable = getUserFromId(currentUser.getUid());
-        disposable = userObservable.subscribe(user -> {
+        disposables.add(userObservable.subscribe(user -> {
             if (user == null) {
                 final NavController navController = Navigation.findNavController(view);
                 FirebaseAuth.getInstance().signOut();
@@ -294,7 +295,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
             FirebaseAuth.getInstance().signOut();
             navController.navigate(R.id.action_meFragment_to_welcomeFragment);
             Log.i(TAG, "Throwable " + throwable.getMessage());
-        });
+        }));
 
     }
 
@@ -583,7 +584,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
 
     private void updateExistingUserInfo() {
         Observable<User> userObservable = getUserFromId(currentUser.getUid());
-        disposable = userObservable.subscribe(user -> {
+        disposables.add(userObservable.subscribe(user -> {
             if (user == null) {
                 final NavController navController = Navigation.findNavController(view);
                 FirebaseAuth.getInstance().signOut();
@@ -617,7 +618,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                 }
 
             }
-        });
+        }));
     }
 
     private void addPhotoPopup() {
@@ -803,7 +804,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                                     if (reauthorizeTask.isSuccessful()) {
                                         String currentUserUid = currentUser.getUid();
                                         Observable<Boolean> userDeleteObservable = deleteUserWithId(currentUserUid);
-                                        disposable = userDeleteObservable.subscribe(dataDeleteResult -> {
+                                        disposables.add(userDeleteObservable.subscribe(dataDeleteResult -> {
                                             if (dataDeleteResult != null && dataDeleteResult) {
                                                 //Delete created search parties
                                                 deleteAllUserSearchParties(currentUserUid);
@@ -830,7 +831,7 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
                                             FirebaseAuth.getInstance().signOut();
                                             navController.navigate(R.id.action_meFragment_to_welcomeFragment);
                                             Log.i(TAG, "Throwable " + throwable.getMessage());
-                                        });
+                                        }));
 
                                     } else {
                                         new CustomToast().showToast(getContext(), view, "Incorrect password, please try again", ToastType.ERROR, false);
@@ -890,7 +891,9 @@ public class MyAccountFragment extends Fragment implements View.OnClickListener,
     @Override
     public void onStop() {
         super.onStop();
-        disposable.dispose();
+        if (disposables.size() != 0) {
+            disposables.clear();
+        }
 
     }
 }

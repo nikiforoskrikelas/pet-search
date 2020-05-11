@@ -33,6 +33,8 @@
             android:layout_marginTop="12dp"
             android:hint="@string/organize_title"
             app:errorEnabled="true"
+            app:counterEnabled="true"
+            app:counterMaxLength="25"
             app:layout_constraintEnd_toEndOf="@+id/organize_welcome_text"
             app:layout_constraintStart_toStartOf="@+id/organize_welcome_text"
             app:layout_constraintTop_toBottomOf="@+id/organize_welcome_text"
@@ -144,12 +146,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:padding="3dp"
+            android:layout_marginBottom="40dp"
             android:text="@string/submit"
             android:textSize="17sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="@+id/reward_layout"
             app:layout_constraintStart_toStartOf="@+id/reward_layout"
-            app:layout_constraintTop_toBottomOf="@+id/reward_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/reward_layout"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

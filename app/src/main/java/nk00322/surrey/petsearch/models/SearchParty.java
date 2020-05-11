@@ -1,7 +1,6 @@
 package nk00322.surrey.petsearch.models;
 
 import com.google.firebase.Timestamp;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
@@ -9,7 +8,7 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 
-@IgnoreExtraProperties
+@com.google.firebase.firestore.IgnoreExtraProperties
 public class SearchParty {
     private String title;
     private String description;
@@ -147,6 +146,7 @@ public class SearchParty {
     public void setSearchedAreas(ArrayList<SearchedArea> searchedAreas) {
         this.searchedAreas = searchedAreas;
     }
+
     public void addToSearchedAreas(SearchedArea searchedArea) {
         this.searchedAreas.add(searchedArea);
     }

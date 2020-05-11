@@ -47,7 +47,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
@@ -67,7 +67,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private ImageView image;
     private CheckBox subscribeCheckbox, completedCheckbox;
     private static final String TAG = "FullscreenDisplaySearchParty";
-    private Disposable disposable;
+    private final CompositeDisposable disposables = new CompositeDisposable();
     private ProgressBar imageProgress;
     private CustomMapView mMapView;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
@@ -112,19 +112,18 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         searchPartyDescription.setText(searchParty.getDescription());
 
         Observable<User> userObservable = getUserFromId(searchParty.getOwnerUid());
-        disposable = userObservable.subscribe(
+        disposables.add(userObservable.subscribe(
                 user -> owner.setText(user.getFullName()),
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
-//TODO DESCRIPTION
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
         Observable<String> searchPartyUidObservable = getUidFromSearchParty(searchParty);
-        disposable = searchPartyUidObservable.subscribe(
+        disposables.add(searchPartyUidObservable.subscribe(
                 id -> {
                     currentSearchPartyId = id;
                     subscribeCheckbox.setOnClickListener(this);
                     deleteAction.setOnClickListener(this);
                     completedCheckbox.setOnClickListener(this);
                 },
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -212,7 +211,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
             } else {
                 completed.setText("Status: In progress");
                 completed.setCompoundDrawablesWithIntrinsicBounds(
-                        getContext().getDrawable(R.drawable.ic_nav_organize_24dp), null, null, null);
+                        getContext().getDrawable(R.drawable.ic_searching_status_24dp), null, null, null);
             }
         }
 
@@ -276,7 +275,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                                 .addOnCompleteListener(reauthorizeTask -> {
                                     if (reauthorizeTask.isSuccessful()) {
                                         Observable<Boolean> searchPartyDeleteObservable = deleteSearchPartyWithId(currentSearchPartyId);
-                                        disposable = searchPartyDeleteObservable.subscribe(dataDeleteResult -> {
+                                        disposables.add(searchPartyDeleteObservable.subscribe(dataDeleteResult -> {
                                             if (dataDeleteResult != null && dataDeleteResult) {
                                                 dismiss();
                                                 new CustomToast().showToast(getContext(), view, "Search Party Deleted Successfully", ToastType.SUCCESS, false);
@@ -287,7 +286,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                                         }, throwable -> {
                                             new CustomToast().showToast(getContext(), view, "Error: Search Party was not deleted", ToastType.ERROR, false);
                                             Log.i(TAG, "Throwable " + throwable.getMessage());
-                                        });
+                                        }));
 
                                     } else {
                                         new CustomToast().showToast(getContext(), view, "Incorrect password, please try again", ToastType.ERROR, false);
@@ -330,10 +329,9 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     @Override
     public void onStop() {
         super.onStop();
-        if (disposable != null) {
-            disposable.dispose();
+        if (disposables.size() != 0) {
+            disposables.clear();
         }
-
     }
 
     @Override
@@ -341,7 +339,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         Observable<Place> searchPartyLocation = getPlaceFromId(searchParty.getLocationId(), getContext());
 
 
-        disposable = searchPartyLocation.subscribe(
+        disposables.add(searchPartyLocation.subscribe(
                 place -> {
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     try {
@@ -364,7 +362,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                     googleMap.moveCamera(CameraUpdateFactory.newLatLng(placeLocation));
                     googleMap.animateCamera(CameraUpdateFactory.zoomTo(10), 1000, null);
                 },
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
 
     }

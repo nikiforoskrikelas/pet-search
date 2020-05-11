@@ -112,10 +112,6 @@ public class SigninFragment extends Fragment implements View.OnClickListener, Va
         signinLayout = view.findViewById(R.id.signin_layout);
         closeActivityImage = view.findViewById(R.id.close_activity);
 
-        //TODO REMOVE - ONLY FOR TESTING
-        password.setText("1234qwerQWER");
-        //TODO REMOVE - ONLY FOR TESTING
-
         // Load ShakeAnimation
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
 

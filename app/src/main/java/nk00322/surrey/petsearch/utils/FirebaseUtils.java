@@ -17,6 +17,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.rxjava3.core.Observable;
 import nk00322.surrey.petsearch.models.SearchParty;
@@ -28,7 +29,7 @@ public class FirebaseUtils {
     public static DatabaseReference getDatabaseReference() {
         return FirebaseDatabase.getInstance().getReference();
     }
-
+    public static AtomicInteger ACTIVE_SEARCH_PARTY_LISTENER_COUNTER;
 
     public static boolean isLoggedIn() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -199,6 +200,42 @@ public class FirebaseUtils {
                 }));
     }
 
+    public static Observable<SearchParty> getSearchPartyUpdates(SearchParty searchParty) {
+
+
+        ACTIVE_SEARCH_PARTY_LISTENER_COUNTER = new AtomicInteger(0);
+
+        CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
+
+        Query searchPartiesQuery = searchPartiesRef
+                .whereEqualTo("locationId", searchParty.getLocationId())
+                .whereEqualTo("ownerUid", searchParty.getOwnerUid())
+                .whereEqualTo("timestampCreated", searchParty.getTimestampCreated());
+
+
+        return Observable.create(result -> searchPartiesQuery.addSnapshotListener((snapshot, e) -> {
+            ACTIVE_SEARCH_PARTY_LISTENER_COUNTER.getAndIncrement();
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e);
+                result.onError(e);
+                return;
+            }
+            if (snapshot != null && !snapshot.isEmpty()) {
+                for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                    SearchParty i = doc.toObject(SearchParty.class);
+                    if (Objects.requireNonNull(i).equals(searchParty)) {
+                        Log.d(TAG, "Search Party getSearchPartyUpdates successful");
+                        result.onNext(i);
+                    }
+                }
+                Log.d(TAG, "Current data: " + snapshot);
+
+            } else {
+                Log.d(TAG, "Current data: null");
+            }
+        }));
+
+    }
 
 }
 

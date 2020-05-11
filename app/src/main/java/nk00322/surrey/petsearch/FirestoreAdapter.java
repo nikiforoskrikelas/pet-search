@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
@@ -44,7 +44,7 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
     private Observable<Location> userLocation;
     private String currentUserUid;
     private OnListItemCLick onListItemCLick;
-    private Disposable disposable;
+    private final CompositeDisposable disposables = new CompositeDisposable();
 
     public FirestoreAdapter(@NonNull FirestoreRecyclerOptions<SearchParty> options, Context context, Observable<Location> userLocation, String currentUserUid, OnListItemCLick onListItemCLick) {
         super(options);
@@ -79,17 +79,17 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
         }
 
         Observable<User> userObservable = getUserFromId(model.getOwnerUid());
-        disposable = userObservable.subscribe(
+        disposables.add(userObservable.subscribe(
                 user -> holder.owner.setText(user.getFullName()),
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
 
-        disposable = userLocation.subscribe(
+        disposables.add(userLocation.subscribe(
                 location -> {
                     double distance = getDistanceInKilometers(model.getLatitude(), model.getLongitude(), location.getLatitude(), location.getLongitude());
                     holder.distance.setText(distance + " km");
                 },
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
 
         Log.i(TAG, "Place found");
@@ -110,7 +110,7 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
         } else {
             holder.completed.setText("Status: In progress");
             holder.completed.setCompoundDrawablesWithIntrinsicBounds(
-                    context.getDrawable(R.drawable.ic_nav_organize_24dp), null, null, null);
+                    context.getDrawable(R.drawable.ic_searching_status_24dp), null, null, null);
         }
 
         try {
@@ -183,8 +183,9 @@ public class FirestoreAdapter extends FirestoreRecyclerAdapter<SearchParty, Fire
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
-        if (disposable != null)
-            disposable.dispose();
+        if (disposables.size() != 0) {
+            disposables.clear();
+        }
     }
 
 }

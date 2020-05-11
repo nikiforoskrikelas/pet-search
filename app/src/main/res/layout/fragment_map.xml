@@ -43,67 +43,71 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/help_info_layout"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:background="@color/white"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/help_fab">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/red_marker_legend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
             android:drawablePadding="5dp"
             android:drawableStart="@drawable/ic_location_red_24dp"
             android:text="@string/first_disappearance"
             android:textColor="@color/grey_neutral"
             android:textSize="18sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.05"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/green_marker_legend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
             android:drawablePadding="5dp"
             android:drawableStart="@drawable/ic_location_green_24dp"
             android:text="@string/sighting"
             android:textColor="@color/grey_neutral"
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/red_marker_legend"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.034"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/red_marker_legend" />
 
         <TextView
             android:id="@+id/my_search_area_legend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
             android:drawablePadding="5dp"
             android:drawableStart="@drawable/ic_my_search_area"
             android:text="@string/my_searched_area"
             android:textColor="@color/grey_neutral"
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/green_marker_legend"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.046"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/green_marker_legend" />
+
         <TextView
             android:id="@+id/search_area_legend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginStart="10dp"
+            android:layout_marginTop="8dp"
             android:drawablePadding="5dp"
             android:drawableStart="@drawable/ic_search_area"
             android:text="@string/area_searched_by_others"
             android:textColor="@color/grey_neutral"
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/my_search_area_legend"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.057"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/my_search_area_legend" />
 
         <TextView
             android:id="@+id/info_legend"
@@ -117,6 +121,7 @@
             android:text="@string/info_legend"
             android:textColor="@color/grey_neutral"
             android:textSize="18sp"
+
             app:layout_constraintTop_toBottomOf="@+id/search_area_legend"
             app:layout_constraintEnd_toEndOf="parent"
 
@@ -131,6 +136,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="21dp"
+        android:visibility="gone"
         app:borderWidth="0dp"
         app:fabSize="mini"
         app:layout_constraintBottom_toTopOf="@+id/fab_map_layout"
@@ -142,6 +148,7 @@
         android:id="@+id/fab_map_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">

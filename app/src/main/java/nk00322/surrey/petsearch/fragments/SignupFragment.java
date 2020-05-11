@@ -153,17 +153,6 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
         signupLayout = view.findViewById(R.id.signup_layout);
         shakeAnimation = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
 
-        //TODO REMOVE - ONLY FOR TESTING
-        int rand = new Random().nextInt(10000);
-        fullName.setText("Test user");
-        email.setText("test"+rand+"@iillii.org"); // https://www.fakemail.net/
-        mobileNumber.setText("555555555");
-        location.setText("TEST LOCATION");
-        locationId = "ChIJZxWJ268aDTkRhwqTHHNw0hA";
-        password.setText("1234qwerQWER");
-        confirmPassword.setText("1234qwerQWER");
-        //TODO REMOVE - ONLY FOR TESTING
-
         ColorStateList textSelector = getResources().getColorStateList(R.color.text_selector,  getContext().getTheme());
 
         signin.setTextColor(textSelector);
@@ -241,14 +230,11 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
     private void createAccount() {
         final String email = this.email.getText().toString();
         String password = this.password.getText().toString();
-        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    // Sign in success, update UI with the signed-in user's information
-                    Log.d(TAG, "createUserWithEmail:success");
-                    createUser();
-                }
+        auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Sign in success, update UI with the signed-in user's information
+                Log.d(TAG, "createUserWithEmail:success");
+                createUser();
             }
         }).addOnFailureListener(new OnFailureListener() {
             final NavController navController = Navigation.findNavController(view);

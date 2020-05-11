@@ -62,6 +62,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import nk00322.surrey.petsearch.CustomMapView;
 import nk00322.surrey.petsearch.CustomToast;
@@ -74,6 +75,7 @@ import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
+import static nk00322.surrey.petsearch.utils.FirebaseUtils.getSearchPartyUpdates;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUidFromSearchParty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserSubscriptions;
@@ -99,7 +101,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private Spinner spinner;
     private FirebaseAuth auth;
     private FirebaseUser currentUser;
-    private Disposable disposable;
+    private final CompositeDisposable disposables = new CompositeDisposable();
+    private Disposable activeSearchPartyDisposable;
     private GoogleMap googleMap;
     private ImageView dropdownIcon;
     private FloatingActionButton sightingFab, areaFab, help_fab;
@@ -112,8 +115,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private TextView noSearchPartySubscriptions;
     private CoordinatorLayout fabMapLayout;
     private ConstraintLayout helpInfoLayout;
-    private static Animation  slideOutBottom, slideInBottom;
-
+    private static Animation slideOutBottom, slideInBottom;
 
     private ArrayList<LatLng> latLngList = new ArrayList<>();
     private List<Marker> markerList = new ArrayList<>();
@@ -123,7 +125,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     public MapFragment() {
     }
 
-    //todo listen for updates to search party and update UI
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -167,7 +168,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                 SharedPreferences.Editor editor = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).edit();
                 editor.putInt("selectedSearchPartyPosition", parent.getSelectedItemPosition());
                 editor.apply();
-                updateMapWith(searchParty);
+                if (activeSearchPartyDisposable != null)
+                    activeSearchPartyDisposable.dispose(); // dispose updates for previously tracked search party if it exists
+
+                listenForActiveSearchPartyUpdates(searchParty);
+
+                if (activeSearchParty != null) {
+                    fabMapLayout.setVisibility(View.VISIBLE);
+                    help_fab.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
@@ -179,6 +188,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         areaFab.setOnClickListener(this);
         help_fab.setOnClickListener(this);
         return view;
+    }
+
+    private void listenForActiveSearchPartyUpdates(SearchParty searchParty) {
+        Observable<SearchParty> activeSearchPartyObservable = getSearchPartyUpdates(searchParty);
+        activeSearchPartyDisposable = activeSearchPartyObservable.subscribe( // get user subscriptions to populate spinner
+                this::updateMapWith,
+                throwable -> Log.i(TAG, "Throwable " + throwable));
     }
 
     @Override
@@ -198,6 +214,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
     }
 
+    /**
+     * Show hide the help info
+     */
     private void toggleHelpInfo() {
         //Check flag that represents the state of the help fab toggle state
         if (isHelpActive) { // hide help
@@ -232,7 +251,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                 LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude); // get place coordinates
                 if (activeSearchParty != null) {
                     Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
-                    disposable = searchPartyUidObservable.subscribe( // get db reference for current search party
+                    disposables.add(searchPartyUidObservable.subscribe( // get db reference for current search party
                             id -> {
                                 Sighting newSighting = new Sighting(new Timestamp(new Date()),
                                         place.getLatLng().latitude, place.getLatLng().longitude, place.getName());
@@ -259,7 +278,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                     spinner.setSelection(position);
 
                             },
-                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
                     // place marker on sighting coordinates
                     Marker placeMarker = googleMap.addMarker(new MarkerOptions().position(placeLocation)
@@ -288,7 +307,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private void updateMapWith(SearchParty searchParty) {
         if (searchParty != null) {
             activeSearchParty = searchParty;
-
+            fabMapLayout.setVisibility(View.VISIBLE);
+            help_fab.setVisibility(View.VISIBLE);
             //Remove data from previously tracked search party
             for (Marker marker : markers)
                 marker.remove();
@@ -300,7 +320,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
             //Get search party from ID
             Observable<Place> searchPartyLocation = getPlaceFromId(searchParty.getLocationId(), getContext());
-            disposable = searchPartyLocation.subscribe(
+            disposables.add(searchPartyLocation.subscribe(
                     place -> {
                         //Set first disappearance location marker
                         Drawable iconDrawable = getContext().getDrawable(R.drawable.ic_location_red_24dp);
@@ -314,7 +334,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                 .snippet("Created on: " + printDate(searchParty.getTimestampCreated().toDate())));
                         markers.add(placeMarker);
                     },
-                    throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                    throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
             //Add stored markers for pet sightings
             if (searchParty.getSightings() != null && !searchParty.getSightings().isEmpty())
@@ -333,7 +353,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
             //Add stored polygons aka searched areas
             if (searchParty.getSearchedAreas() != null && !searchParty.getSearchedAreas().isEmpty())
                 for (SearchedArea searchedArea : searchParty.getSearchedAreas()) {
-                    if (searchedArea != null && searchedArea.getPolygonVerticesInLatLng() != null && !searchedArea.getPolygonVerticesInLatLng().isEmpty()) {
+                    if (searchedArea != null && searchedArea.convertToPolygonVerticesInLatLng() != null && !searchedArea.convertToPolygonVerticesInLatLng().isEmpty()) {
                         createPolygon(searchedArea);
                     }
                 }
@@ -359,13 +379,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
             for (Marker marker : markerList) {
                 marker.remove();
             }
-            markerList.clear();     //TODO DEDSCRIPTION
+            markerList.clear();
 
             if (!latLngList.isEmpty() && latLngList.size() > 2) { // Polygon is required to have more than 2 vertices
                 //Save searched area
                 if (activeSearchParty != null) {
                     Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
-                    disposable = searchPartyUidObservable.subscribe( // Retrieve active search party and save searched area
+                    disposables.add(searchPartyUidObservable.subscribe( // Retrieve active search party and save searched area
                             id -> {
                                 SearchedArea searchedArea = new SearchedArea(latLngList, new Timestamp(new Date()), currentUser.getUid());
 
@@ -390,7 +410,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                     spinner.setSelection(position);
                                 latLngList.clear();
                             },
-                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
                 }
 
 
@@ -432,7 +452,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
      * @param searchedArea associated with polygon
      */
     private void createPolygon(SearchedArea searchedArea) {
-        ArrayList<LatLng> latLngList = (ArrayList<LatLng>) searchedArea.getPolygonVerticesInLatLng();
+        ArrayList<LatLng> latLngList = (ArrayList<LatLng>) searchedArea.convertToPolygonVerticesInLatLng();
 
         PolygonOptions polygonOptions = new PolygonOptions().addAll(sortVertices(latLngList))
                 .clickable(true);
@@ -458,12 +478,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     public void onMapReady(GoogleMap googleMap) {
 
         Observable<ArrayList<SearchParty>> searchPartiesObservable = getUserSubscriptions(currentUser.getUid());
-        disposable = searchPartiesObservable.subscribe( // get user subscriptions to populate spinner
+        disposables.add(searchPartiesObservable.subscribe( // get user subscriptions to populate spinner
                 searchParties -> {
                     subscribedSearchParties = searchParties;
 
                     //setup spinner
                     if (subscribedSearchParties.size() != 0) {
+
+                        if (activeSearchParty != null) {
+                            fabMapLayout.setVisibility(View.VISIBLE);
+                            help_fab.setVisibility(View.VISIBLE);
+                        }
+
+
                         ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, searchParties);
                         adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                         spinner.setPrompt("Track a Search Party");
@@ -475,13 +502,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                         getContext()));
                         dropdownIcon.setVisibility(View.VISIBLE);
 
-                        fabMapLayout.setVisibility(View.VISIBLE);
-
                         int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
                         if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
                             spinner.setSelection(position);
                     } else {
                         noSearchPartySubscriptions.setVisibility(View.VISIBLE);
+                        fabMapLayout.setVisibility(View.GONE);
+                        help_fab.setVisibility(View.GONE);
                     }
                     googleMap.getUiSettings().setMapToolbarEnabled(false);
                     googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -501,7 +528,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                         LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "User location found");
-                                if(task.getResult()!=null){
+                                if (task.getResult() != null) {
                                     LatLng userLocation = new LatLng(task.getResult().getLatitude(), task.getResult().getLongitude()); //Make them global
 
                                     CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(userLocation, 15);
@@ -519,7 +546,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                     }
                     this.googleMap = googleMap;
                 },
-                throwable -> Log.i(TAG, "Throwable " + throwable));
+                throwable -> Log.i(TAG, "Throwable " + throwable)));
 
         // Polygons can be clicked to show a dialog with information
         googleMap.setOnPolygonClickListener(polygon -> {
@@ -543,7 +570,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         final TextView owner = viewInflated.findViewById(R.id.searched_area_owner);
 
         Observable<User> userObservable = getUserFromId(searchedAreaTag.searchParty.getOwnerUid());
-        disposable = userObservable.subscribe(
+        disposables.add(userObservable.subscribe(
                 user -> {
 
                     //If Created by user, allow them to delete
@@ -604,7 +631,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                                 .show();
                     }
                 },
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage()));
+                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
     }
 
     @Override
@@ -655,10 +682,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     @Override
     public void onStop() {
         super.onStop();
-        if (disposable != null) {
-            disposable.dispose();
+        if (disposables.size() != 0) {
+            disposables.clear();
         }
-
     }
 
     @Override
@@ -667,7 +693,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     }
 
     /**
-     * Sollution from: https://stackoverflow.com/questions/867518/how-to-make-an-android-spinner-with-initial-text-select-one
+     * Solution from: https://stackoverflow.com/questions/867518/how-to-make-an-android-spinner-with-initial-text-select-one
      * Decorator Adapter to allow a Spinner to show a 'Nothing Selected...' initially
      * displayed instead of the first choice in the Adapter.
      */

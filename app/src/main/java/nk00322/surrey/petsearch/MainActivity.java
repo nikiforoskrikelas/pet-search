@@ -41,6 +41,7 @@ import static nk00322.surrey.petsearch.utils.FirebaseUtils.isLoggedIn;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    public static int CURRENT_FRAGMENT_ID = 0;
 
     BottomNavigationView bottomNavigationView;
     NavController navController;
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
         //When the fragment destination is changed decide to hide or show navigation bar
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            CURRENT_FRAGMENT_ID = destination.getId();
             if (destination.getId() == R.id.welcomeFragment || destination.getId() == R.id.signupFragment
                     || destination.getId() == R.id.signinFragment || destination.getId() == R.id.forgotPasswordFragment) {
                 bottomNavigationView.setVisibility(View.GONE);
@@ -233,7 +235,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ENABLE_GPS: {
                 if (mLocationPermissionGranted) {
-                    //todo
+
                 } else {
                     getLocationPermission();
                 }
@@ -263,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             for (Location location : locationResult.getLocations()) {
                                 if (location != null) {
-                                    //TODO: UI updates.
+
                                     Log.d(TAG, "User location found");
                                 }
                             }
