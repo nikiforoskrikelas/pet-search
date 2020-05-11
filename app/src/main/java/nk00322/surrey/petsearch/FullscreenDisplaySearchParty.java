@@ -131,11 +131,11 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
             LocationServices.getFusedLocationProviderClient(getContext()).getLastLocation().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "User location found");
-                    if(task.getResult()!=null) {
+                    if (task.getResult() != null) {
                         double distanceKm = getDistanceInKilometers(searchParty.getLatitude(), searchParty.getLongitude(),
                                 task.getResult().getLatitude(), task.getResult().getLongitude());
                         distance.setText(distanceKm + " km");
-                    }else{
+                    } else {
                         distance.setText("N/A");
                     }
                 } else {
@@ -155,7 +155,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         else
             subscribeCheckbox.setChecked(false);
 
-        subscriberCount.setText("[" + searchParty.getSubscriberUids().size()+ "]");
+        subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
         try {
             StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(searchParty.getImageUrl());
             Glide.with(getContext())
@@ -170,7 +170,11 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                         @Override
                         public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                             imageProgress.setVisibility(View.GONE);
-                            imageProgress.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.textview_outline));
+                            if (getContext() != null) {
+                                Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.textview_outline);
+                                if (drawable != null)
+                                    imageProgress.setBackground(drawable);
+                            }
                             return false;
                         }
                     })
