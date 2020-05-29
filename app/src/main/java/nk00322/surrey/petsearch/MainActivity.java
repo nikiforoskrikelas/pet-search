@@ -131,7 +131,9 @@ public class MainActivity extends AppCompatActivity {
 
             if (GlobalVariables.isNetworkConnected != null && !GlobalVariables.isNetworkConnected) { // kick them out if no internet
                 ViewGroup rootView = (ViewGroup) ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
-                new CustomToast().showToast(this, rootView, "Internet is required. Please reconnect", ToastType.ERROR, false);
+                new CustomToast().showToast(this, rootView, "Internet is required. Please reconnect",
+                        ToastType.ERROR, false);
+
                 if (isLoggedIn()) {
                     FirebaseAuth.getInstance().signOut();
                 }

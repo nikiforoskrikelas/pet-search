@@ -15,6 +15,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.ApiException;
@@ -27,6 +28,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
@@ -250,13 +252,19 @@ public class OrganizeFragment extends Fragment implements View.OnClickListener, 
 
                 FirebaseFirestore.getInstance().collection("searchParties").add(searchParty).addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        new GeoFire(FirebaseFirestore.getInstance().collection("searchParties")).setLocation(task.getResult().getId(), latitude, longitude, this);
+                        FirebaseFirestore.getInstance().collection("searchParties")
+                                .document(task.getResult().getId()).update("id", task.getResult().getId());
+                        new GeoFire(FirebaseFirestore.getInstance().collection("searchParties"))
+                                .setLocation(task.getResult().getId(), latitude, longitude, this);
                         if (CURRENT_FRAGMENT_ID == R.id.organizeFragment)
                             navController.navigate(R.id.meFragment);
-                        new CustomToast().showToast(getContext(), view, "Search Party has been created", ToastType.SUCCESS, true);
+                        new CustomToast().showToast(getContext(), view, "Search Party has been created",
+                                ToastType.SUCCESS, true);
+                        FirebaseMessaging.getInstance().subscribeToTopic(task.getResult().getId());
 
                     } else
-                        new CustomToast().showToast(getContext(), view, "Error while creating searh party", ToastType.SUCCESS, true);
+                        new CustomToast().showToast(getContext(), view, "Error while creating searh party",
+                                ToastType.SUCCESS, true);
                 });
 
 

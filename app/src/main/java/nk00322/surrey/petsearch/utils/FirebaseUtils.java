@@ -132,30 +132,6 @@ public class FirebaseUtils {
                 }));
     }
 
-    public static Observable<String> getUidFromSearchParty(SearchParty searchParty) {
-        CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
-
-        Query searchPartiesQuery = searchPartiesRef
-                .whereEqualTo("locationId", searchParty.getLocationId())
-                .whereEqualTo("ownerUid", searchParty.getOwnerUid())
-                .whereEqualTo("timestampCreated", searchParty.getTimestampCreated());
-
-        return Observable.create(result -> searchPartiesQuery.get()
-                .addOnSuccessListener(task -> {
-                    for (DocumentSnapshot doc : task.getDocuments()) {
-                        if (Objects.requireNonNull(doc.toObject(SearchParty.class)).equals(searchParty)) {
-                            Log.d(TAG, "Search Party Uid retrieved successfully");
-                            result.onNext(doc.getId());
-                        } else {
-                            result.onNext(null);
-                        }
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error getting search party.", e);
-                    result.onError(e);
-                }));
-    }
 
     public static void deleteAllUserSearchParties(String userUid) {
         FirebaseFirestore.getInstance().collection("searchParties").whereEqualTo("ownerUid", userUid).get()
@@ -201,42 +177,42 @@ public class FirebaseUtils {
     }
 
     public static Observable<SearchParty> getSearchPartyUpdates(SearchParty searchParty) {
+        if (searchParty != null) {
+            ACTIVE_SEARCH_PARTY_LISTENER_COUNTER = new AtomicInteger(0);
+
+            CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
+
+            Query searchPartiesQuery = searchPartiesRef
+                    .whereEqualTo("locationId", searchParty.getLocationId())
+                    .whereEqualTo("ownerUid", searchParty.getOwnerUid())
+                    .whereEqualTo("timestampCreated", searchParty.getTimestampCreated());
 
 
-        ACTIVE_SEARCH_PARTY_LISTENER_COUNTER = new AtomicInteger(0);
-
-        CollectionReference searchPartiesRef = FirebaseFirestore.getInstance().collection("searchParties");
-
-        Query searchPartiesQuery = searchPartiesRef
-                .whereEqualTo("locationId", searchParty.getLocationId())
-                .whereEqualTo("ownerUid", searchParty.getOwnerUid())
-                .whereEqualTo("timestampCreated", searchParty.getTimestampCreated());
-
-
-        return Observable.create(result -> searchPartiesQuery.addSnapshotListener((snapshot, e) -> {
-            ACTIVE_SEARCH_PARTY_LISTENER_COUNTER.getAndIncrement();
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e);
-                result.onError(e);
-                return;
-            }
-            if (snapshot != null && !snapshot.isEmpty()) {
-                for (DocumentSnapshot doc : snapshot.getDocuments()) {
-                    SearchParty i = doc.toObject(SearchParty.class);
-                    if (Objects.requireNonNull(i).equals(searchParty)) {
-                        Log.d(TAG, "Search Party getSearchPartyUpdates successful");
-                        result.onNext(i);
-                    }
+            return Observable.create(result -> searchPartiesQuery.addSnapshotListener((snapshot, e) -> {
+                ACTIVE_SEARCH_PARTY_LISTENER_COUNTER.getAndIncrement();
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e);
+                    result.onError(e);
+                    return;
                 }
-                Log.d(TAG, "Current data: " + snapshot);
+                if (snapshot != null && !snapshot.isEmpty()) {
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        SearchParty i = doc.toObject(SearchParty.class);
+                        if (Objects.requireNonNull(i).equals(searchParty)) {
+                            Log.d(TAG, "Search Party getSearchPartyUpdates successful");
+                            result.onNext(i);
+                        }
+                    }
+                    Log.d(TAG, "Current data: " + snapshot);
 
-            } else {
-                Log.d(TAG, "Current data: null");
-            }
-        }));
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }));
 
+        }
+        return null;
     }
-
 }
 
 

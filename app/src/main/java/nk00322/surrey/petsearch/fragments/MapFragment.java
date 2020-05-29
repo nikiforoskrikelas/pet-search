@@ -24,6 +24,9 @@ import android.widget.ListAdapter;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.functions.FirebaseFunctions;
 
 import com.example.petsearch.R;
 import com.google.android.gms.common.api.Status;
@@ -50,6 +53,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -75,8 +79,8 @@ import uk.co.mgbramwell.geofire.android.listeners.SetLocationListener;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
+import static nk00322.surrey.petsearch.CloudFunctions.sendNotification;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getSearchPartyUpdates;
-import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUidFromSearchParty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserSubscriptions;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.checkPermission;
@@ -121,6 +125,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
     private List<Marker> markerList = new ArrayList<>();
     boolean addAreaActive = false;
     private boolean isHelpActive = false;
+    private FirebaseFunctions mFunctions;
 
     public MapFragment() {
     }
@@ -187,14 +192,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
         sightingFab.setOnClickListener(this);
         areaFab.setOnClickListener(this);
         help_fab.setOnClickListener(this);
+
+        mFunctions = FirebaseFunctions.getInstance();
         return view;
     }
 
     private void listenForActiveSearchPartyUpdates(SearchParty searchParty) {
         Observable<SearchParty> activeSearchPartyObservable = getSearchPartyUpdates(searchParty);
-        activeSearchPartyDisposable = activeSearchPartyObservable.subscribe( // get user subscriptions to populate spinner
-                this::updateMapWith,
-                throwable -> Log.i(TAG, "Throwable " + throwable));
+        if (activeSearchPartyObservable != null) {
+            activeSearchPartyDisposable = activeSearchPartyObservable.subscribe( // get user subscriptions to populate spinner
+                    this::updateMapWith,
+                    throwable -> Log.i(TAG, "Throwable " + throwable));
+        }
     }
 
     @Override
@@ -250,35 +259,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
 
                 LatLng placeLocation = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude); // get place coordinates
                 if (activeSearchParty != null) {
-                    Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
-                    disposables.add(searchPartyUidObservable.subscribe( // get db reference for current search party
-                            id -> {
-                                Sighting newSighting = new Sighting(new Timestamp(new Date()),
-                                        place.getLatLng().latitude, place.getLatLng().longitude, place.getName());
+                    Sighting newSighting = new Sighting(new Timestamp(new Date()),
+                            place.getLatLng().latitude, place.getLatLng().longitude, place.getName());
 
-                                FirebaseFirestore.getInstance().collection("searchParties")
-                                        .document(id)
-                                        .update("sightings", FieldValue.arrayUnion(newSighting)); // update sightings array with new sighting
+                    FirebaseFirestore.getInstance().collection("searchParties")
+                            .document(activeSearchParty.getId())
+                            .update("sightings", FieldValue.arrayUnion(newSighting)); // update sightings array with new sighting
 
-                                //also update sightings locally
-                                subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSightings(newSighting);
+                    //also update sightings locally
+                    subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSightings(newSighting);
 
-                                //update the ui with new search party
-                                ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
-                                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-                                spinner.setPrompt("Track a Search Party");
+                    //update the ui with new search party
+                    ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
+                    adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                    spinner.setPrompt("Track a Search Party");
 
-                                spinner.setAdapter(
-                                        new NothingSelectedSpinnerAdapter(
-                                                adapter,
-                                                R.layout.contact_spinner_row_nothing_selected,
-                                                getContext()));
-                                int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
-                                if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
-                                    spinner.setSelection(position);
+                    spinner.setAdapter(
+                            new NothingSelectedSpinnerAdapter(
+                                    adapter,
+                                    R.layout.contact_spinner_row_nothing_selected,
+                                    getContext()));
+                    int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                    if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                        spinner.setSelection(position);
 
-                            },
-                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
 
                     // place marker on sighting coordinates
                     Marker placeMarker = googleMap.addMarker(new MarkerOptions().position(placeLocation)
@@ -384,35 +388,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
             if (!latLngList.isEmpty() && latLngList.size() > 2) { // Polygon is required to have more than 2 vertices
                 //Save searched area
                 if (activeSearchParty != null) {
-                    Observable<String> searchPartyUidObservable = getUidFromSearchParty(activeSearchParty);
-                    disposables.add(searchPartyUidObservable.subscribe( // Retrieve active search party and save searched area
-                            id -> {
-                                SearchedArea searchedArea = new SearchedArea(latLngList, new Timestamp(new Date()), currentUser.getUid());
 
-                                FirebaseFirestore.getInstance().collection("searchParties")
-                                        .document(id)
-                                        .update("searchedAreas", FieldValue.arrayUnion(searchedArea));
+                    SearchedArea searchedArea = new SearchedArea(latLngList, new Timestamp(new Date()), currentUser.getUid());
 
-                                //also update locally
-                                subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSearchedAreas(searchedArea);
+                    FirebaseFirestore.getInstance().collection("searchParties")
+                            .document(activeSearchParty.getId())
+                            .update("searchedAreas", FieldValue.arrayUnion(searchedArea));
 
-                                ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
-                                adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-                                spinner.setPrompt("Track a Search Party");
+                    //also update locally
+                    subscribedSearchParties.get(subscribedSearchParties.indexOf(activeSearchParty)).addToSearchedAreas(searchedArea);
 
-                                spinner.setAdapter(
-                                        new NothingSelectedSpinnerAdapter(
-                                                adapter,
-                                                R.layout.contact_spinner_row_nothing_selected,
-                                                getContext()));
-                                int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
-                                if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
-                                    spinner.setSelection(position);
-                                latLngList.clear();
-                            },
-                            throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
+                    ArrayAdapter<SearchParty> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_dropdown_item, subscribedSearchParties);
+                    adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+                    spinner.setPrompt("Track a Search Party");
+
+                    spinner.setAdapter(
+                            new NothingSelectedSpinnerAdapter(
+                                    adapter,
+                                    R.layout.contact_spinner_row_nothing_selected,
+                                    getContext()));
+                    int position = getContext().getSharedPreferences(SPINNER_PREFS, MODE_PRIVATE).getInt("selectedSearchPartyPosition", -1);
+                    if (position > 0 && spinner.getAdapter().getCount() >= position + 1)
+                        spinner.setSelection(position);
+                    latLngList.clear();
+
                 }
-
 
             } else {
                 if (latLngList.size() > 0) {
@@ -420,7 +420,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, View.On
                 }
                 latLngList.clear();
             }
-
+            sendNotification(activeSearchParty.getTitle(), "A new area has been searched!", currentUser.getUid(), activeSearchParty.getId());
             addAreaActive = false;
         } else { // User wants to input a new searched area
             areaFab.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(), R.color.background_color)));

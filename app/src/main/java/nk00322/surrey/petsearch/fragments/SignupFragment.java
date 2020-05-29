@@ -180,7 +180,6 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                 Log.i(TAG, "Place: " + place.getName() + ", " + place.getId());
                 location.setText(place.getName());
                 locationId = place.getId();
-                //TODO store ID and or name or other data required to user
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 new CustomToast().showToast(getContext(), view, "Error with Google Maps", ToastType.ERROR, false);
                 Status status = Autocomplete.getStatusFromIntent(data);
@@ -259,7 +258,6 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
             //Retrieve default image from storage
             StorageReference defaultImageRef = FirebaseStorage.getInstance().getReference("profileImages").child("defaultProfile.png");
 
-
             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                     .setDisplayName(fullName.getText().toString())
                     .build();
@@ -280,7 +278,8 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
                                 SignupFragmentDirections.actionSignupFragmentToSigninFragment();
                         action.setRegisteredEmail(email.getText().toString());
                         navController.navigate(action);
-                        new CustomToast().showToast(getContext(), view, "Account created successfully", ToastType.SUCCESS, false);
+                        new CustomToast().showToast(getContext(), view, "Account created successfully",
+                                ToastType.SUCCESS, false);
                     }else{
                         FirebaseAuth.getInstance().signOut();
                         db.collection("users").document(firebaseUser.getUid()).delete();
@@ -288,7 +287,8 @@ public class SignupFragment extends Fragment implements View.OnClickListener, Va
 
 
                         navController.navigate(R.id.action_signupFragment_to_welcomeFragment);
-                        new CustomToast().showToast(getContext(), view, "Error while creating account", ToastType.ERROR, false);
+                        new CustomToast().showToast(getContext(), view, "Error while creating account",
+                                ToastType.ERROR, false);
 
                     }
 

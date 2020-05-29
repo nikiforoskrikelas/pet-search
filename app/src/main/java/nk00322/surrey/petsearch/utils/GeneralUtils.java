@@ -196,7 +196,7 @@ public class GeneralUtils {
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    public static LatLng findCentroid(List<LatLng> points) {
+    private static LatLng findCentroid(List<LatLng> points) {
         double x = 0;
         double y = 0;
 
@@ -209,8 +209,6 @@ public class GeneralUtils {
     }
 
     public static List<LatLng> sortVertices(List<LatLng> points) {
-
-
         LatLng center = findCentroid(points);
         Collections.sort(points, (a, b) -> {
             double a1 = (Math.toDegrees(Math.atan2(a.longitude - center.longitude, a.latitude - center.latitude)) + 360) % 360;
