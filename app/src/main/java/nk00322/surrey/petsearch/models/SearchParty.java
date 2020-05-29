@@ -1,6 +1,7 @@
 package nk00322.surrey.petsearch.models;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class SearchParty {
     private boolean completed;
     private ArrayList<Sighting> sightings;
     private ArrayList<SearchedArea> searchedAreas;
-
+    private String id;
     public SearchParty() {
         // Default constructor required for calls to DataSnapshot.getValue(SearchParty.class)
     }
@@ -150,5 +151,8 @@ public class SearchParty {
     public void addToSearchedAreas(SearchedArea searchedArea) {
         this.searchedAreas.add(searchedArea);
     }
+
+    public String getId() { return id; }
+
 
 }

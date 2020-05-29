@@ -15,6 +15,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -38,6 +39,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -52,7 +54,6 @@ import nk00322.surrey.petsearch.models.SearchParty;
 import nk00322.surrey.petsearch.models.User;
 
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.deleteSearchPartyWithId;
-import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUidFromSearchParty;
 import static nk00322.surrey.petsearch.utils.FirebaseUtils.getUserFromId;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.checkPermission;
 import static nk00322.surrey.petsearch.utils.GeneralUtils.getDistanceInKilometers;
@@ -72,7 +73,6 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
     private CustomMapView mMapView;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     private View view;
-    private String currentSearchPartyId;
 
     public FullscreenDisplaySearchParty(SearchParty searchParty, String currentUserUid) {
         this.searchParty = searchParty;
@@ -115,15 +115,10 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
         disposables.add(userObservable.subscribe(
                 user -> owner.setText(user.getFullName()),
                 throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
-        Observable<String> searchPartyUidObservable = getUidFromSearchParty(searchParty);
-        disposables.add(searchPartyUidObservable.subscribe(
-                id -> {
-                    currentSearchPartyId = id;
-                    subscribeCheckbox.setOnClickListener(this);
-                    deleteAction.setOnClickListener(this);
-                    completedCheckbox.setOnClickListener(this);
-                },
-                throwable -> Log.i(TAG, "Throwable " + throwable.getMessage())));
+
+        subscribeCheckbox.setOnClickListener(this);
+        deleteAction.setOnClickListener(this);
+        completedCheckbox.setOnClickListener(this);
 
 
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
@@ -236,13 +231,25 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                 break;
             case R.id.search_party_subscribed:
                 if (subscribeCheckbox.isChecked()) {
-                    searchPartiesRef.document(currentSearchPartyId).update("subscriberUids", FieldValue.arrayUnion(currentUserUid));
+                    searchPartiesRef.document(searchParty.getId()).update("subscriberUids", FieldValue.arrayUnion(currentUserUid));
                     searchParty.getSubscriberUids().add(currentUserUid); // mirror db changes to local search party in case the user tries to subscribe again
                     subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
+
+                    FirebaseMessaging.getInstance().subscribeToTopic(searchParty.getId());
                 } else {
-                    searchPartiesRef.document(currentSearchPartyId).update("subscriberUids", FieldValue.arrayRemove(currentUserUid));
+                    searchPartiesRef.document(searchParty.getId()).update("subscriberUids", FieldValue.arrayRemove(currentUserUid));
                     searchParty.getSubscriberUids().remove(currentUserUid);
                     subscriberCount.setText("[" + searchParty.getSubscriberUids().size() + "]");
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic(searchParty.getId())
+                            .addOnCompleteListener(task -> {
+                                String msg = "SUCCESS UNSUBSCRIBE";
+                                if (!task.isSuccessful()) {
+                                    msg = "ERROR UNSUBSCRIBE";
+                                }
+                                Log.d(TAG, msg);
+                                Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
+                            });
+
                 }
                 break;
             case R.id.search_party_delete_action:
@@ -250,10 +257,10 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                 break;
             case R.id.search_party_completed_checkbox:
                 if (completedCheckbox.isChecked()) {
-                    searchPartiesRef.document(currentSearchPartyId).update("completed", true);
+                    searchPartiesRef.document(searchParty.getId()).update("completed", true);
                     searchParty.setCompleted(true); // mirror db changes to local search party in case the user tries action again
                 } else {
-                    searchPartiesRef.document(currentSearchPartyId).update("completed", false);
+                    searchPartiesRef.document(searchParty.getId()).update("completed", false);
                     searchParty.setCompleted(false);
                 }
                 break;
@@ -278,7 +285,7 @@ public class FullscreenDisplaySearchParty extends DialogFragment implements View
                         user.reauthenticate(credential)
                                 .addOnCompleteListener(reauthorizeTask -> {
                                     if (reauthorizeTask.isSuccessful()) {
-                                        Observable<Boolean> searchPartyDeleteObservable = deleteSearchPartyWithId(currentSearchPartyId);
+                                        Observable<Boolean> searchPartyDeleteObservable = deleteSearchPartyWithId(searchParty.getId());
                                         disposables.add(searchPartyDeleteObservable.subscribe(dataDeleteResult -> {
                                             if (dataDeleteResult != null && dataDeleteResult) {
                                                 dismiss();

@@ -141,9 +141,8 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
     }
 
     private void setupRecyclerView() {
-
-        Query query = FirebaseFirestore.getInstance().collection("searchParties").orderBy("timestampCreated", Query.Direction.DESCENDING);
-
+        Query query = FirebaseFirestore.getInstance().collection("searchParties")
+                .orderBy("timestampCreated", Query.Direction.DESCENDING);
 
         FirestoreRecyclerOptions<SearchParty> options = new FirestoreRecyclerOptions.Builder<SearchParty>()
                 .setQuery(query, SearchParty.class)
@@ -337,7 +336,7 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
                             GeoFire geoFire = new GeoFire(FirebaseFirestore.getInstance().collection("searchParties"));
                             QueryLocation queryLocation = QueryLocation.fromDegrees(userLatitude, userLongitude);
                             Distance searchDistance = new Distance(distanceSlider.getValue(), DistanceUnit.KILOMETERS); //set by user
-                            geoFire.query() //todo change api ? This isn't that accurate
+                            geoFire.query()
                                     .whereNearTo(queryLocation, searchDistance)
                                     .build()
                                     .get()
@@ -345,13 +344,13 @@ public class SearchPartiesFragment extends Fragment implements View.OnClickListe
                                         if (task.isSuccessful()) {
                                             Log.i("DB", "Got Documents.");
                                             QuerySnapshot document = task.getResult();
-                                            ObservableSnapshotArray<SearchParty> snapshotArray = new ObservableSnapshotArray<SearchParty>(snapshot -> snapshot.toObject(SearchParty.class)) {
+                                            ObservableSnapshotArray<SearchParty> snapshotArray = new ObservableSnapshotArray<SearchParty>
+                                                    (snapshot -> snapshot.toObject(SearchParty.class)) {
                                                 @NonNull
                                                 @Override
                                                 protected List<DocumentSnapshot> getSnapshots() {
                                                     //Already filtered by geoFire query to only show within the set distance
                                                     List<DocumentSnapshot> filteredList = document.getDocuments();
-
                                                     switch (sortRadioGroup.getCheckedRadioButtonId()) {
                                                         case R.id.newest_radio:
                                                             filteredList.sort(getCreationDateComparator().reversed());
